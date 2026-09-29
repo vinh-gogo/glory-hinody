@@ -94,3 +94,31 @@
   })();
 </script>
 {{- end }}
+
+{{- if or .Params.math (eq .Kind "page") }}
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous" onload="renderKatexMath()"></script>
+<script>
+  function renderKatexMath() {
+    if (typeof renderMathInElement !== "function") return;
+    var target = document.querySelector('.post-content') || document.querySelector('.main');
+    if (!target) return;
+    renderMathInElement(target, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\(', right: '\\)', display: false},
+        {left: '\\[', right: '\\]', display: true}
+      ],
+      ignoredClasses: ["mermaid", "highlight", "no-math", "copy-code"],
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code", "option", "svg"],
+      throwOnError: false
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener("DOMContentLoaded", renderKatexMath);
+  } else {
+    renderKatexMath();
+  }
+</script>
+{{- end }}

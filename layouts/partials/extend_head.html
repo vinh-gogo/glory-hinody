@@ -17,3 +17,14 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="{{ $ogImage }}">
 {{- end }}
+
+{{- if or .Params.math (eq .Kind "page") }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<style>
+  .katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.5em 0;
+  }
+</style>
+{{- end }}

@@ -58,3 +58,18 @@ menu:
     - { name: "CHỦ ĐỀ", url: "/tags/", weight: 2 }
     - { name: "TÌM KIẾM", url: "/search/", weight: 3 }
     - { name: "TÁC GIẢ", url: "/about/", weight: 4 }
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+    extensions:
+      passthrough:
+        enable: true
+        delimiters:
+          block:
+            - ["\\[", "\\]"]
+            - ["$$", "$$"]
+          inline:
+            - ["\\(", "\\)"]
+            - ["$", "$"]
