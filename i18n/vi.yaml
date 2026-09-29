@@ -1,0 +1,9 @@
+- id: read_time
+  translation:
+    one: "dành {{ . }} phút để đọc"
+    other: "dành {{ . }} phút để đọc"
+
+- id: words
+  translation:
+    one: "{{ . }} từ"
+    other: "{{ . }} từ"

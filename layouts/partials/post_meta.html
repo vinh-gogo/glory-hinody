@@ -1,0 +1,22 @@
+{{- $scratch := newScratch }}
+
+{{- if not .Date.IsZero -}}
+{{- $scratch.Add "meta" (slice (printf "<span title='%s'>%s</span>" (.Date) (.Date | time.Format (default "January 2, 2006" .Site.Params.DateFormat)))) }}
+{{- end }}
+
+{{- if (.Param "ShowReadingTime") -}}
+{{- $scratch.Add "meta" (slice (i18n "read_time" .ReadingTime | default (printf "dành %d phút để đọc" .ReadingTime))) }}
+{{- end }}
+
+{{- with (.Param "tags") -}}
+  {{- $tagLinks := slice }}
+  {{- range . }}
+    {{- $tagLinks = $tagLinks | append (printf "<a href='/tags/%s/' style='background:var(--tertiary);padding:2px 8px;border-radius:4px;font-size:0.8em;text-decoration:none;margin-right:4px'>%s</a>" (. | urlize) .) }}
+  {{- end }}
+  {{- $scratch.Add "meta" (slice (printf "🏷 %s" (delimit $tagLinks ""))) }}
+{{- end }}
+
+{{- $meta := $scratch.Get "meta" }}
+{{- if $meta }}
+{{- delimit $meta "&nbsp;·&nbsp;" | safeHTML }}
+{{- end -}}
