@@ -48,8 +48,13 @@ glory-hinody/
 ├── DEV.GUIDE.md                  # File này
 ├── cv.pdf                        # CV gốc — nguồn các bài viết kỹ thuật
 │
+├── assets/
+│   └── css/extended/
+│       └── custom.css            # ← CSS tùy biến toàn diện (glassmorphism, typography, cards, tags)
+│
 ├── content/
 │   ├── about.md                  # Trang Giới thiệu
+│   ├── search.md                 # Trang Tìm kiếm client-side (Fuse.js)
 │   └── posts/
 │       ├── bai-viet-dau-tien.md              # Hướng dẫn xây blog (bài đầu)
 │       ├── openvideolab-video-diffusion.md   # Generative AI
@@ -59,20 +64,25 @@ glory-hinody/
 │       └── quantization-int8-fp4-inference.md # Optimization
 │
 ├── layouts/
+│   ├── list.html                 # Override: Thêm thanh lọc chủ đề (Pill Navigation)
 │   └── partials/
-│       ├── comments.html         # Giscus embed (repo-id + category-id đã điền sẵn)
+│       ├── comments.html         # Giscus embed container
+│       ├── extend_head.html      # Google Fonts (Plus Jakarta Sans, JetBrains Mono)
+│       ├── extend_post_content.html # Author Bio Box cuối mỗi bài viết
+│       ├── extend_footer.html    # Inject blog-stats.js
+│       ├── home_info.html        # Hero Banner trang chủ (Profile, CTA buttons, Social)
 │       ├── post_meta.html        # Override: Date · ReadTime · Tags · Stats
-│       └── extend_footer.html   # Inject blog-stats.js vào mọi trang
+│       └── share_icons.html      # Social share + nút Copy link / Web Share
 │
 ├── static/
 │   └── js/
-│       └── blog-stats.js        # Engine đếm like/comment/share (localStorage)
+│       └── blog-stats.js         # Engine đếm like/comment/share + copy link feedback
 │
 ├── i18n/
-│   └── vi.yaml                  # Override text: "dành X phút để đọc"
+│   └── vi.yaml                   # Override text: "dành X phút để đọc"
 │
 └── themes/
-    └── PaperMod/                # Git submodule — KHÔNG sửa trực tiếp
+    └── PaperMod/                 # Git submodule — KHÔNG sửa trực tiếp
 ```
 
 ---

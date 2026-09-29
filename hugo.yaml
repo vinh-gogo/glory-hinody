@@ -4,19 +4,57 @@ defaultContentLanguage: vi
 title: "Glory Hinody"
 theme: PaperMod
 
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON
+
 params:
-  description: "Mô tả ngắn về blog"
-  defaultTheme: auto        # tự theo sáng/tối của thiết bị
+  env: production
+  title: "Glory Hinody"
+  description: "Blog cá nhân của Lê Quang Vinh — AI Engineer. Chuyên sâu về Generative AI, AI Agentic RAG, On-Device AI và Kiến trúc phần mềm."
+  keywords: ["AI Engineer", "Generative AI", "Video Diffusion", "GraphRAG", "On-Device AI", "Lê Quang Vinh", "PaperMod"]
+  author: "Lê Quang Vinh"
+  defaultTheme: auto
   ShowReadingTime: true
-  ShowShareButtons: true    # nút chia sẻ
-  comments: true            # bật khung bình luận
-  ShareButtons: ["facebook", "twitter", "telegram", "whatsapp", "linkedin"]
+  ShowShareButtons: true
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowWordCount: false
+  ShowRssButtonInSectionTermList: true
+  comments: true
+  ShareButtons: ["facebook", "linkedin", "telegram", "x"]
+
+  homeInfoParams:
+    Title: "Xin chào, tôi là Lê Quang Vinh 👋"
+    Content: "Kỹ sư AI chuyên sâu về Generative AI, AI Agentic RAG và On-Device AI."
+    AlignSocialIconsTo: left
+
+  socialIcons:
+    - name: "github"
+      url: "https://github.com/vinh-gogo"
+      title: "GitHub"
+    - name: "linkedin"
+      url: "https://linkedin.com/in/quangvinh2302"
+      title: "LinkedIn"
+    - name: "email"
+      url: "mailto:lea26462@gmail.com"
+      title: "Email"
+
+  fuseOpts:
+    isCaseSensitive: false
+    shouldSort: true
+    location: 0
+    distance: 1000
+    threshold: 0.4
+    minMatchCharLength: 2
+    keys: ["title", "permalink", "summary", "content"]
 
 menu:
   main:
-    - { name: "Bài viết", url: "/posts/", weight: 1 }
-    - { name: "Generative AI", url: "/tags/generative-ai/", weight: 2 }
-    - { name: "AI Agentic", url: "/tags/agentic-rag/", weight: 3 }
-    - { name: "On-Device AI", url: "/tags/on-device-ai/", weight: 4 }
-    - { name: "Dự án", url: "/tags/du-an/", weight: 5 }
-    - { name: "Giới thiệu", url: "/about/", weight: 6 }
+    - { name: "📝 Bài viết", url: "/posts/", weight: 1 }
+    - { name: "🏷️ Chủ đề", url: "/tags/", weight: 2 }
+    - { name: "🔍 Tìm kiếm", url: "/search/", weight: 3 }
+    - { name: "👤 Giới thiệu", url: "/about/", weight: 4 }
