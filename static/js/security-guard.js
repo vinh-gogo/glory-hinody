@@ -199,23 +199,25 @@
       var directive = e.violatedDirective || '';
       var source    = e.sourceFile   || '';
 
-      /* Bỏ qua tất cả: translate domains, inline, eval, data, rỗng */
+      /* Bỏ qua: translate domains, inline, eval, data, chrome-extension, about, rỗng */
       if (isTranslateHost(blocked)) return;
       if (!blocked || blocked === '' || blocked === 'about') return;
-
-      /* Bỏ qua nếu nguồn vi phạm là từ translate script */
+      if (/^(chrome-extension|moz-extension|safari-extension):\/\//.test(blocked)) return;
       if (source && isTranslateHost(source)) return;
 
-      /* Chỉ log, không trigger banner từ CSP */
+      /* ── Chỉ LOG, KHÔNG bao giờ hiển thị banner từ CSP violations ──
+       * Lý do: CSP đã block content ở browser level rồi.
+       * Banner từ CSP chỉ gây false alarm cho user bình thường.
+       * Violations từ Giscus, Fonts, Translate vẫn slip qua filter
+       * dù đã whitelist → banner unreliable, hại nhiều hơn lợi.
+       * Tấn công thật được phát hiện qua DOM monitor (script inject).
+       * ────────────────────────────────────────────────────────── */
       _pageCSPCount++;
       logOnly('CSP_VIOLATION', blocked + ' [' + directive + '] src=' + source);
-
-      /* Banner chỉ khi số lượng lớn bất thường trên 1 trang */
-      if (_pageCSPCount >= CSP_PAGE_THRESHOLD) {
-        showSecurityBanner('csp-violation×' + _pageCSPCount);
-      }
+      /* Không gọi showSecurityBanner() từ đây */
     });
   }
+
 
   /* ══════════════════════════════════════════════════════════
    * 8. HTML INTEGRITY CHECK
