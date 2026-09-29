@@ -1,4 +1,4 @@
-baseURL: "https://glory-hinody.pages.dev/"   # sẽ đổi khi có tên miền riêng
+baseURL: "https://glory-hinody.lea26462.workers.dev/"
 locale: vi
 defaultContentLanguage: vi
 title: "Glory Hinody"
