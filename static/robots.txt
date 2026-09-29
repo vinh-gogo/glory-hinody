@@ -1,0 +1,15 @@
+# robots.txt — glory-hinody.pages.dev
+# Cập nhật: 2026-09-30
+
+User-agent: *
+Allow: /
+
+# Không cho index search index (tránh lộ toàn bộ content)
+Disallow: /index.json
+Disallow: /en/index.json
+
+# Không cho index trang 404
+Disallow: /404/
+
+# Sitemap
+Sitemap: https://glory-hinody.pages.dev/sitemap.xml
