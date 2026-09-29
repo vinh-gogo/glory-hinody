@@ -1400,14 +1400,15 @@ code, pre, kbd, samp {
 .lang-switcher {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
   font-family: var(--font-mono);
-  font-size: 0.76rem;
-  letter-spacing: 0.06em;
-  padding: 2px 6px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  padding: 2px 4px;
   border-radius: 4px;
   background: var(--entry);
   border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   user-select: none;
   vertical-align: middle;
 }
@@ -1420,55 +1421,105 @@ code, pre, kbd, samp {
   font-size: inherit;
   font-weight: 600;
   cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 2px;
-  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 3px;
+  line-height: 1.2;
   transition: all 0.15s ease;
 }
 
 .lang-btn:hover {
   color: var(--text);
+  background: var(--tertiary);
 }
 
 .lang-btn.active {
-  color: var(--accent);
+  color: var(--accent-contrast, #090b0e) !important;
+  background: var(--accent) !important;
   font-weight: 700;
-  text-shadow: 0 0 6px var(--accent-dim);
 }
 
 .lang-slash {
   color: var(--border);
-  font-size: 0.7rem;
-  opacity: 0.7;
+  font-size: 0.65rem;
+  opacity: 0.6;
+  margin: 0 1px;
 }
 
-/* Hide Google Translate top banner, toolbar, tooltips, and prevent top displacement */
+/* 100% Suppression of ALL Google Translate injected banners, panels, iframes and popups */
+iframe[class*="skiptranslate"],
+iframe.goog-te-banner-frame,
+iframe[id^=":"],
 .goog-te-banner-frame,
-.goog-te-banner-frame.skiptranslate,
-#goog-gt-tt,
 .goog-te-balloon-frame,
+#goog-gt-tt,
+#goog-gt-vt,
 .goog-tooltip,
-.goog-tooltip:hover {
+.goog-tooltip:hover,
+[class*="VIpgJd-"],
+.skiptranslate:not(.lang-switcher),
+div[id*="google_translate"] iframe {
   display: none !important;
   visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  max-height: 0 !important;
+  max-width: 0 !important;
+  border: none !important;
+  position: fixed !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  z-index: -999999 !important;
 }
 
-body {
+html, body {
   top: 0px !important;
   position: static !important;
 }
 
-#google_translate_element {
-  display: none !important;
+/* Eliminate hover highlight and background shift */
+.goog-text-highlight {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  cursor: inherit !important;
 }
 
-iframe.goog-te-banner-frame {
-  display: none !important;
-}
-
-/* Prevent Google Translate from adding awkward font styling or backgrounds */
 font {
   background-color: transparent !important;
   box-shadow: none !important;
+}
+
+/* Minimalist Terminal Toast for Language Switch Feedback */
+.terminal-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--entry);
+  color: var(--text);
+  border: 1px solid var(--accent);
+  padding: 8px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  z-index: 999999;
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.terminal-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.terminal-toast .toast-prefix {
+  color: var(--accent);
+  margin-right: 6px;
 }
 
