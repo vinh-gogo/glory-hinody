@@ -1499,7 +1499,9 @@ code, pre, kbd, samp {
   margin: 0 1px;
 }
 
-/* Hide Google Translate offscreen so it initializes and stays interactive without visual artifacts */
+/* ── Google Translate: ẩn hoàn toàn mọi UI inject ──────────────── */
+
+/* Widget container: ẩn khỏi viewport nhưng vẫn init được */
 .google-translate-hidden,
 #google_translate_element {
   position: fixed !important;
@@ -1511,35 +1513,65 @@ code, pre, kbd, samp {
   opacity: 0 !important;
   pointer-events: none !important;
   z-index: -9999 !important;
+  clip: rect(0,0,0,0) !important;
 }
 
-/* Hide top banner frame and prevent page top displacement */
+/* ── Block TOÀN BỘ banner / toolbar translate ─────────────────── */
+/* Selector bao quát nhất có thể — Google thỉnh thoảng đổi class */
 iframe.goog-te-banner-frame,
+iframe[id^="goog-gt-"],
+iframe[class*="goog-te-"],
+iframe[class*="VIpgJd-"],
 .goog-te-banner-frame,
-.VIpgJd-ZVi9od-xl07Ob-OEVmcd {
+.VIpgJd-ZVi9od-xl07Ob-OEVmcd,
+.VIpgJd-ZVi9od-xl07Ob,
+[class*="VIpgJd-ZVi9od"] {
   display: none !important;
   visibility: hidden !important;
   height: 0 !important;
   max-height: 0 !important;
-}
-
-html, body {
-  top: 0px !important;
-  position: static !important;
-}
-
-/* Hide hover popups, balloons, and tooltips */
-#goog-gt-tt,
-#goog-gt-vt,
-.goog-te-balloon-frame,
-.goog-tooltip,
-.goog-tooltip:hover {
-  display: none !important;
-  visibility: hidden !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0 !important;
   pointer-events: none !important;
 }
 
-/* Eliminate hover highlight and background shift */
+/* ── Chặn body/html bị push xuống bởi translate ──────────────── */
+html,
+body {
+  top: 0 !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Translate thêm position:relative vào body → undo */
+body.translated-ltr,
+body.translated-rtl,
+body[style*="top:"],
+body[style*="top :"] {
+  top: 0 !important;
+  position: static !important;
+}
+
+/* ── Ẩn popup, balloon, tooltip khi hover ────────────────────── */
+#goog-gt-tt,
+#goog-gt-vt,
+.goog-te-balloon-frame,
+.goog-te-ftab-frame,
+.goog-tooltip,
+.goog-tooltip:hover,
+[class*="goog-te-balloon"],
+[class*="goog-te-ftab"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+/* ── Loại bỏ hiệu ứng highlight khi hover vào text đã dịch ──── */
 .goog-text-highlight {
   background: transparent !important;
   box-shadow: none !important;
@@ -1547,6 +1579,7 @@ html, body {
   cursor: inherit !important;
 }
 
+/* Google Translate wrap text trong <font> tag */
 font {
   background-color: transparent !important;
   box-shadow: none !important;
