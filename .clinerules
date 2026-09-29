@@ -1,0 +1,160 @@
+# .clinerules — Glory Hinody Project Intelligence
+
+## Critical Rules (KHÔNG được vi phạm)
+
+### 1. NEVER edit theme files trực tiếp
+```
+❌ themes/PaperMod/layouts/...
+✅ layouts/partials/...          ← override ở đây
+✅ layouts/partials/templates/... ← cho _partials/templates/
+✅ layouts/rss.xml               ← cho top-level templates
+```
+
+### 2. `unsafe: true` trong goldmark — KHÔNG thay đổi
+KaTeX cần raw HTML trong Markdown. Thay đổi sẽ làm vỡ math rendering.
+
+### 3. `'unsafe-inline'` trong CSP — KHÔNG xoá
+Google Translate dùng inline onclick handlers. Xoá sẽ làm vỡ language switching.
+
+### 4. Language switching chỉ dùng cookie + reload
+```javascript
+// ✅ ĐÚNG — simple, reliable
+window.switchLanguage = function(lang) {
+  setGoogCookie('/vi/en');
+  location.reload();
+};
+
+// ❌ SAI — gây infinite reload loop
+function applyEnglish() {
+  setInterval(() => {
+    if (!document.querySelector('.goog-te-combo')) location.reload(); // BUG!
+  }, 100);
+}
+```
+
+### 5. MutationObserver watchBodyTop() chỉ fix body.top
+```javascript
+// ✅ ĐÚNG
+var mo = new MutationObserver(function() {
+  if (body.style.top !== '0px') body.style.setProperty('top', '0', 'important');
+  // KHÔNG gọi gì khác
+});
+
+// ❌ SAI — gọi suppressBanner trong MO phá Google Translate init
+var mo = new MutationObserver(function() {
+  fixBodyTop();
+  suppressBanner(); // ← phá vỡ .goog-te-combo creation
+});
+```
+
+---
+
+## Learned Patterns
+
+### Build Health
+```powershell
+hugo --minify 2>&1
+# Target: Pages 55, Warnings 0, Errors 0, ~120ms
+```
+Nếu `exit code 1` nhưng có output pages → là PowerShell stderr false alarm, không phải lỗi thật.
+
+### Commit Format
+```
+type(scope): mô tả ngắn
+
+Chi tiết dài hơn nếu cần.
+
+- Bullet point thay đổi cụ thể
+```
+Types: `feat`, `fix`, `security`, `docs`, `style`, `refactor`
+
+### PR Workflow
+```powershell
+git add -A
+git commit -m "..."
+git push                              # push to dev
+gh pr create --base main --head dev \
+  --title "..." \
+  --body-file path/to/body.md        # dùng body-file tránh escape hell
+```
+**Lưu ý:** `--body` với PowerShell heredoc gây lỗi "missing terminator". Luôn dùng `--body-file`.
+
+### Theme Override Lookup (Hugo)
+```
+layouts/partials/<name>.html           ← override cho partials/
+layouts/partials/templates/<name>.html ← override cho _partials/templates/
+layouts/<name>.xml                     ← override cho root templates (rss.xml, etc.)
+```
+
+---
+
+## Project-Specific Patterns
+
+### Google Translate Integration
+- Widget div: `#google_translate_element` — hidden offscreen, vẫn init
+- Cookie: `googtrans=/vi/en` (30 ngày), clear = xoá cookie
+- Banner suppression: CSS `[class*="VIpgJd-ZVi9od"]` + JS inline style
+- Hosts trusted: translate.google.com, translate.googleapis.com, www.gstatic.com, ssl.gstatic.com
+- Element markers: `goog-te-*`, `skiptranslate`, `VIpgJd-*`
+
+### Security Guard v3
+- File: `static/js/security-guard.js`
+- STORAGE KEY: `__sg_log` (log only, không trigger banner)
+- CSP threshold: 8 violations/page (in-memory, không persist)
+- Banner triggers: script từ domain lạ, eval/atob inject, IP-based resource
+- NOT triggers: CSP từ translate hosts, inline violations, cross-page accumulation
+
+### CSP Domains (phải có trong _headers)
+```
+script-src:  cdn.jsdelivr.net translate.google.com translate.googleapis.com
+             www.gstatic.com giscus.app www.googletagmanager.com
+style-src:   fonts.googleapis.com cdn.jsdelivr.net translate.googleapis.com www.gstatic.com
+font-src:    fonts.gstatic.com data:
+frame-src:   giscus.app translate.google.com translate.googleapis.com
+connect-src: giscus.app translate.googleapis.com translate.google.com
+             fonts.googleapis.com fonts.gstatic.com
+```
+
+### SRI Hashes (đừng thay đổi nếu không update version)
+```
+KaTeX CSS 0.16.11:        sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+
+KaTeX JS 0.16.11:         sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg
+KaTeX auto-render 0.16.11: sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk
+Mermaid v11:              sha384-EOXBFmc3gx5mb+vn0vPvvGqACToJD24hhacX5Yx+8NUUQrHIle/Qi5Bg9o3zKwW2
+```
+
+---
+
+## User Preferences & Workflow
+
+### Communication Style
+- Trả lời **ngắn gọn**, dùng markdown tables và code blocks
+- Giải thích **nguyên nhân** trước khi đưa ra fix
+- Commit message **song ngữ** (EN title, VI/EN body)
+- PR description **đầy đủ** với root cause, fix, và build status
+
+### Workflow Preferences
+- Luôn **build verify** sau mỗi thay đổi: `hugo --minify 2>&1`
+- Commit **granular** — mỗi commit là 1 concern rõ ràng
+- PR **ngay sau khi fix** xong và build sạch
+- **Không hỏi** về optional params — làm luôn với best practice
+
+### Decision History
+| Quyết định | Lý do | Thay thế đã bỏ |
+|---|---|---|
+| Cookie+reload cho translate | Reliable, không phụ thuộc internal DOM | Poll `.goog-te-combo` |
+| In-memory CSP counter | Không cross-page false alarm | sessionStorage counter |
+| MO chỉ fix body.top | Không phá Google Translate init | MO gọi suppressBanner |
+| `securityLevel: 'antiscript'` | Block XSS qua diagram labels | `'loose'` (XSS risk) |
+| SRI cho tất cả CDN | Supply chain protection | Không có integrity hash |
+
+---
+
+## Known Gotchas
+
+1. **`_headers` / `_redirects`** chỉ work trên Cloudflare Pages production, không phải `hugo server` local
+2. **`exit code 1`** khi build có thể là PowerShell false alarm (WARN → stderr → exit 1). Check output thật.
+3. **Hugo lookup cho `_partials`** (với underscore): override tại `layouts/partials/templates/`, không phải `layouts/_partials/templates/`
+4. **Google Translate class names** (`VIpgJd-*`) thay đổi theo phiên bản → dùng attribute selector `[class*="VIpgJd-ZVi9od"]` thay vì class cụ thể
+5. **`googtrans` cookie** cần set ĐÚNG format: `/vi/en` (không phải `/en` hay `en`)
+6. **sessionStorage** persist trong tab session → không dùng để đếm violations cross-page
