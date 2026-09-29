@@ -3,6 +3,7 @@ date: '2026-09-29T18:39:42+07:00'
 draft: false
 title: 'Hướng Dẫn Xây Dựng Blog Với Hugo + PaperMod + Cloudflare Pages'
 description: 'Hướng dẫn chi tiết từng bước xây dựng blog cá nhân miễn phí với Hugo, theme PaperMod, Cloudflare Pages và bình luận Giscus. Thời gian ước tính 2–3 giờ.'
+summary: 'Hướng dẫn chi tiết từng bước xây dựng blog cá nhân miễn phí với Hugo, theme PaperMod, Cloudflare Pages và bình luận Giscus. Thời gian ước tính 2–3 giờ.'
 tags: ["hugo", "blog", "cloudflare", "giscus", "hướng-dẫn"]
 ShowToc: true
 TocOpen: true
@@ -27,8 +28,13 @@ Bài viết này đúc kết toàn bộ quy trình thiết lập blog tĩnh vớ
 
 Anh viết bài Markdown trên máy, `git push` lên GitHub, Cloudflare tự build và đăng lên web. Bình luận và like nằm trong GitHub Discussions của chính repo đó.
 
-```
-Viết bài (.md) → git push → GitHub → Cloudflare Pages (auto build) → Blog online → Bình luận / Like (GitHub Discussions)
+```mermaid
+flowchart LR
+    A["Viết bài (.md)"] --> B["git push"]
+    B --> C["GitHub"]
+    C --> D["Cloudflare Pages (auto build)"]
+    D --> E["Blog Online"]
+    E --> F["Bình luận / Like (Giscus)"]
 ```
 
 ## Giai đoạn 0: Chuẩn bị (15 phút)

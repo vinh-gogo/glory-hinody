@@ -1,1 +1,96 @@
 <script src="/js/blog-stats.js" defer></script>
+{{- if .Store.Get "hasMermaid" }}
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    function initMermaid() {
+      if (typeof mermaid === "undefined") return;
+
+      var isDark = document.documentElement.dataset.theme === "dark" || 
+                   (!document.documentElement.dataset.theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+      document.querySelectorAll('.mermaid').forEach(function(el) {
+        if (!el.getAttribute('data-mermaid-src')) {
+          el.setAttribute('data-mermaid-src', el.textContent.trim());
+        }
+      });
+
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: 'loose',
+        theme: isDark ? 'dark' : 'neutral',
+        fontFamily: "'JetBrains Mono', 'Plus Jakarta Sans', monospace",
+        fontSize: 12,
+        flowchart: {
+          useMaxWidth: true,
+          htmlLabels: true,
+          nodeSpacing: 22,
+          rankSpacing: 26,
+          padding: 8,
+          curve: 'basis'
+        },
+        themeVariables: isDark ? {
+          fontFamily: "'JetBrains Mono', 'Plus Jakarta Sans', monospace",
+          fontSize: '12px',
+          primaryColor: '#161a22',
+          primaryTextColor: '#f0f3f6',
+          primaryBorderColor: '#c8f049',
+          lineColor: '#c8f049',
+          secondaryColor: '#11141a',
+          tertiaryColor: '#090b0e',
+          background: '#090b0e',
+          mainBkg: '#11141a',
+          nodeBorder: '#333b47',
+          clusterBkg: '#0d1015',
+          clusterBorder: '#222730'
+        } : {
+          fontFamily: "'JetBrains Mono', 'Plus Jakarta Sans', monospace",
+          fontSize: '12px',
+          primaryColor: '#ffffff',
+          primaryTextColor: '#14171a',
+          primaryBorderColor: '#15803d',
+          lineColor: '#15803d',
+          background: '#fafaf8',
+          mainBkg: '#ffffff',
+          nodeBorder: '#c8ccc0',
+          clusterBkg: '#f2f3ee',
+          clusterBorder: '#e2e4dc'
+        }
+      });
+
+      try {
+        var p = mermaid.run({ querySelector: '.mermaid' });
+        if (p && typeof p.catch === "function") {
+          p.catch(function(err) {
+            console.error("Mermaid run error:", err);
+          });
+        }
+      } catch (err) {
+        console.error("Mermaid render error:", err);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initMermaid);
+    } else {
+      initMermaid();
+    }
+
+    var themeToggle = document.getElementById("theme-toggle");
+    if (themeToggle) {
+      themeToggle.addEventListener("click", function() {
+        setTimeout(function() {
+          document.querySelectorAll('.mermaid').forEach(function(el) {
+            var src = el.getAttribute('data-mermaid-src');
+            if (src) {
+              el.innerHTML = src;
+              el.removeAttribute('data-processed');
+            }
+          });
+          initMermaid();
+        }, 60);
+      });
+    }
+  })();
+</script>
+{{- end }}

@@ -4,6 +4,7 @@ date: 2026-09-29T11:00:00+07:00
 draft: false
 tags: ["computer-vision", "du-an", "nghien-cuu"]
 description: "Công trình nghiên cứu tốt nghiệp (4.0/4.0) công bố tại Hội nghị Khoa học SSRC: Cải tiến kiến trúc U-Net, ResNet và DenseNet trong bài toán Monocular Depth Estimation và tái tạo Point Cloud 3D."
+summary: "Công trình nghiên cứu tốt nghiệp (4.0/4.0) công bố tại Hội nghị Khoa học SSRC: Cải tiến kiến trúc U-Net, ResNet và DenseNet trong bài toán Monocular Depth Estimation và tái tạo Point Cloud 3D."
 ShowToc: true
 TocOpen: true
 ---
@@ -35,30 +36,23 @@ Nghiên cứu này là đề tài khóa luận tốt nghiệp ngành Khoa học 
 
 Để giải quyết hiện tượng mất mát thông tin không gian chi tiết ở các tầng sâu, tôi thiết kế mô hình theo mô hình Encoder-Decoder với các nhánh kết nối tắt (Skip Connections) nhiều mức:
 
-```
-[Ảnh RGB 2D Đầu Vào]
-        │
-        ▼
-┌────────────────────────────────────────────────────────┐
-│ ENCODER: TRÍCH XUẤT ĐẶC TRƯNG ĐA TẦNG                 │
-│ DenseNet-161 / ResNet-50 Feature Extractor             │
-│ Dense Blocks: Tái sử dụng đặc trưng liên tầng          │
-└──────────────────────────┬─────────────────────────────┘
-                           │
-        ┌──────────────────┴──────────────────┐
-        │ Skip Connections (Kích thước lớn)   │
-        ▼                                     ▼
-┌────────────────────────────────────────────────────────┐
-│ DECODER: KHÔI PHỤC ĐỘ PHÂN GIẢI & CHIỀU SÂU            │
-│ U-Net Up-convolution Blocks + Bilinear Interpolation   │
-│ Structural Similarity Index (SSIM) Loss + L1 Depth Loss│
-└──────────────────────────┬─────────────────────────────┘
-                           │
-                           ▼
-              [Bản Đồ Độ Sâu (Depth Map)]
-                           │
-                           ▼
-            [Tái Tạo Đám Mây Điểm 3D (Point Cloud)]
+```mermaid
+flowchart TD
+    IMG["Ảnh RGB 2D Đầu Vào"] --> E1
+    
+    subgraph ENC["ENCODER: TRÍCH XUẤT ĐẶC TRƯNG"]
+        E1["DenseNet-161 / ResNet-50<br/>Dense Blocks: Tái sử dụng đặc trưng"]
+    end
+    
+    E1 -->|"Skip Connections (Multi-Scale)"| D1
+    E1 -->|"Bottleneck"| D1
+    
+    subgraph DEC["DECODER: KHÔI PHỤC CHIỀU SÂU"]
+        D1["U-Net Up-convolution Blocks<br/>Tối ưu: SSIM Loss + L1 Depth Loss"]
+    end
+    
+    D1 --> MAP["Bản Đồ Độ Sâu (16-bit)"]
+    MAP --> PC["Tái Tạo Point Cloud 3D (.ply)"]
 ```
 
 ### Hàm mất mát kết hợp (Custom Loss Function):

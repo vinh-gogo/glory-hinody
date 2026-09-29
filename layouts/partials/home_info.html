@@ -1,31 +1,14 @@
-<section class="editorial-hero">
-  <div class="hero-eyebrow">
-    <span class="terminal-prefix">~/logbook</span>
-    <span class="hero-slash">//</span>
-    <span class="hero-author">LÊ QUANG VINH</span>
-    <span class="hero-status">[RESEARCH & DEV]</span>
-  </div>
-
-  <h1 class="hero-headline">
-    ON-DEVICE AI, DIFFUSION TRANSFORMERS & AGENTIC SYSTEMS.
-  </h1>
-
-  <p class="hero-manifesto">
-    Kỹ sư AI tại TP. Hồ Chí Minh. Tốt nghiệp Khoa học Máy tính (IUH, 4.0/4.0), công bố khoa học tại hội nghị SSRC. Tập trung tối ưu hóa suy luận mô hình trên phần cứng tài nguyên giới hạn (Low-VRAM, quantization int8/fp4), Multi-Agent RAG và On-Device AI.
-  </p>
-
-  <div class="hero-actions-bar">
-    <a href="/posts/" class="editorial-btn editorial-btn-solid">
-      [ĐỌC BÀI VIẾT →]
-    </a>
-    <a href="/tags/du-an/" class="editorial-btn">
-      [DỰ ÁN TIÊU BIỂU]
-    </a>
-    <a href="https://github.com/vinh-gogo" target="_blank" rel="noopener" class="editorial-btn">
-      [GITHUB ↗]
-    </a>
-    <a href="https://linkedin.com/in/quangvinh2302" target="_blank" rel="noopener" class="editorial-btn">
-      [LINKEDIN ↗]
-    </a>
-  </div>
-</section>
+{{- with site.Params.homeInfoParams }}
+<article class="first-entry home-info">
+    <header class="entry-header">
+        <h1>{{ .Title | markdownify }}</h1>
+    </header>
+    <div class="entry-content md-content">
+        {{ $opts := dict "display" "block" }}
+        {{ .Content | $.Page.RenderString $opts }}
+    </div>
+    <footer class="entry-footer">
+        {{ partial "social_icons.html" (dict "align" site.Params.homeInfoParams.AlignSocialIconsTo) }}
+    </footer>
+</article>
+{{- end -}}

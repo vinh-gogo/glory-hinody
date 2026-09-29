@@ -4,6 +4,7 @@ date: 2026-09-29T12:00:00+07:00
 draft: false
 tags: ["on-device-ai", "du-an", "kotlin-multiplatform"]
 description: "AI Lingua – ứng dụng học ngoại ngữ đa nền tảng (iOS, Android, Desktop) tích hợp mạng nơ-ron ONNX nhận diện nét viết offline hoàn toàn (0đ chi phí API), thuật toán FSRS và LLM Fallback Chain."
+summary: "AI Lingua – ứng dụng học ngoại ngữ đa nền tảng (iOS, Android, Desktop) tích hợp mạng nơ-ron ONNX nhận diện nét viết offline hoàn toàn (0đ chi phí API), thuật toán FSRS và LLM Fallback Chain."
 ShowToc: true
 TocOpen: true
 ---
@@ -38,27 +39,21 @@ Xây dựng ứng dụng giáo dục dựa trên Cloud API gặp 3 rào cản t�
 
 Để đưa mạng nơ-ron nhận diện nét viết (Handwriting Stroke Recognition) lên cả iOS và Android mà không phải nhân đôi công sức, tôi sử dụng **Kotlin Multiplatform (KMP)**:
 
-```
-                  ┌────────────────────────────────────────┐
-                  │      COMPOSE MULTIPLATFORM UI          │
-                  │ (Single UI codebase cho iOS & Android) │
-                  └──────────────────┬─────────────────────┘
-                                     │
-                                     ▼
-                  ┌────────────────────────────────────────┐
-                  │      MVI ARCHITECTURE & VERTICAL SLICE │
-                  │ Unidirectional Data Flow, Koin DI      │
-                  └──────────────────┬─────────────────────┘
-                                     │
-            ┌────────────────────────┴────────────────────────┐
-            ▼                                                 ▼
-┌───────────────────────┐                         ┌───────────────────────┐
-│  LOCAL ONNX ENGINE    │                         │  LLM FALLBACK CHAIN   │
-│ Model: quantized int8 │                         │ Khi offline/đơn giản: │
-│ Runtime: ONNX Mobile  │                         │ → ONNX Local xử lý    │
-│ Latency: < 45ms       │                         │ Khi phân tích ngữ văn:│
-│ Cost: $0              │                         │ → Gemini Flash/Pro    │
-└───────────────────────┘                         └───────────────────────┘
+```mermaid
+flowchart TD
+    UI["Compose Multiplatform UI (iOS/Android)"] --> A1
+    
+    subgraph ARCH["MVI ARCHITECTURE"]
+        A1["Unidirectional Data Flow · Koin DI"]
+    end
+    
+    A1 -->|"Offline"| L1
+    A1 -->|"Online / Nâng cao"| C1
+    
+    subgraph ENGINES["INFERENCE ENGINES"]
+        L1["ONNX Mobile (CoreML/NNAPI)<br/>Int8 ~12MB · Độ trễ &lt; 45ms"]
+        C1["LLM Fallback (Gemini Flash)<br/>Phân tích ngữ pháp chuyên sâu"]
+    end
 ```
 
 ### Triển khai ONNX Runtime qua KMP Expect/Actual:

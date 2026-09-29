@@ -4,6 +4,7 @@ date: 2026-09-29T12:00:00+07:00
 draft: false
 tags: ["generative-ai", "du-an", "video-diffusion"]
 description: "Pipeline sinh video AI đa phương thức với LTX-2.5, MiniMax, Wan; tối ưu quantization int8/fp4 chạy ổn định trên GPU 16GB (<60s/cảnh) và nội suy mượt 48/96fps (RIFE)."
+summary: "Pipeline sinh video AI đa phương thức với LTX-2.5, MiniMax, Wan; tối ưu quantization int8/fp4 chạy ổn định trên GPU 16GB (<60s/cảnh) và nội suy mượt 48/96fps (RIFE)."
 ShowToc: true
 TocOpen: true
 ---
@@ -37,35 +38,18 @@ Các kiến trúc **Diffusion Transformers (DiT)** thế hệ mới trong xử l
 
 Để giải quyết bài toán trên mà không đánh đổi chất lượng hình ảnh, tôi thiết kế pipeline 4 tầng tối ưu:
 
-```
-[Văn bản / Ảnh tham chiếu / Audio]
-              │
-              ▼
-   ┌────────────────────────────────────────┐
-   │ TẦNG 1: ĐIỀU PHỐI ĐA PHƯƠNG THỨC       │
-   │ Text/Image-to-Video, A2V, MSR          │
-   └──────────────────┬─────────────────────┘
-                      │
-                      ▼
-   ┌────────────────────────────────────────┐
-   │ TẦNG 2: DI T CORE (QUANTIZED INT8/FP4) │
-   │ LTX-2.5 / MiniMax / Wan                │
-   │ TurboLoRA Distillation (4-8 steps)     │
-   │ VRAM peak < 14.5GB                     │
-   └──────────────────┬─────────────────────┘
-                      │ Video Raw (24fps, 720p)
-                      ▼
-   ┌────────────────────────────────────────┐
-   │ TẦNG 3: NỘI SUY CHUYỂN ĐỘNG RIFE       │
-   │ 24fps ──(RIFE 2×)──► 48fps             │
-   │ 48fps ──(RIFE 4×)──► 96fps Cinematic   │
-   └──────────────────┬─────────────────────┘
-                      │
-                      ▼
-   ┌────────────────────────────────────────┐
-   │ TẦNG 4: HẬU KỲ TỰ ĐỘNG (FFMPEG)        │
-   │ Stitching, Audio Sync, H.264/H.265     │
-   └────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    IN["Văn bản / Ảnh tham chiếu / Audio"] --> T1
+    
+    T1["<b>TẦNG 1: ĐIỀU PHỐI ĐA PHƯƠNG THỨC</b><br/>Text/Image-to-Video · Audio-to-Video (A2V) · MSR"]
+    T2["<b>TẦNG 2: DIT CORE (QUANTIZED INT8/FP4)</b><br/>LTX-2.5 / MiniMax / Wan · TurboLoRA · VRAM peak: dưới 14.5GB"]
+    T3["<b>TẦNG 3: NỘI SUY CHUYỂN ĐỘNG RIFE</b><br/>24fps — RIFE 2x ➔ 48fps · 4x ➔ 96fps Cinematic"]
+    T4["<b>TẦNG 4: HẬU KỲ TỰ ĐỘNG (FFMPEG)</b><br/>Stitching · Audio Sync · Mã hóa H.264 / H.265"]
+    
+    T1 --> T2
+    T2 -->|"Video Raw (24fps, 720p)"| T3
+    T3 --> T4
 ```
 
 ### Các tính năng cốt lõi:

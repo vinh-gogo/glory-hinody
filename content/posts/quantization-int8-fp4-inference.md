@@ -4,6 +4,7 @@ date: 2026-09-29T12:00:00+07:00
 draft: false
 tags: ["generative-ai", "on-device-ai", "optimization"]
 description: "Phân tích toán học và đo đạc thực nghiệm kỹ thuật nén lượng tử hóa Int8 và FP4 giúp chạy các mô hình Diffusion Transformer 13B–30B trên GPU 16GB không bị tràn bộ nhớ (OOM)."
+summary: "Phân tích toán học và đo đạc thực nghiệm kỹ thuật nén lượng tử hóa Int8 và FP4 giúp chạy các mô hình Diffusion Transformer 13B–30B trên GPU 16GB không bị tràn bộ nhớ (OOM)."
 ShowToc: true
 TocOpen: true
 ---

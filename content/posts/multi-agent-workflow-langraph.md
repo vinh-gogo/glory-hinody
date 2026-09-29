@@ -4,6 +4,7 @@ date: 2026-09-29T12:00:00+07:00
 draft: false
 tags: ["agentic-rag", "du-an"]
 description: "Kiến trúc Multi-Agent tự động hóa CSKH (tra cứu & xuất hóa đơn tự động) với LangGraph state machine, FastMCP tool calling và vLLM trên GPU A100, đạt 95% Hit@1 và 99% Hit@5 trên 3.200 queries."
+summary: "Kiến trúc Multi-Agent tự động hóa CSKH (tra cứu & xuất hóa đơn tự động) với LangGraph state machine, FastMCP tool calling và vLLM trên GPU A100, đạt 95% Hit@1 và 99% Hit@5 trên 3.200 queries."
 ShowToc: true
 TocOpen: true
 ---
@@ -38,33 +39,33 @@ Các chatbot bán hàng truyền thống dựa trên một prompt khổng lồ (
 
 Tôi thiết kế hệ thống theo mô hình đồ thị trạng thái (**StateGraph**) phân rã hệ thống thành các Agent chuyên biệt, độc lập:
 
-```
-                            [Khách hàng nhắn tin]
-                                      │
-                                      ▼
-                        ┌───────────────────────────┐
-                        │       ROUTER AGENT        │
-                        │ Phân loại ý định (Intent) │
-                        └─────────────┬─────────────┘
-                                      │
-            ┌─────────────────────────┼─────────────────────────┐
-            ▼                         ▼                         ▼
-┌───────────────────────┐ ┌───────────────────────┐ ┌───────────────────────┐
-│     CATALOG AGENT     │ │     INVOICE AGENT     │ │   ESCALATION AGENT    │
-│ Tra cứu thông số SP   │ │ Lập hóa đơn tự động   │ │ Chuyển tư vấn viên    │
-│ Hybrid: BM25 + Dense  │ │ Tính chiết khấu & VAT │ │ Hỗ trợ khiếu nại      │
-│ FastMCP: Qdrant/Neo4j │ │ FastMCP: PostgreSQL   │ │ Human-in-the-loop     │
-└───────────┬───────────┘ └───────────┬───────────┘ └───────────┬───────────┘
-            │                         │                         │
-            └─────────────────────────┼─────────────────────────┘
-                                      ▼
-                        ┌───────────────────────────┐
-                        │     SYNTHESIZER AGENT     │
-                        │ Tổng hợp phản hồi tự nhiên│
-                        └─────────────┬─────────────┘
-                                      │
-                                      ▼
-                            [Khách hàng nhận tin]
+```mermaid
+flowchart TD
+    USER["Khách hàng gửi yêu cầu"] --> R1
+    
+    subgraph ROUTER["ROUTER AGENT"]
+        R1["Phân loại Intent & Điều phối luồng"]
+    end
+    
+    R1 -->|"Tra cứu"| C1
+    R1 -->|"Hóa đơn"| I1
+    R1 -->|"Hỗ trợ"| E1
+    
+    subgraph WORKERS["AGENTS CHUYÊN BIỆT"]
+        C1["Catalog Agent (Search/MCP)"]
+        I1["Invoice Agent (Billing/MCP)"]
+        E1["Escalation Agent (Human-in-the-loop)"]
+    end
+    
+    C1 --> S1
+    I1 --> S1
+    E1 --> S1
+    
+    subgraph SYNTH["SYNTHESIZER AGENT"]
+        S1["Tổng hợp & Định dạng phản hồi"]
+    end
+    
+    S1 --> OUT["Khách hàng nhận kết quả"]
 ```
 
 ### Các Agent thành phần:

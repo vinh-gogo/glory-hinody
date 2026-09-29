@@ -25,7 +25,7 @@
   /* ── Trang danh sách: đọc cache và hiển thị ──────────────── */
   function initListPage() {
     var stats = load();
-    document.querySelectorAll('article.post-entry').forEach(function (article) {
+    document.querySelectorAll('article.post-entry, article.log-entry').forEach(function (article) {
       var link = article.querySelector('a.entry-link');
       if (!link) return;
       var path = new URL(link.href, location.origin).pathname;

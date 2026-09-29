@@ -4,6 +4,7 @@ date: 2026-09-29T12:00:00+07:00
 draft: false
 tags: ["agentic-rag", "du-an", "rag"]
 description: "Vượt qua giới hạn của Semantic RAG thuần túy bằng cách kết hợp Knowledge Graph (Neo4j) và Vector Search (Qdrant) trên tập tài liệu kỹ thuật >200 trang tại WETEC, đạt 95% Hit@1 và độ trễ <2s."
+summary: "Vượt qua giới hạn của Semantic RAG thuần túy bằng cách kết hợp Knowledge Graph (Neo4j) và Vector Search (Qdrant) trên tập tài liệu kỹ thuật >200 trang tại WETEC, đạt 95% Hit@1 và độ trễ <2s."
 ShowToc: true
 TocOpen: true
 ---
@@ -37,29 +38,21 @@ Khi xây dựng RAG cho tài liệu kỹ thuật dài (>200 trang), phương ph�
 
 Để khắc phục hoàn toàn, tôi thiết kế kiến trúc kết hợp **Đồ thị tri thức (Knowledge Graph)** và **Không gian vector ngữ nghĩa (Vector Space)**:
 
-```
-                      [User Query: Câu hỏi kỹ thuật]
-                                    │
-                  ┌─────────────────┴─────────────────┐
-                  ▼                                   ▼
-    [Trích xuất Thực thể (NER)]         [Tạo Vector Embedding]
-                  │                                   │
-                  ▼                                   ▼
-      [Neo4j Knowledge Graph]                 [Qdrant Vector DB]
-   Graph Traversal (Cypher Query)        Dense Semantic Similarity
-   Tìm mối quan hệ, đường đi 2-3 hops       Tìm đoạn văn mô tả chi tiết
-                  │                                   │
-                  └─────────────────┬─────────────────┘
-                                    │
-                                    ▼
-                     [Reciprocal Rank Fusion (RRF)]
-                     Hợp nhất & Rerank tri thức
-                                    │
-                                    ▼
-                         [Context-Augmented LLM]
-                                    │
-                                    ▼
-                       [Câu trả lời chính xác <2s]
+```mermaid
+flowchart TD
+    Q["User Query: Câu hỏi kỹ thuật"] --> NER["Trích xuất Thực thể (NER)"]
+    Q --> EMB["Tạo Vector Embedding"]
+    
+    subgraph RETRIEVAL["TRUY XUẤT HYBRID (GRAPH + VECTOR)"]
+        NER --> NEO["Neo4j Graph (Cypher 2–3 hops)"]
+        EMB --> QDR["Qdrant DB (Dense Similarity)"]
+    end
+    
+    NEO --> RRF["Reciprocal Rank Fusion (RRF)"]
+    QDR --> RRF
+    
+    RRF --> LLM["Context-Augmented LLM"]
+    LLM --> ANS["Câu trả lời chính xác (Độ trễ &lt; 2s)"]
 ```
 
 ### Cách thức hoạt động:
