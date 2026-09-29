@@ -1,4 +1,4 @@
-<!-- ── Security Guard: phải load trước tất cả script khác ──────── -->
+﻿<!-- ── Security Guard: phải load trước tất cả script khác ──────── -->
 <script src="/js/security-guard.js"></script>
 <script src="/js/blog-stats.js" defer></script>
 {{- if .Store.Get "hasMermaid" }}
@@ -131,209 +131,172 @@
 </script>
 {{- end }}
 
-<!-- Client-side Instant Translation Switcher (VI / EN) -->
+<!-- Client-side Language Switcher (VI / EN) via Google Translate cookie -->
 <div id="google_translate_element" class="google-translate-hidden notranslate" translate="no"></div>
 <script>
-  (function() {
+  (function () {
 
-    /* ── 1. Ẩn banner ngay khi có — chạy cực sớm ─────────────────── */
-    function suppressTranslateBanner() {
-      var selectors = [
-        'iframe.goog-te-banner-frame',
-        '.goog-te-banner-frame',
-        '.VIpgJd-ZVi9od-xl07Ob-OEVmcd',
-        '.VIpgJd-ZVi9od-xl07Ob',
-        '[class*="VIpgJd-ZVi9od"]',
-        'iframe[id^="goog-gt-"]',
-        'iframe[class*="goog-te-"]',
-        '#goog-gt-tt', '#goog-gt-vt',
-        '.goog-te-balloon-frame',
-        '.goog-te-ftab-frame'
-      ];
-      selectors.forEach(function(sel) {
+    /* ══ 1. Suppress translate UI — không ảnh hưởng tới init ════════ */
+    function suppressBanner() {
+      [
+        'iframe.goog-te-banner-frame', '.goog-te-banner-frame',
+        '[class*="VIpgJd-ZVi9od"]', 'iframe[id^="goog-gt-"]',
+        'iframe[class*="goog-te-"]', '#goog-gt-tt', '#goog-gt-vt',
+        '.goog-te-balloon-frame', '.goog-te-ftab-frame'
+      ].forEach(function (sel) {
         try {
-          document.querySelectorAll(sel).forEach(function(el) {
-            el.style.setProperty('display', 'none', 'important');
-            el.style.setProperty('visibility', 'hidden', 'important');
-            el.style.setProperty('height', '0', 'important');
+          document.querySelectorAll(sel).forEach(function (el) {
+            el.style.setProperty('display',     'none',   'important');
+            el.style.setProperty('visibility',  'hidden', 'important');
+            el.style.setProperty('height',      '0',      'important');
           });
-        } catch(e) {}
+        } catch (e) {}
       });
     }
 
-    /* ── 2. Reset body.top ngay lập tức qua MutationObserver ─────── */
-    /* Dùng MO thay setInterval → phản ứng trong cùng frame render   */
+    /* ══ 2. Chỉ fix body.top — KHÔNG gọi suppressBanner trong MO ═══ */
     function watchBodyTop() {
-      // Xử lý ngay khi body style thay đổi
-      var bodyObserver = new MutationObserver(function() {
+      if (typeof MutationObserver === 'undefined') return;
+      var mo = new MutationObserver(function () {
         var b = document.body;
         if (!b) return;
-        if (b.style.top && b.style.top !== '0px' && b.style.top !== '') {
+        if (b.style.top && b.style.top !== '' && b.style.top !== '0px') {
           b.style.setProperty('top', '0', 'important');
         }
         if (b.style.position === 'relative') {
           b.style.setProperty('position', 'static', 'important');
         }
-        suppressTranslateBanner();
       });
-      if (document.body) {
-        bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['style', 'class'] });
-        bodyObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'class'] });
+      function attach() {
+        if (document.body)
+          mo.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+        if (document.documentElement)
+          mo.observe(document.documentElement, { attributes: true, attributeFilter: ['style'] });
       }
-      // Dự phòng nếu body chưa có
-      document.addEventListener('DOMContentLoaded', function() {
-        bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['style', 'class'] });
-        bodyObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'class'] });
-        suppressTranslateBanner();
-      });
+      document.readyState === 'loading'
+        ? document.addEventListener('DOMContentLoaded', attach)
+        : attach();
     }
 
-    /* ── 3. Bảo vệ code/math khỏi bị dịch ───────────────────────── */
+    /* ══ 3. Bảo vệ code / math khỏi bị dịch ═══════════════════════ */
     function protectCodeAndMath() {
-      var selectors = [
+      [
         'pre', 'code', '.highlight', '.chroma',
         '.mermaid', '[data-mermaid-src]',
         '.katex', '.katex-display', '.katex-html', 'math',
         'svg', '.stat-badge', '.tech-chip', '.tag-bracket',
         '.lang-switcher', '.post-stats-pill', '.hero-tech-stack',
         '.terminal-toast'
-      ];
-      selectors.forEach(function(sel) {
-        document.querySelectorAll(sel).forEach(function(el) {
+      ].forEach(function (sel) {
+        document.querySelectorAll(sel).forEach(function (el) {
           el.classList.add('notranslate');
           el.setAttribute('translate', 'no');
         });
       });
     }
 
-    /* ── 4. Toast thông báo ──────────────────────────────────────── */
+    /* ══ 4. Toast ═══════════════════════════════════════════════════ */
     function showToast(prefix, msg) {
       var toast = document.getElementById('terminal-lang-toast');
       if (!toast) {
         toast = document.createElement('div');
-        toast.id = 'terminal-lang-toast';
+        toast.id        = 'terminal-lang-toast';
         toast.className = 'terminal-toast notranslate';
         toast.setAttribute('translate', 'no');
         document.body.appendChild(toast);
       }
       toast.innerHTML = '<span class="toast-prefix">' + prefix + '</span>' + msg;
       toast.classList.add('show');
-      setTimeout(function() { toast.classList.remove('show'); }, 2400);
+      setTimeout(function () { toast.classList.remove('show'); }, 2400);
     }
 
-    /* ── 5. Cookie googtrans ─────────────────────────────────────── */
-    function setCookie(val) {
+    /* ══ 5. Cookie helpers ══════════════════════════════════════════ */
+    function setGoogCookie(val) {
       var exp = new Date(Date.now() + 30 * 864e5).toUTCString();
+      /* Xoá trước, set sau — tránh duplicate */
       document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       document.cookie = 'googtrans=' + val + '; expires=' + exp + '; path=/;';
     }
-    function clearCookie() {
+    function clearGoogCookie() {
       document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      document.cookie = 'googtrans=/vi/vi; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname + ';';
     }
 
-    /* ── 6. Cập nhật trạng thái nút VI / EN ─────────────────────── */
-    function updateLangButtons() {
-      var stored = localStorage.getItem('user_lang');
-      var cookieMatch = document.cookie.match(/(?:^|;\s*)googtrans=([^;]*)/);
-      var isEn = (stored === 'en') || (cookieMatch && cookieMatch[1].indexOf('/en') !== -1);
-      var btnVi = document.getElementById('btn-lang-vi');
-      var btnEn = document.getElementById('btn-lang-en');
-      if (btnVi && btnEn) {
-        btnEn.classList.toggle('active', isEn);
-        btnVi.classList.toggle('active', !isEn);
+    /* ══ 6. Trạng thái nút VI / EN ══════════════════════════════════ */
+    function updateButtons() {
+      var isEn = localStorage.getItem('user_lang') === 'en';
+      var vi = document.getElementById('btn-lang-vi');
+      var en = document.getElementById('btn-lang-en');
+      if (vi && en) {
+        en.classList.toggle('active', isEn);
+        vi.classList.toggle('active', !isEn);
       }
     }
 
-    /* ── 7. Apply EN translation — poll nhanh, retry tự động ─────── */
-    function applyEnglish(onDone) {
-      var attempts = 0;
-      var maxAttempts = 40; // 40 × 100ms = 4 giây
-      var timer = setInterval(function() {
-        attempts++;
-        var select = document.querySelector('.goog-te-combo');
-        if (select) {
-          clearInterval(timer);
-          if (select.value !== 'en') {
-            select.value = 'en';
-            select.dispatchEvent(new Event('change', { bubbles: true }));
-            select.dispatchEvent(new Event('input',  { bubbles: true }));
-          }
-          suppressTranslateBanner();
-          if (onDone) onDone();
-        } else if (attempts >= maxAttempts) {
-          clearInterval(timer);
-          // Google Translate chưa load xong → reload để cookie apply
-          window.location.reload();
-        }
-      }, 100);
-    }
-
-    /* ── 8. Public API: switchLanguage ───────────────────────────── */
-    window.switchLanguage = function(lang) {
-      protectCodeAndMath();
+    /* ══ 7. PUBLIC API: switchLanguage ══════════════════════════════
+     *
+     *  Cơ chế: cookie + reload.
+     *  - Đặt / xoá cookie  googtrans=/vi/en
+     *  - Google Translate đọc cookie này tự động khi load lại trang
+     *  - Không cần poll .goog-te-combo  →  không có infinite-reload risk
+     * ════════════════════════════════════════════════════════════ */
+    window.switchLanguage = function (lang) {
       var current = localStorage.getItem('user_lang') || 'vi';
       if (current === lang) return;
 
       if (lang === 'en') {
         localStorage.setItem('user_lang', 'en');
-        setCookie('/vi/en');
-        updateLangButtons();
+        setGoogCookie('/vi/en');
+        updateButtons();
         showToast('// I18N:', 'Switching to English...');
-        applyEnglish();
+        setTimeout(function () { location.reload(); }, 380);
+
       } else {
         localStorage.setItem('user_lang', 'vi');
-        clearCookie();
-        updateLangButtons();
+        clearGoogCookie();
+        updateButtons();
         showToast('// I18N:', 'Khôi phục Tiếng Việt gốc...');
-        setTimeout(function() { window.location.reload(); }, 300);
+        setTimeout(function () { location.reload(); }, 380);
       }
     };
 
-    /* ── 9. Google Translate init callback ───────────────────────── */
-    window.googleTranslateElementInit = function() {
+    /* ══ 8. Google Translate init callback ══════════════════════════ */
+    window.googleTranslateElementInit = function () {
       new google.translate.TranslateElement({
-        pageLanguage: 'vi',
+        pageLanguage:      'vi',
         includedLanguages: 'vi,en',
-        autoDisplay: false
+        autoDisplay:       false   /* Không tự mở toolbar */
       }, 'google_translate_element');
 
-      suppressTranslateBanner();
-
-      if (localStorage.getItem('user_lang') === 'en') {
-        applyEnglish(suppressTranslateBanner);
-      }
+      /* Ẩn banner sau khi widget init xong */
+      suppressBanner();
+      setTimeout(suppressBanner, 300);
     };
 
-    /* ── 10. Bootstrap ────────────────────────────────────────────── */
-    // Chạy ngay lập tức
+    /* ══ 9. Bootstrap ═══════════════════════════════════════════════ */
     watchBodyTop();
-    suppressTranslateBanner();
+    suppressBanner();
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        protectCodeAndMath();
-        updateLangButtons();
-        suppressTranslateBanner();
-      });
-    } else {
+    function onReady() {
       protectCodeAndMath();
-      updateLangButtons();
-      suppressTranslateBanner();
+      updateButtons();
+      suppressBanner();
     }
 
-    window.addEventListener('load', function() {
+    document.readyState === 'loading'
+      ? document.addEventListener('DOMContentLoaded', onReady)
+      : onReady();
+
+    window.addEventListener('load', function () {
       protectCodeAndMath();
-      updateLangButtons();
-      suppressTranslateBanner();
+      updateButtons();
+      suppressBanner();
     });
 
-    // Extra safety: suppress banner thêm 1 lần sau 800ms
-    // (thời điểm Google Translate thường mới xong init)
-    setTimeout(suppressTranslateBanner, 800);
-    setTimeout(suppressTranslateBanner, 1500);
+    /* Safety suppression sau khi Google Translate hoàn toàn xong */
+    setTimeout(suppressBanner, 1000);
+    setTimeout(suppressBanner, 2000);
 
-  })();
+  }());
 </script>
 <script defer src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-
