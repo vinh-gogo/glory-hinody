@@ -61,7 +61,8 @@ glory-hinody/
 │       ├── graph-rag-neo4j-qdrant.md         # Agentic RAG
 │       ├── multi-agent-workflow-langraph.md  # Agentic RAG
 │       ├── on-device-ai-onnx-kotlin.md       # On-Device AI
-│       └── quantization-int8-fp4-inference.md # Optimization
+│       ├── quantization-int8-fp4-inference.md # Optimization
+│       └── depth-estimation-cnn-ssrc.md      # Computer Vision (SSRC Conference)
 │
 ├── layouts/
 │   ├── list.html                 # Override: Thêm thanh lọc chủ đề (Pill Navigation)

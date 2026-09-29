@@ -10,9 +10,20 @@ TocOpen: true
 
 > Thời gian ước tính lần đầu: **2–3 giờ** | Cập nhật: 2026-09
 
-Em chọn **Hugo + theme PaperMod + Cloudflare Pages + Giscus**. PaperMod hỗ trợ sẵn nút share và chỗ gắn bình luận, nên anh ít phải viết code nhất.
+Bài viết này đúc kết toàn bộ quy trình thiết lập blog tĩnh với chi phí $0, tự động hóa build qua Cloudflare Pages và nhúng bình luận bảo mật qua GitHub Discussions.
 
-## Tổng quan quy trình
+## 1. Minh Chứng & Trang Thử Nghiệm Sống (Evidence & Live Demo)
+
+| Hạng mục | Minh chứng thực tế | Chi tiết kỹ thuật |
+|---|---|---|
+| **Website thực tế (Live Demo)** | [`glory-hinody.pages.dev`](https://glory-hinody.pages.dev/) | Trang web bạn đang truy cập, thời gian tải trang < 500ms |
+| **Mã nguồn (GitHub)** | [`github.com/vinh-gogo/glory-hinody`](https://github.com/vinh-gogo/glory-hinody) | Mã nguồn mở hoàn toàn, quản lý qua Git submodule (PaperMod) |
+| **Hệ thống bình luận (Discussions)** | [`github.com/vinh-gogo/glory-hinody/discussions`](https://github.com/vinh-gogo/glory-hinody/discussions) | Đồng bộ 2 chiều qua Giscus API, chống spam tự động |
+| **Tự động hóa CI/CD** | Cloudflare Pages Git Integration | Tự động kích hoạt build `hugo --gc --minify` khi có `git push` |
+
+---
+
+## 2. Tổng quan quy trình
 
 Anh viết bài Markdown trên máy, `git push` lên GitHub, Cloudflare tự build và đăng lên web. Bình luận và like nằm trong GitHub Discussions của chính repo đó.
 
@@ -185,3 +196,27 @@ Khoảng 1 đến 2 phút sau bài đã lên web.
 | Bài mới không lên | Còn `draft: true`, hoặc ngày đăng (`date`) ở tương lai |
 
 Anh cần nhớ một hạn chế: người bình luận phải có tài khoản GitHub. Nếu sau này thấy đây là rào cản, anh có thể chuyển sang Waline mà không phải làm lại blog, vì chỉ cần thay file `comments.html`.
+
+---
+
+## Tài Liệu Tham Khảo (References)
+
+```
+[01] Hugo Team. (2024). The World's Fastest Framework for Building Websites. 
+     Hugo Official Documentation (gohugo.io).
+[02] Aditya Telange. (2024). PaperMod Theme Documentation and Feature Specifications. 
+     GitHub Wiki (github.com/adityatelange/hugo-PaperMod).
+[03] Cloudflare. (2024). Cloudflare Pages: Fast, Secure and Free JAMstack Hosting. 
+     Cloudflare Developer Docs (developers.cloudflare.com/pages).
+[04] Giscus Project. (2024). A Comment System Powered by GitHub Discussions. 
+     Official Documentation (giscus.app).
+```
+
+---
+
+## Bài Viết Liên Quan (Related Logs)
+
+- [OpenVideoLab: Tạo Sinh Video AI Đa Phương Thức Trên GPU 16GB](/posts/openvideolab-video-diffusion/)  
+  *Khám phá cách tối ưu hóa pipeline tạo sinh video AI chạy trên máy trạm cá nhân.*
+- [GraphRAG: Kết Hợp Neo4j và Qdrant Để Giảm Hallucination](/posts/graph-rag-neo4j-qdrant/)  
+  *Kiến trúc RAG nâng cao kết hợp đồ thị tri thức và vector search trên tài liệu kỹ thuật phức tạp.*

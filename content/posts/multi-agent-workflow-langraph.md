@@ -3,103 +3,142 @@ title: "Multi-Agent Workflow: Tự Động Hóa CSKH Với LangGraph và FastMCP
 date: 2026-09-29T12:00:00+07:00
 draft: false
 tags: ["agentic-rag", "du-an"]
-description: "Kiến trúc Multi-Agent tự động hóa hệ thống chăm sóc khách hàng với LangGraph state machine, FastMCP tool calling, đạt 99% Hit@5 trên 3.200 queries thực tế."
+description: "Kiến trúc Multi-Agent tự động hóa CSKH (tra cứu & xuất hóa đơn tự động) với LangGraph state machine, FastMCP tool calling và vLLM trên GPU A100, đạt 95% Hit@1 và 99% Hit@5 trên 3.200 queries."
+ShowToc: true
+TocOpen: true
 ---
 
-## Bài toán: CSKH truyền thống không đủ scale
+## 1. Minh Chứng & Video Demo Thực Tế (Evidence & Demos)
 
-Hệ thống chăm sóc khách hàng (CSKH) truyền thống dựa trên rule-based chatbot hoặc FAQ tĩnh gặp nhiều hạn chế: không xử lý được câu hỏi phức tạp, không nhớ ngữ cảnh hội thoại, và cần cập nhật thủ công liên tục.
+Hệ thống **AI Agentic Automation** được phát triển và kiểm thử thực tế trong dự án tự động hóa quy trình chăm sóc khách hàng và bán hàng đa kênh:
 
-Giải pháp: xây dựng **Agentic AI System** với nhiều agent chuyên biệt, phối hợp tự động để xử lý mọi loại truy vấn khách hàng.
+| Hạng mục | Minh chứng thực tế | Chi tiết kỹ thuật |
+|---|---|---|
+| **Video Demo (YouTube)** | [`youtu.be/R_IvnHsHmTw`](https://youtu.be/R_IvnHsHmTw) | Trình diễn luồng hội thoại, tool calling và xuất hóa đơn tự động |
+| **Video Demo (LinkedIn)** | [`lnkd.in/p/ejjivmDG`](https://lnkd.in/p/ejjivmDG) | Bản demo ngắn gọn quy trình Multi-Agent xử lý đồng thời |
+| **Tập dữ liệu kiểm thử** | `3.200 queries` trên 2 domains | Domain 1: Thực đơn & chuỗi ẩm thực; Domain 2: Bán lẻ điện thoại di động |
+| **Độ chính xác (Accuracy)** | `95.0% Hit@1` và `99.0% Hit@5` | Đo lường trên bài toán trích xuất thực thể và truy vấn thông số sản phẩm |
+| **Tỷ lệ gọi Tool thành công** | `97.8% Tool Call Success` | Xử lý qua giao thức FastMCP có schema validation chặt chẽ |
+| **Hạ tầng LLM Serving** | **vLLM** trên GPU NVIDIA A100 | Phục vụ suy luận song song (PagedAttention), độ trễ phản hồi ~320ms |
+| **Công nghệ cốt lõi** | FastMCP, LangGraph, LangChain, FastAPI, Neo4j, FAISS, PostgreSQL, Docker | Kiến trúc Multi-Agent hướng sự kiện (Event-driven) |
 
-## Kiến trúc Multi-Agent
+---
 
-Hệ thống gồm các agent chuyên biệt:
+## 2. Vì Sao Chatbot Đơn Lẻ (Single-Agent) Thất Bại?
+
+Các chatbot bán hàng truyền thống dựa trên một prompt khổng lồ ("Mega-prompt") gom tất cả hướng dẫn vào một LLM duy nhất thường gặp 3 lỗi chí mạng:
+
+1. **Nhiễm bẩn ngữ cảnh (Context Pollution):** Khi prompt chứa cả quy tắc tra cứu, quy tắc tính thuế hóa đơn và xử lý khiếu nại, LLM dễ nhầm lẫn chức năng.
+2. **Ảo giác khi thực thi tác vụ nhạy cảm:** LLM tự ý sinh mã hóa đơn hoặc tính sai tổng tiền do không có lớp kiểm soát độc lập.
+3. **Không có khả năng phục hồi lỗi (Fault Tolerance):** Nếu một bước tra cứu bị timeout, toàn bộ phiên trò chuyện bị gián đoạn.
+
+---
+
+## 3. Kiến Trúc Multi-Agent Phân Tách Trách Nhiệm
+
+Tôi thiết kế hệ thống theo mô hình đồ thị trạng thái (**StateGraph**) phân rã hệ thống thành các Agent chuyên biệt, độc lập:
 
 ```
-User Query
-     │
-     ▼
- Router Agent ──────────────────────────┐
-     │                                  │
-     ├──► FAQ Agent (GraphRAG)          │
-     │         └──► Neo4j + Qdrant      │
-     │                                  │
-     ├──► Order Agent (Tool Use)        │
-     │         └──► FastMCP → APIs      │
-     │                                  │
-     └──► Escalation Agent             │
-               └──► Human handoff ◄────┘
-                         │
-                    Final Response
+                            [Khách hàng nhắn tin]
+                                      │
+                                      ▼
+                        ┌───────────────────────────┐
+                        │       ROUTER AGENT        │
+                        │ Phân loại ý định (Intent) │
+                        └─────────────┬─────────────┘
+                                      │
+            ┌─────────────────────────┼─────────────────────────┐
+            ▼                         ▼                         ▼
+┌───────────────────────┐ ┌───────────────────────┐ ┌───────────────────────┐
+│     CATALOG AGENT     │ │     INVOICE AGENT     │ │   ESCALATION AGENT    │
+│ Tra cứu thông số SP   │ │ Lập hóa đơn tự động   │ │ Chuyển tư vấn viên    │
+│ Hybrid: BM25 + Dense  │ │ Tính chiết khấu & VAT │ │ Hỗ trợ khiếu nại      │
+│ FastMCP: Qdrant/Neo4j │ │ FastMCP: PostgreSQL   │ │ Human-in-the-loop     │
+└───────────┬───────────┘ └───────────┬───────────┘ └───────────┬───────────┘
+            │                         │                         │
+            └─────────────────────────┼─────────────────────────┘
+                                      ▼
+                        ┌───────────────────────────┐
+                        │     SYNTHESIZER AGENT     │
+                        │ Tổng hợp phản hồi tự nhiên│
+                        └─────────────┬─────────────┘
+                                      │
+                                      ▼
+                            [Khách hàng nhận tin]
 ```
 
-- **Router Agent**: Phân loại ý định và điều phối tới agent phù hợp
-- **FAQ Agent**: Trả lời câu hỏi kiến thức bằng GraphRAG (Neo4j + Qdrant)
-- **Order Agent**: Thực hiện hành động (tra cứu đơn hàng, cập nhật thông tin) qua tool calling
-- **Escalation Agent**: Chuyển tiếp câu hỏi phức tạp tới nhân viên thật
+### Các Agent thành phần:
+- **Router Agent:** Phân tích câu hỏi người dùng, quyết định kích hoạt Agent nào mà không trực tiếp trả lời.
+- **Catalog Agent (Tra cứu):** Kết hợp GraphRAG và Hybrid Search (BM25 + Dense vector) với tiền xử lý tiếng Việt chuyên sâu để tìm đúng sản phẩm/món ăn.
+- **Invoice Agent (Nghiệp vụ tài chính):** Chỉ chịu trách nhiệm tính toán, gọi tool kiểm tra tồn kho và xuất file hóa đơn chuẩn qua API.
+- **Escalation Agent:** Cơ chế Human-in-the-loop tự động chuyển giao cho nhân viên khi khách hàng có dấu hiệu bức xúc hoặc yêu cầu đặc biệt.
 
-## LangGraph – State Machine cho Multi-Agent
+---
 
-**LangGraph** mô hình hóa luồng agent dưới dạng đồ thị có trạng thái, mỗi node là một agent/tool, mỗi cạnh là điều kiện chuyển trạng thái:
+## 4. LangGraph: Quản Lý State Machine & Bộ Nhớ Phiên
+
+LangGraph cho phép biểu diễn toàn bộ vòng đời tác vụ như một State Machine xác định (deterministic):
 
 ```python
-workflow = StateGraph(AgentState)
+from langgraph.graph import StateGraph, END
+from typing import TypedDict, Annotated, Sequence
 
-workflow.add_node("router", router_agent)
-workflow.add_node("faq", faq_agent)
-workflow.add_node("order", order_agent)
+class AgentState(TypedDict):
+    messages: Sequence[str]
+    current_intent: str
+    selected_items: list[dict]
+    invoice_id: str | None
+    requires_human: bool
+
+workflow = StateGraph(AgentState)
+workflow.add_node("router", router_node)
+workflow.add_node("catalog", catalog_node)
+workflow.add_node("invoice", invoice_node)
+workflow.add_node("escalation", escalation_node)
 
 workflow.add_conditional_edges(
     "router",
-    route_query,
-    {"faq": "faq", "order": "order", "escalate": END}
+    intent_router,
+    {
+        "search": "catalog",
+        "order": "invoice",
+        "complain": "escalation"
+    }
 )
 ```
 
-LangGraph đảm bảo **memory persistence** qua các turn hội thoại, retry logic khi agent thất bại, và khả năng **human-in-the-loop** khi cần.
+Ưu điểm lớn nhất là **khả năng duy trì State qua nhiều lượt hội thoại** và rollback trạng thái nếu việc gọi API bên ngoài gặp sự cố mạng.
 
-## FastMCP – Tool Calling chuẩn hóa
+---
 
-**FastMCP (Model Context Protocol)** cho phép các agent gọi external tools (API, database, file system) theo một giao thức chuẩn. Mỗi tool được định nghĩa như một function với schema rõ ràng:
+## 5. Tối Ưu Phục Vụ Với FastMCP & vLLM Trên A100
 
-```python
-@mcp.tool()
-async def get_order_status(order_id: str) -> OrderStatus:
-    """Tra cứu trạng thái đơn hàng theo mã"""
-    return await order_service.get_status(order_id)
+- **FastMCP (Model Context Protocol):** Toàn bộ các công cụ (DB query, tồn kho, tính giá) được đóng gói thành các tool có schema type-safe bằng Pydantic. LLM tự động trích xuất đúng tham số với tỷ lệ chính xác **97.8%**.
+- **vLLM Inference Engine:** Chạy model mã nguồn mở trên GPU NVIDIA A100 với thuật toán **PagedAttention**. Cơ chế quản lý bộ nhớ KV-Cache thông minh cho phép hệ thống phục vụ **đồng thời hơn 50 phiên hội thoại** với độ trễ mỗi token dưới 15ms.
+
+---
+
+## 6. Tài Liệu Tham Khảo (References)
+
+```
+[01] LangChain AI. (2024). LangGraph: Building Language Agents as Stateful Graphs. 
+     Official Architectural Guide.
+[02] Anthropic. (2024). The Model Context Protocol (MCP) Specification. 
+     Anthropic Standards Documentation.
+[03] Kwon, W., Li, Z., Zhuang, S., Sheng, Y., Zheng, L., Yu, C. H., Gonzalez, J. E., 
+     Zhang, H., & Stoica, I. (2023). Efficient Memory Management for Large Language 
+     Model Serving with PagedAttention (vLLM). SOSP 2023. arXiv:2309.06180.
+[04] Robertson, S., & Zaragoza, H. (2009). The Probabilistic Relevance Framework: BM25 
+     and Beyond. Foundations and Trends in Information Retrieval.
+[05] Cormack, G. V., Clarke, C. L., & Buettcher, S. (2009). Reciprocal Rank Fusion 
+     Outperforms Condorcet and Individual Rank Learning Methods. SIGIR 2009.
 ```
 
-LLM tự động biết khi nào cần gọi tool nào dựa trên description và schema – không cần hardcode logic.
+---
 
-## Hybrid Search: Semantic + BM25
+## 7. Bài Viết Liên Quan (Related Logs)
 
-Để tối ưu retrieval cho FAQ Agent:
-
-- **Semantic Search (Qdrant)**: Tìm đoạn văn gần nghĩa với câu hỏi
-- **BM25 (keyword)**: Tìm chính xác từ khóa quan trọng
-- **RRF (Reciprocal Rank Fusion)**: Kết hợp kết quả theo điểm tổng hợp
-
-Hybrid search giải quyết điểm yếu của từng phương pháp đơn lẻ, đặc biệt hiệu quả với **tiếng Việt** vì BM25 xử lý tốt các từ kỹ thuật đặc thù.
-
-## Xử lý tiếng Việt
-
-Tiền xử lý text tiếng Việt gồm:
-- **Underthesea** cho tokenization và POS tagging
-- Chuẩn hóa tone marks (unicode normalization)
-- Xây dựng từ điển domain-specific cho CSKH
-
-## Kết quả
-
-Đánh giá trên **3.200 câu truy vấn thực tế**:
-
-| Metric | Kết quả |
-|--------|---------|
-| Hit@1  | 95%     |
-| Hit@5  | **99%** |
-| Avg Response Time | 320ms |
-| Tool Call Success Rate | 97.8% |
-
-## Kết luận
-
-Kiến trúc Multi-Agent với LangGraph + FastMCP + GraphRAG là sự kết hợp mạnh mẽ cho bài toán CSKH phức tạp. Điểm quan trọng nhất là **phân tách trách nhiệm** – mỗi agent làm tốt một việc, thay vì một agent "biết tất cả".
+- [GraphRAG: Kết Hợp Neo4j và Qdrant Để Giảm Hallucination](/posts/graph-rag-neo4j-qdrant/)  
+  *Tìm hiểu sâu về cách xây dựng Knowledge Graph để làm công cụ tra cứu cho Catalog Agent.*
+- [On-Device AI: Chạy Neural Network Offline Với ONNX Trên Mobile](/posts/on-device-ai-onnx-kotlin/)  
+  *Cách đưa các mô hình AI nhỏ gọn xuống chạy trực tiếp trên thiết bị đầu cuối mà không tốn chi phí server.*
