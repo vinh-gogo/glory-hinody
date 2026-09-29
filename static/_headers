@@ -39,8 +39,15 @@
   Cache-Control: public, max-age=31536000, immutable
   X-Content-Type-Options: nosniff
 
-/js/*
+# ── JS: immutable trừ security-guard (hay thay đổi) ───────
+/js/blog-stats.js
   Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+# security-guard: no-cache → browser revalidate mỗi lần
+# Đảm bảo fix security được nhận ngay, không bị cache cũ
+/js/security-guard*.js
+  Cache-Control: no-cache, must-revalidate
   X-Content-Type-Options: nosniff
 
 /fonts/*
