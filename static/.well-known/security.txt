@@ -1,0 +1,8 @@
+# Security contact for glory-hinody.pages.dev
+# RFC 9116 — https://securitytxt.org/
+
+Contact: mailto:lea26462@gmail.com
+Expires: 2027-09-30T00:00:00.000Z
+Preferred-Languages: vi, en
+Canonical: https://glory-hinody.pages.dev/.well-known/security.txt
+Policy: Nếu bạn phát hiện lỗ hổng bảo mật trên trang này, vui lòng liên hệ qua email. Mọi báo cáo có trách nhiệm đều được trân trọng.

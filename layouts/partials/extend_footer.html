@@ -1,6 +1,10 @@
+<!-- ── Security Guard: phải load trước tất cả script khác ──────── -->
+<script src="/js/security-guard.js"></script>
 <script src="/js/blog-stats.js" defer></script>
 {{- if .Store.Get "hasMermaid" }}
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"
+  integrity="sha384-EOXBFmc3gx5mb+vn0vPvvGqACToJD24hhacX5Yx+8NUUQrHIle/Qi5Bg9o3zKwW2"
+  crossorigin="anonymous"></script>
 <script>
   (function() {
     function initMermaid() {
@@ -17,7 +21,7 @@
 
       mermaid.initialize({
         startOnLoad: false,
-        securityLevel: 'loose',
+        securityLevel: 'antiscript', /* 'loose' → XSS risk, 'antiscript' blocks <script> but keeps htmlLabels */
         theme: isDark ? 'dark' : 'neutral',
         fontFamily: "'JetBrains Mono', 'Plus Jakarta Sans', monospace",
         fontSize: 12,
@@ -96,8 +100,12 @@
 {{- end }}
 
 {{- if or .Params.math (eq .Kind "page") }}
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous" onload="renderKatexMath()"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
+  integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg"
+  crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+  integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk"
+  crossorigin="anonymous" onload="renderKatexMath()"></script>
 <script>
   function renderKatexMath() {
     if (typeof renderMathInElement !== "function") return;

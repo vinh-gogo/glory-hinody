@@ -1,4 +1,14 @@
-<!-- Distinctive Typography: Space Grotesk + JetBrains Mono + Plus Jakarta Sans -->
+<!-- ── Security Meta Layer (Defense-in-Depth) ─────────────────── -->
+<!-- Referrer Policy: không leak URL đầy đủ khi click ra ngoài -->
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- Ngăn index trang lỗi / search internal -->
+{{- if or (eq .Kind "404") (eq .Layout "search") }}
+<meta name="robots" content="noindex, nofollow">
+{{- else }}
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+{{- end }}
+
+<!-- ── Distinctive Typography: Space Grotesk + JetBrains Mono + Plus Jakarta Sans -->
 <!-- Font loading optimized: preconnect + display=swap prevents FOUT -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +29,9 @@
 {{- end }}
 
 {{- if or .Params.math (eq .Kind "page") }}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+  integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
+  crossorigin="anonymous">
 <style>
   .katex-display {
     overflow-x: auto;
