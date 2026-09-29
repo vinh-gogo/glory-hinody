@@ -1,8 +1,8 @@
 baseURL: "https://glory-hinody.pages.dev/"
-locale: vi
-defaultContentLanguage: vi
-title: "Glory Hinody"
 theme: PaperMod
+title: "Glory Hinody"
+locale: "vi"
+defaultContentLanguage: "vi"
 
 outputs:
   home:
@@ -12,10 +12,10 @@ outputs:
 
 params:
   env: production
+  author: "Lê Quang Vinh"
   title: "Glory Hinody"
   description: "Technical logbook của Lê Quang Vinh (AI Engineer). Chuyên sâu về Generative AI, Video Diffusion, GraphRAG và On-Device AI."
   keywords: ["AI Engineer", "Generative AI", "Video Diffusion", "GraphRAG", "On-Device AI", "Lê Quang Vinh", "PaperMod"]
-  author: "Lê Quang Vinh"
   defaultTheme: auto
   ShowReadingTime: true
   ShowShareButtons: true
@@ -29,7 +29,7 @@ params:
 
   homeInfoParams:
     Title: "Glory Hinody"
-    Content: "Technical logbook của Lê Quang Vinh."
+    Content: "Technical logbook của Lê Quang Vinh (AI Engineer)."
     AlignSocialIconsTo: left
 
   socialIcons:
