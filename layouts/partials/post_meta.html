@@ -16,6 +16,8 @@
   {{- $scratch.Add "meta" (slice (printf "🏷 %s" (delimit $tagLinks ""))) }}
 {{- end }}
 
+{{- $scratch.Add "meta" (slice (printf "<span class='post-stats' style='display:inline-flex;gap:10px;opacity:0.85'><span class='stat-likes' title='Reactions'>❤️ <span class='stat-count'>—</span></span><span class='stat-comments' title='Comments'>💬 <span class='stat-count'>—</span></span><span class='stat-shares' title='Shares'>🔗 <span class='stat-count'>—</span></span></span>")) }}
+
 {{- $meta := $scratch.Get "meta" }}
 {{- if $meta }}
 {{- delimit $meta "&nbsp;·&nbsp;" | safeHTML }}
