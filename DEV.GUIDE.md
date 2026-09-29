@@ -1,303 +1,227 @@
 # DEV.GUIDE.md — Glory Hinody Blog
 
-> **Dành cho:** Dev quay lại sau thời gian dài | Dev mới onboard  
-> **Cập nhật lần cuối:** 2026-09-29  
-> **Tác giả gốc:** Lê Quang Vinh (`vinh-gogo`)
+> Hướng dẫn phát triển nội bộ. Đọc kỹ trước khi chỉnh sửa bất kỳ file nào.
 
 ---
 
-## 🗺️ Bản đồ tổng quan
+## ⚠️ CẢNH BÁO QUAN TRỌNG: ENCODING UTF-8
 
-```mermaid
-flowchart TD
-    A[hugo.yaml\nCấu hình trung tâm] --> B[themes/PaperMod\nTheme git submodule]
-    A --> C[content/\nBài viết Markdown]
-    A --> D[layouts/partials/\nGhi đè template]
-    D --> E[comments.html\nGiscus widget]
-    D --> F[post_meta.html\nDate · ReadTime · Tags · Stats]
-    D --> G[extend_footer.html\nInject JS]
-    G --> H[static/js/blog-stats.js\nLike/Cmt/Share engine]
-    C --> I[git push → GitHub]
-    I --> J[Cloudflare Pages\nauto build hugo --gc --minify]
-    J --> K[glory-hinody.pages.dev]
+### Vấn đề đã xảy ra (2026-09-29)
+
+Toàn bộ 7 file bài viết trong `content/posts/` bị hiển thị lỗi tiếng Việt (mojibake) trên live site:
+
+```
+# Thay vì:
+OpenVideoLab: Tạo Sinh Video AI Đa Phương Thức Trên GPU 16GB
+
+# Web hiển thị:
+OpenVideoLab: Táº¡o Sinh Video AI Äa PhÆ°Æ¡ng Thá»©c TrÃªn GPU 16GB
+```
+
+**Nguyên nhân:** PowerShell trên Windows đọc file UTF-8 rồi ghi lại bằng `Set-Content` / `[System.IO.File]::WriteAllText` với encoding sai (Windows-1252/ANSI), làm hỏng các ký tự multi-byte của tiếng Việt trong quá trình xử lý file.
+
+---
+
+### Quy tắc bắt buộc khi làm việc với file content
+
+#### ✅ ĐÚNG — Cách chỉnh sửa file nội dung
+
+**1. Dùng trực tiếp công cụ AI (write_to_file / replace_file_content)**
+
+Đây là cách an toàn nhất. Các công cụ này ghi UTF-8 thuần (no BOM) chính xác.
+
+```
+# AI tool: write_to_file hoặc replace_file_content
+# → Luôn ghi đúng UTF-8, không có vấn đề encoding
+```
+
+**2. Dùng trình soạn thảo có hỗ trợ UTF-8**
+
+VS Code, Notepad++, hoặc bất kỳ editor nào — kiểm tra góc dưới phải hiển thị `UTF-8`.
+
+---
+
+#### ❌ SAI — Tuyệt đối KHÔNG làm
+
+```powershell
+# ❌ KHÔNG dùng Set-Content (mặc định Windows-1252 trên hệ cũ)
+Set-Content $path $content -Encoding UTF8
+
+# ❌ KHÔNG dùng Out-File mà không chỉ định encoding
+$content | Out-File $path
+
+# ❌ KHÔNG đọc file bằng Get-Content rồi ghi lại
+$content = Get-Content $path -Raw
+Set-Content $path $content    # ← Hỏng encoding!
+
+# ❌ KHÔNG dùng regex replace qua PowerShell pipeline lên file .md có tiếng Việt
+(Get-Content $path) -replace "old", "new" | Set-Content $path
 ```
 
 ---
 
-## 1. Thông tin dự án
+#### ✅ Nếu bắt buộc phải dùng PowerShell để xử lý file .md
 
-| Mục | Giá trị |
-|---|---|
-| **URL live** | https://glory-hinody.pages.dev |
-| **GitHub repo** | https://github.com/vinh-gogo/glory-hinody |
-| **Cloudflare account** | lea26462@gmail.com |
-| **Hugo version** | `0.167.0 extended` |
-| **Theme** | PaperMod (git submodule) |
-| **Comment system** | Giscus → GitHub Discussions |
-| **Hosting** | Cloudflare Pages (free tier) |
+```powershell
+# ✅ Đọc bằng byte, decode UTF-8, write lại UTF-8 no-BOM
+$bytes = [System.IO.File]::ReadAllBytes($path)
+$content = [System.Text.Encoding]::UTF8.GetString($bytes)
+
+# ... chỉnh sửa $content ...
+
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)  # false = no BOM
+[System.IO.File]::WriteAllText($path, $content, $utf8NoBom)
+```
+
+> **Lưu ý:** Vẫn nên ưu tiên dùng AI tool thay vì PowerShell để tránh rủi ro.
 
 ---
 
-## 2. Cấu trúc thư mục
+### Cách kiểm tra encoding file hiện tại
+
+```powershell
+# Kiểm tra bytes đầu của file (UTF-8 không có BOM bắt đầu bằng 2D 2D 2D = "---")
+$bytes = [System.IO.File]::ReadAllBytes("content\posts\ten-bai.md")
+Write-Host "First 3 bytes: $($bytes[0].ToString('X2')) $($bytes[1].ToString('X2')) $($bytes[2].ToString('X2'))"
+# UTF-8 no BOM: 2D 2D 2D
+# UTF-8 with BOM: EF BB BF
+```
+
+```powershell
+# Kiểm tra tiếng Việt có bị hỏng không — tìm byte "ạ" = E1 BA A1
+$bytes = [System.IO.File]::ReadAllBytes("content\posts\ten-bai.md")
+$hasCorrectVietnamese = $false
+for ($i = 0; $i -lt $bytes.Length - 2; $i++) {
+    if ($bytes[$i] -eq 0xE1 -and ($bytes[$i+1] -eq 0xBA -or $bytes[$i+1] -eq 0xBB)) {
+        $hasCorrectVietnamese = $true; break
+    }
+}
+Write-Host "Vietnamese UTF-8 OK: $hasCorrectVietnamese"
+```
+
+---
+
+### Cách khôi phục nếu file bị hỏng encoding
+
+Nếu phát hiện file bị mojibake, **đừng dùng git checkout** (vì git history cũng bị hỏng từ đầu).
+
+**Cách duy nhất đúng:** Đọc nội dung qua `view_file` tool (tool này decode đúng UTF-8 và hiển thị text đúng), sau đó dùng `write_to_file` để ghi lại toàn bộ nội dung sạch.
+
+```
+1. view_file → đọc nội dung đúng (tool xử lý UTF-8 chính xác)
+2. write_to_file với Overwrite: true → ghi lại clean UTF-8
+3. hugo --gc --minify → build và verify
+4. Kiểm tra bytes E1 BA / E1 BB trong public HTML
+5. git add && git commit && git push
+```
+
+---
+
+## Quy tắc Push Git
+
+> **Cloudflare Pages có quota build nhất định — mỗi push = 1 lần build.**
+
+- ✅ Gom **tất cả thay đổi** vào **1 commit duy nhất** trước khi push.
+- ❌ Không push từng thay đổi nhỏ một.
+- ❌ Không push để "thử xem có lỗi không" — test bằng `hugo server` trên local trước.
+
+```bash
+# Quy trình chuẩn:
+hugo server                    # 1. Test local, kiểm tra kỹ
+hugo --gc --minify             # 2. Build production, đảm bảo 0 error
+git add -A
+git commit -m "mô tả rõ ràng"
+git push                       # 3. Push 1 lần duy nhất
+```
+
+---
+
+## Cấu trúc dự án
 
 ```
 glory-hinody/
-│
-├── hugo.yaml                     # ← Cấu hình chính (baseURL, menu, params)
-├── BUILD-GUIDE.md                # Hướng dẫn xây blog từ đầu
-├── DEV.GUIDE.md                  # File này
-├── cv.pdf                        # CV gốc — nguồn các bài viết kỹ thuật
-│
-├── assets/
-│   └── css/extended/
-│       └── custom.css            # ← CSS tùy biến toàn diện (glassmorphism, typography, cards, tags)
-│
+├── assets/css/extended/
+│   └── custom.css              ← CSS tùy chỉnh (theme override)
 ├── content/
-│   ├── about.md                  # Trang Giới thiệu
-│   ├── search.md                 # Trang Tìm kiếm client-side (Fuse.js)
-│   └── posts/
-│       ├── bai-viet-dau-tien.md              # Hướng dẫn xây blog (bài đầu)
-│       ├── openvideolab-video-diffusion.md   # Generative AI
-│       ├── graph-rag-neo4j-qdrant.md         # Agentic RAG
-│       ├── multi-agent-workflow-langraph.md  # Agentic RAG
-│       ├── on-device-ai-onnx-kotlin.md       # On-Device AI
-│       ├── quantization-int8-fp4-inference.md # Optimization
-│       └── depth-estimation-cnn-ssrc.md      # Computer Vision (SSRC Conference)
-│
+│   ├── about.md                ← Trang hồ sơ (layout: about)
+│   ├── 404.md                  ← Trang lỗi 404
+│   └── posts/                  ← Tất cả bài viết
 ├── layouts/
-│   ├── list.html                 # Override: Thêm thanh lọc chủ đề (Pill Navigation)
+│   ├── about.html              ← Layout riêng cho trang About (không có blog chrome)
+│   ├── 404.html                ← Layout trang 404 branded
+│   ├── list.html               ← Danh sách bài (post cards)
+│   ├── _default/_markup/
+│   │   └── render-codeblock-mermaid.html   ← Mermaid render hook
 │   └── partials/
-│       ├── comments.html         # Giscus embed container
-│       ├── extend_head.html      # Google Fonts (Plus Jakarta Sans, JetBrains Mono)
-│       ├── extend_post_content.html # Author Bio Box cuối mỗi bài viết
-│       ├── extend_footer.html    # Inject blog-stats.js
-│       ├── home_info.html        # Hero Banner trang chủ (Profile, CTA buttons, Social)
-│       ├── post_meta.html        # Override: Date · ReadTime · Tags · Stats
-│       └── share_icons.html      # Social share + nút Copy link / Web Share
-│
+│       ├── header.html         ← Override header (theme toggle Lucide icons)
+│       ├── home_info.html      ← Hero section trang chủ
+│       ├── extend_head.html    ← Font loading + OG image meta
+│       ├── extend_footer.html  ← Mermaid JS init
+│       ├── post_meta.html      ← Meta bài viết (stat badges)
+│       └── comments.html       ← Giscus comments
 ├── static/
-│   └── js/
-│       └── blog-stats.js         # Engine đếm like/comment/share + copy link feedback
-│
-├── i18n/
-│   └── vi.yaml                   # Override text: "dành X phút để đọc"
-│
-└── themes/
-    └── PaperMod/                 # Git submodule — KHÔNG sửa trực tiếp
+│   └── js/blog-stats.js        ← Đếm reaction/comment/share từ Giscus API
+└── hugo.yaml                   ← Cấu hình site chính
 ```
 
 ---
 
-## 3. Khởi động local (lần đầu)
+## Thêm bài viết mới
 
-```powershell
-# 1. Clone về (bắt buộc có --recurse-submodules vì PaperMod là submodule)
-git clone --recurse-submodules https://github.com/vinh-gogo/glory-hinody.git
-cd glory-hinody
-
-# 2. Nếu clone rồi mà theme bị trống:
-git submodule update --init --recursive
-
-# 3. Chạy dev server
-hugo server
-# → Mở http://localhost:1313
-```
-
-> ⚠️ Phải dùng Hugo **Extended** (không phải bản thường).  
-> Cài: `winget install Hugo.Hugo.Extended` (Windows) | `brew install hugo` (macOS)
-
----
-
-## 4. Workflow viết bài hằng ngày
-
-```powershell
-# Tạo bài mới
+```bash
+# Tạo bài mới từ archetype
 hugo new posts/ten-bai-viet.md
-
-# Mở file vừa tạo, sửa:
-#   - title: "Tiêu đề bài"
-#   - draft: false          ← QUAN TRỌNG, mặc định là true
-#   - tags: ["tag1", "tag2"]
-#   - description: "Mô tả ngắn hiện ở list và SEO"
-
-# Xem trước
-hugo server
-
-# Đăng bài
-git add .
-git commit -m "Bài mới: Tiêu đề bài"
-git push
-# → Cloudflare tự build, ~1-2 phút sau bài lên live
 ```
 
-### Frontmatter chuẩn cho một bài:
+Frontmatter bắt buộc:
 
 ```yaml
 ---
-date: '2026-09-29T18:00:00+07:00'
+title: "Tiêu đề bài viết"
+date: 2026-MM-DDT10:00:00+07:00    # ← Ngày phân bổ khác nhau giữa các bài
 draft: false
-title: 'Tiêu Đề Bài Viết'
-description: 'Mô tả ngắn (hiện ở card danh sách và thẻ SEO)'
-tags: ["tag-chinh", "tag-phu", "du-an"]
-ShowToc: true      # Hiện mục lục (nên bật với bài dài)
-TocOpen: false     # true = mở sẵn, false = đóng
+tags: ["tag1", "tag2"]
+description: "Mô tả ngắn hiện trên card và SEO (1-2 câu)"
+summary: "Tóm tắt hiện trên card danh sách bài"
+ShowToc: true
+TocOpen: true
 ---
 ```
 
----
-
-## 5. Các customization đã làm (KHÔNG có trong theme gốc)
-
-### 5.1 `layouts/partials/post_meta.html` — Metadata dòng dưới tiêu đề
-Ghi đè partial gốc của PaperMod. Hiện:
-- **Ngày đăng**
-- **"dành X phút để đọc"** (override i18n qua `i18n/vi.yaml`)
-- **Tags** dạng pill badge có link
-- **Thống kê:** ❤️ like · 💬 comment · 🔗 share (cập nhật qua JS)
-
-Nếu muốn bỏ hoặc thay đổi thứ tự → sửa file này.
-
-### 5.2 `static/js/blog-stats.js` — Engine thống kê
-Cơ chế hoạt động:
-```
-Người đọc mở bài
-  → Giscus load → emit postMessage với discussion metadata
-  → blog-stats.js nhận: { reactions, totalCommentCount }
-  → Lưu vào localStorage key: 'glory_stats_v1'
-  → Hiển thị trên post page VÀ list page
-```
-
-**Lưu ý quan trọng:**
-- Số liệu là **per-browser** (localStorage), không phải global
-- `—` = bài chưa được visit trên browser này (chưa có cache)
-- Share count = số lần click nút chia sẻ trên browser này
-- `data-emit-metadata="1"` trong `comments.html` là bắt buộc để nhận data
-
-localStorage key: `glory_stats_v1`  
-Schema: `{ "/posts/slug/": { likes: N, comments: N, shares: N, updated: timestamp } }`
-
-### 5.3 `layouts/partials/comments.html` — Giscus
-```
-repo:        vinh-gogo/glory-hinody
-repo-id:     R_kgDOUydxHQ
-category:    Announcements
-category-id: DIC_kwDOUydxHc4DGpvq
-mapping:     pathname
-```
-> ⚠️ Giscus **không hiện trên localhost** — chỉ kiểm tra được trên URL thật.  
-> Nếu không hiện: kiểm tra Giscus App đã được cài chưa tại https://github.com/apps/giscus
-
-### 5.4 Menu navigation
-Menu dùng tag pages thay vì section riêng:
-
-| Menu | URL | Cách hoạt động |
-|---|---|---|
-| Bài viết | `/posts/` | Section index |
-| Generative AI | `/tags/generative-ai/` | Auto từ tags bài viết |
-| AI Agentic | `/tags/agentic-rag/` | Auto từ tags bài viết |
-| On-Device AI | `/tags/on-device-ai/` | Auto từ tags bài viết |
-| Dự án | `/tags/du-an/` | Auto từ tags bài viết |
-| Giới thiệu | `/about/` | File `content/about.md` |
-
-→ Muốn thêm bài vào menu "Generative AI": thêm tag `generative-ai` vào frontmatter là đủ.
+> **Lưu ý ngày:** Không để tất cả bài cùng một ngày — sẽ trông như blog được tạo hàng loạt.
 
 ---
 
-## 6. Cloudflare Pages — Cài đặt build
+## Mermaid Diagrams
 
-| Trường | Giá trị |
+Dùng code block với language `mermaid`:
+
+````markdown
+```mermaid
+flowchart TD
+    A["Node A"] --> B["Node B"]
+    B --> C["Node C"]
+```
+````
+
+**Quy tắc tránh lỗi Mermaid:**
+
+| ❌ Không làm | ✅ Làm thay |
 |---|---|
-| Build command | `hugo --gc --minify` |
-| Output directory | `public` |
-| Env variable | `HUGO_VERSION = 0.167.0` |
-| Branch | `main` |
-
-> ⚠️ `HUGO_VERSION` **bắt buộc phải set**. Nếu thiếu, Cloudflare dùng Hugo cũ → build lỗi.  
-> Khi nâng cấp Hugo local, nhớ cập nhật biến này trong Cloudflare Dashboard.
+| Link `subgraph` → `subgraph` trực tiếp | Link node bên trong: `T1 --> T2` |
+| Dùng `<` trong label | Dùng `&lt;` hoặc viết lại không dùng ký tự đặc biệt |
+| Subgraph lồng nhau nhiều cấp | Gộp thành node đơn với label mô tả |
 
 ---
 
-## 7. Cập nhật theme PaperMod
+## Thông tin kỹ thuật
 
-```powershell
-git submodule update --remote --merge
-git add themes/PaperMod
-git commit -m "Cập nhật PaperMod theme"
-git push
-```
-
-> ⚠️ Sau khi cập nhật, kiểm tra `hugo server` còn chạy đúng không — theme mới có thể deprecate một số config.
-
----
-
-## 8. Trạng thái hiện tại & việc còn lại
-
-### ✅ Đã hoàn thành
-- [x] Hugo site + PaperMod theme
-- [x] Deploy Cloudflare Pages tại `glory-hinody.pages.dev`
-- [x] GitHub Discussions bật
-- [x] Giscus comments config (repo-id, category-id điền sẵn)
-- [x] 6 bài viết kỹ thuật từ CV
-- [x] Menu theo chủ đề (Generative AI, AI Agentic, On-Device AI, Dự án)
-- [x] Tags badge + thời gian đọc trong danh sách
-- [x] Thống kê like/comment/share (localStorage + Giscus metadata)
-- [x] i18n tiếng Việt cho reading time
-
-### ⏳ Còn thiếu
-- [ ] **Cài Giscus App** → https://github.com/apps/giscus/installations/new (chọn repo `glory-hinody`)
-- [ ] **Ảnh bìa** cho từng bài (đặt vào `static/images/` hoặc cạnh bài viết)
-- [ ] **Cloudflare Web Analytics** (bật trong Cloudflare dashboard — miễn phí, không cookie)
-- [ ] **Favicon** tùy chỉnh (hiện đang dùng default)
-- [ ] Bài viết mới định kỳ
-
----
-
-## 9. Lỗi hay gặp & cách fix
-
-| Triệu chứng | Nguyên nhân | Fix |
-|---|---|---|
-| Trang trắng sau deploy | Thiếu `HUGO_VERSION` env var | Thêm vào Cloudflare Pages Settings → Env Variables |
-| Theme bị mất | Chưa pull submodule | `git submodule update --init --recursive` |
-| Giscus không hiện | Chưa cài Giscus App | Vào https://github.com/apps/giscus |
-| Stats toàn hiện `—` | Chưa visit bài trên browser đó | Bình thường — mở từng bài, Giscus sẽ emit data |
-| Build lỗi `deprecated: languageCode` | Dùng `languageCode` cũ | Đã fix rồi: dùng `locale` trong hugo.yaml |
-| Bài không lên sau push | `draft: true` hoặc `date` ở tương lai | Sửa frontmatter |
-| Tag page 404 | Chưa có bài nào dùng tag đó | Thêm tag vào ít nhất 1 bài |
-
----
-
-## 10. Mở rộng trong tương lai
-
-### Thêm chủ đề mới vào menu
-1. Quyết định tag slug, ví dụ `computer-vision`
-2. Thêm vào `hugo.yaml`:
-   ```yaml
-   - { name: "Computer Vision", url: "/tags/computer-vision/", weight: 6 }
-   ```
-3. Thêm tag `computer-vision` vào các bài liên quan
-
-### Thêm ảnh bìa cho bài viết
-Đặt ảnh cạnh file bài viết (Page Bundle) hoặc trong `static/`:
-```yaml
-# Trong frontmatter bài viết:
-cover:
-  image: "/images/ten-anh.jpg"
-  alt: "Mô tả ảnh"
-  caption: "Caption hiện dưới ảnh"
-```
-
-### Đổi sang tên miền riêng
-1. Mua domain
-2. Cloudflare Pages → Custom Domains → thêm domain
-3. Cập nhật `baseURL` trong `hugo.yaml`
-4. Push lại
-
-### Nâng cấp stats lên realtime (tương lai xa)
-Hiện tại stats dùng localStorage (per-browser). Để có global realtime counter:
-- Thêm Cloudflare Worker làm API endpoint
-- Worker lưu vào Cloudflare KV
-- `blog-stats.js` fetch từ Worker thay vì localStorage
-
----
-
-*File này nên được cập nhật mỗi khi có thay đổi kiến trúc lớn.*
+| Hạng mục | Giá trị |
+|---|---|
+| **Hugo version** | `v0.167.0-extended` |
+| **Theme** | PaperMod (git submodule) |
+| **Hosting** | Cloudflare Pages (CI/CD tự động từ GitHub) |
+| **Comments** | Giscus — repo: `vinh-gogo/glory-hinody`, category: Announcements |
+| **Fonts** | JetBrains Mono · Plus Jakarta Sans · Space Grotesk (Google Fonts) |
+| **Live URL** | https://glory-hinody.pages.dev/ |
+| **GitHub repo** | https://github.com/vinh-gogo/glory-hinody |
