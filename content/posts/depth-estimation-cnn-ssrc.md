@@ -77,9 +77,12 @@ Nghiên cứu được thiết kế như một chuỗi tiến hóa kiến trúc 
 
 ```mermaid
 flowchart LR
-    M1["<b>THẾ HỆ 1: CAE</b><br/>Backbone ResNet<br/>7.09M params · 64 layers<br/><i>Hạn chế: Mờ viền do nghẽn bottleneck</i>"] 
-    -->|"Bổ sung Skip Connections"| M2["<b>THẾ HỆ 2: U-NET</b><br/>Backbone ResNet<br/>7.80M params · 68 layers<br/><i>Cải tiến: Giữ chi tiết, nhưng phình tham số</i>"]
-    -->|"Tái sử dụng đặc trưng DenseNet"| M3["<b>THẾ HỆ 3: U-NET CẢI TIẾN</b><br/>Lai ghép ResNet-DenseNet<br/>7.51M params · 105 layers<br/><i>Đột phá: Ít tham số hơn, sâu hơn, nét nhất</i>"]
+    M1["THẾ HỆ 1: CAE<br/>Backbone ResNet<br/>7.09M params · 64 layers<br/>Hạn chế: Mờ viền do bottleneck"]
+    M2["THẾ HỆ 2: U-NET<br/>Backbone ResNet<br/>7.80M params · 68 layers<br/>Cải tiến: Giữ chi tiết qua Skip Conns"]
+    M3["THẾ HỆ 3: U-NET CẢI TIẾN<br/>Lai ghép ResNet-DenseNet<br/>7.51M params · 105 layers<br/>Đột phá: Tái sử dụng đặc trưng, nét nhất"]
+
+    M1 -->|"Bổ sung Skip Connections"| M2
+    M2 -->|"Tái sử dụng đặc trưng DenseNet"| M3
 ```
 
 ### Thế hệ 1: Convolutional Autoencoder (CAE) — Bài học về "Nút Cổ Chai" (Bottleneck)
@@ -142,7 +145,7 @@ flowchart TD
     DB1 -.->|"Skip Connection"| UP3
     STEM -.->|"Skip Connection"| UP4
     
-    UP4 --> FINAL["Conv2D (1x1, Linear/Sigmoid) -> Depth Map (192 x 256 x 1)"]
+    UP4 --> FINAL["Conv2D (1x1, Linear/Sigmoid) → Depth Map (192 x 256 x 1)"]
 ```
 
 #### 3 Ưu thế lý thuyết và thực nghiệm vượt bậc:

@@ -52,7 +52,7 @@ flowchart TD
     QDR --> RRF
 
     RRF --> LLM["Context-Augmented LLM"]
-    LLM --> ANS["Câu trả lời chính xác (Độ trễ &lt; 2s)"]
+    LLM --> ANS["Câu trả lời chính xác (Độ trễ < 2s)"]
 ```
 
 ### Cách thức hoạt động:

@@ -51,7 +51,7 @@ flowchart TD
     A1 -->|"Online / Nâng cao"| C1
 
     subgraph ENGINES["INFERENCE ENGINES"]
-        L1["ONNX Mobile (CoreML/NNAPI)<br/>Int8 ~12MB · Độ trễ &lt; 45ms"]
+        L1["ONNX Mobile (CoreML/NNAPI)<br/>Int8 ~12MB · Độ trễ < 45ms"]
         C1["LLM Fallback (Gemini Flash)<br/>Phân tích ngữ pháp chuyên sâu"]
     end
 ```

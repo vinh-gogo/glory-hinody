@@ -42,10 +42,10 @@ Các kiến trúc **Diffusion Transformers (DiT)** thế hệ mới trong xử l
 flowchart TD
     IN["Văn bản / Ảnh tham chiếu / Audio"] --> T1
 
-    T1["<b>TẦNG 1: ĐIỀU PHỐI ĐA PHƯƠNG THỨC</b><br/>Text/Image-to-Video · Audio-to-Video (A2V) · MSR"]
-    T2["<b>TẦNG 2: DIT CORE (QUANTIZED INT8/FP4)</b><br/>LTX-2.5 / MiniMax / Wan · TurboLoRA · VRAM peak: dưới 14.5GB"]
-    T3["<b>TẦNG 3: NỘI SUY CHUYỂN ĐỘNG RIFE</b><br/>24fps — RIFE 2x ➔ 48fps · 4x ➔ 96fps Cinematic"]
-    T4["<b>TẦNG 4: HẬU KỲ TỰ ĐỘNG (FFMPEG)</b><br/>Stitching · Audio Sync · Mã hóa H.264 / H.265"]
+    T1["TẦNG 1: ĐIỀU PHỐI ĐA PHƯƠNG THỨC<br/>Text/Image-to-Video · Audio-to-Video (A2V) · MSR"]
+    T2["TẦNG 2: DIT CORE (QUANTIZED INT8/FP4)<br/>LTX-2.5 / MiniMax / Wan · TurboLoRA · VRAM peak: dưới 14.5GB"]
+    T3["TẦNG 3: NỘI SUY CHUYỂN ĐỘNG RIFE<br/>24fps — RIFE 2x → 48fps · 4x → 96fps Cinematic"]
+    T4["TẦNG 4: HẬU KỲ TỰ ĐỘNG (FFMPEG)<br/>Stitching · Audio Sync · Mã hóa H.264 / H.265"]
 
     T1 --> T2
     T2 -->|"Video Raw (24fps, 720p)"| T3
