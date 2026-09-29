@@ -135,6 +135,60 @@
 <div id="google_translate_element" class="google-translate-hidden notranslate" translate="no"></div>
 <script>
   (function() {
+
+    /* ── 1. Ẩn banner ngay khi có — chạy cực sớm ─────────────────── */
+    function suppressTranslateBanner() {
+      var selectors = [
+        'iframe.goog-te-banner-frame',
+        '.goog-te-banner-frame',
+        '.VIpgJd-ZVi9od-xl07Ob-OEVmcd',
+        '.VIpgJd-ZVi9od-xl07Ob',
+        '[class*="VIpgJd-ZVi9od"]',
+        'iframe[id^="goog-gt-"]',
+        'iframe[class*="goog-te-"]',
+        '#goog-gt-tt', '#goog-gt-vt',
+        '.goog-te-balloon-frame',
+        '.goog-te-ftab-frame'
+      ];
+      selectors.forEach(function(sel) {
+        try {
+          document.querySelectorAll(sel).forEach(function(el) {
+            el.style.setProperty('display', 'none', 'important');
+            el.style.setProperty('visibility', 'hidden', 'important');
+            el.style.setProperty('height', '0', 'important');
+          });
+        } catch(e) {}
+      });
+    }
+
+    /* ── 2. Reset body.top ngay lập tức qua MutationObserver ─────── */
+    /* Dùng MO thay setInterval → phản ứng trong cùng frame render   */
+    function watchBodyTop() {
+      // Xử lý ngay khi body style thay đổi
+      var bodyObserver = new MutationObserver(function() {
+        var b = document.body;
+        if (!b) return;
+        if (b.style.top && b.style.top !== '0px' && b.style.top !== '') {
+          b.style.setProperty('top', '0', 'important');
+        }
+        if (b.style.position === 'relative') {
+          b.style.setProperty('position', 'static', 'important');
+        }
+        suppressTranslateBanner();
+      });
+      if (document.body) {
+        bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['style', 'class'] });
+        bodyObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'class'] });
+      }
+      // Dự phòng nếu body chưa có
+      document.addEventListener('DOMContentLoaded', function() {
+        bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['style', 'class'] });
+        bodyObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'class'] });
+        suppressTranslateBanner();
+      });
+    }
+
+    /* ── 3. Bảo vệ code/math khỏi bị dịch ───────────────────────── */
     function protectCodeAndMath() {
       var selectors = [
         'pre', 'code', '.highlight', '.chroma',
@@ -152,19 +206,7 @@
       });
     }
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', protectCodeAndMath);
-    } else {
-      protectCodeAndMath();
-    }
-
-    function resetBodyTop() {
-      if (document.body && document.body.style.top && document.body.style.top !== '0px') {
-        document.body.style.setProperty('top', '0px', 'important');
-      }
-    }
-    setInterval(resetBodyTop, 200);
-
+    /* ── 4. Toast thông báo ──────────────────────────────────────── */
     function showToast(prefix, msg) {
       var toast = document.getElementById('terminal-lang-toast');
       if (!toast) {
@@ -176,35 +218,58 @@
       }
       toast.innerHTML = '<span class="toast-prefix">' + prefix + '</span>' + msg;
       toast.classList.add('show');
-      setTimeout(function() {
-        toast.classList.remove('show');
-      }, 2400);
+      setTimeout(function() { toast.classList.remove('show'); }, 2400);
     }
 
+    /* ── 5. Cookie googtrans ─────────────────────────────────────── */
     function setCookie(val) {
-      var expires = "expires=" + new Date(Date.now() + 30 * 864e5).toUTCString();
-      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      document.cookie = "googtrans=" + val + "; " + expires + "; path=/";
+      var exp = new Date(Date.now() + 30 * 864e5).toUTCString();
+      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'googtrans=' + val + '; expires=' + exp + '; path=/;';
+    }
+    function clearCookie() {
+      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'googtrans=/vi/vi; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     }
 
+    /* ── 6. Cập nhật trạng thái nút VI / EN ─────────────────────── */
     function updateLangButtons() {
       var stored = localStorage.getItem('user_lang');
       var cookieMatch = document.cookie.match(/(?:^|;\s*)googtrans=([^;]*)/);
       var isEn = (stored === 'en') || (cookieMatch && cookieMatch[1].indexOf('/en') !== -1);
-
       var btnVi = document.getElementById('btn-lang-vi');
       var btnEn = document.getElementById('btn-lang-en');
       if (btnVi && btnEn) {
-        if (isEn) {
-          btnEn.classList.add('active');
-          btnVi.classList.remove('active');
-        } else {
-          btnVi.classList.add('active');
-          btnEn.classList.remove('active');
-        }
+        btnEn.classList.toggle('active', isEn);
+        btnVi.classList.toggle('active', !isEn);
       }
     }
 
+    /* ── 7. Apply EN translation — poll nhanh, retry tự động ─────── */
+    function applyEnglish(onDone) {
+      var attempts = 0;
+      var maxAttempts = 40; // 40 × 100ms = 4 giây
+      var timer = setInterval(function() {
+        attempts++;
+        var select = document.querySelector('.goog-te-combo');
+        if (select) {
+          clearInterval(timer);
+          if (select.value !== 'en') {
+            select.value = 'en';
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            select.dispatchEvent(new Event('input',  { bubbles: true }));
+          }
+          suppressTranslateBanner();
+          if (onDone) onDone();
+        } else if (attempts >= maxAttempts) {
+          clearInterval(timer);
+          // Google Translate chưa load xong → reload để cookie apply
+          window.location.reload();
+        }
+      }, 100);
+    }
+
+    /* ── 8. Public API: switchLanguage ───────────────────────────── */
     window.switchLanguage = function(lang) {
       protectCodeAndMath();
       var current = localStorage.getItem('user_lang') || 'vi';
@@ -215,31 +280,17 @@
         setCookie('/vi/en');
         updateLangButtons();
         showToast('// I18N:', 'Switching to English...');
-
-        var select = document.querySelector('.goog-te-combo');
-        if (select) {
-          select.value = 'en';
-          select.dispatchEvent(new Event('change', { bubbles: true }));
-          select.dispatchEvent(new Event('input', { bubbles: true }));
-        } else {
-          window.location.reload();
-        }
+        applyEnglish();
       } else {
         localStorage.setItem('user_lang', 'vi');
-        document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        document.cookie = "googtrans=/vi/vi; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        clearCookie();
         updateLangButtons();
         showToast('// I18N:', 'Khôi phục Tiếng Việt gốc...');
-        window.location.reload();
+        setTimeout(function() { window.location.reload(); }, 300);
       }
     };
 
-    updateLangButtons();
-    window.addEventListener('load', function() {
-      protectCodeAndMath();
-      updateLangButtons();
-    });
-
+    /* ── 9. Google Translate init callback ───────────────────────── */
     window.googleTranslateElementInit = function() {
       new google.translate.TranslateElement({
         pageLanguage: 'vi',
@@ -247,21 +298,41 @@
         autoDisplay: false
       }, 'google_translate_element');
 
+      suppressTranslateBanner();
+
       if (localStorage.getItem('user_lang') === 'en') {
-        var pollTimer = setInterval(function() {
-          var select = document.querySelector('.goog-te-combo');
-          if (select) {
-            clearInterval(pollTimer);
-            if (select.value !== 'en') {
-              select.value = 'en';
-              select.dispatchEvent(new Event('change', { bubbles: true }));
-              select.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-          }
-        }, 150);
-        setTimeout(function() { clearInterval(pollTimer); }, 4000);
+        applyEnglish(suppressTranslateBanner);
       }
     };
+
+    /* ── 10. Bootstrap ────────────────────────────────────────────── */
+    // Chạy ngay lập tức
+    watchBodyTop();
+    suppressTranslateBanner();
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        protectCodeAndMath();
+        updateLangButtons();
+        suppressTranslateBanner();
+      });
+    } else {
+      protectCodeAndMath();
+      updateLangButtons();
+      suppressTranslateBanner();
+    }
+
+    window.addEventListener('load', function() {
+      protectCodeAndMath();
+      updateLangButtons();
+      suppressTranslateBanner();
+    });
+
+    // Extra safety: suppress banner thêm 1 lần sau 800ms
+    // (thời điểm Google Translate thường mới xong init)
+    setTimeout(suppressTranslateBanner, 800);
+    setTimeout(suppressTranslateBanner, 1500);
+
   })();
 </script>
 <script defer src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
