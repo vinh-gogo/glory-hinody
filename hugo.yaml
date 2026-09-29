@@ -15,4 +15,8 @@ params:
 menu:
   main:
     - { name: "Bài viết", url: "/posts/", weight: 1 }
-    - { name: "Giới thiệu", url: "/about/", weight: 2 }
+    - { name: "Generative AI", url: "/tags/generative-ai/", weight: 2 }
+    - { name: "AI Agentic", url: "/tags/agentic-rag/", weight: 3 }
+    - { name: "On-Device AI", url: "/tags/on-device-ai/", weight: 4 }
+    - { name: "Dự án", url: "/tags/du-an/", weight: 5 }
+    - { name: "Giới thiệu", url: "/about/", weight: 6 }
