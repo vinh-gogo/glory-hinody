@@ -10,7 +10,7 @@
     <span class="meta-readtime">{{ printf "%02d" .ReadingTime }} MIN READ</span>
     <span class="meta-slash">/</span>
     {{- end }}
-    <div class="post-stats-pill">
+    <div class="post-stats-pill notranslate" translate="no">
       <span class="stat-badge stat-likes" title="Lượt thích / Phản hồi"><svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span class="stat-label">REACTION:</span><span class="stat-count">0</span></span>
       <span class="stat-sep">/</span>
       <span class="stat-badge stat-comments" title="Bình luận qua GitHub Discussions"><svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="stat-label">COMMENTS:</span><span class="stat-count">0</span></span>
@@ -20,10 +20,10 @@
   </div>
 
   {{- with (.Param "tags") }}
-  <div class="single-tags-row">
+  <div class="single-tags-row notranslate" translate="no">
     <span class="tags-label">TAGS //</span>
     {{- range . }}
-    <a href="/tags/{{ . | urlize }}/" class="tag-bracket">[{{ . }}]</a>
+    <a href="{{ printf "/tags/%s/" (. | urlize) | absLangURL }}" class="tag-bracket">[{{ . }}]</a>
     {{- end }}
   </div>
   {{- end }}

@@ -130,13 +130,28 @@ code, pre, kbd, samp {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0 20px;
-  height: var(--header-height);
+  min-height: var(--header-height);
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.header-brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
 }
 
 /* Distinctive Monogram Brand */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
 .logo a {
   display: inline-flex;
   align-items: center;
@@ -164,7 +179,59 @@ code, pre, kbd, samp {
   background: var(--accent-dim);
 }
 
-/* Nav Menu */
+/* ── Header Controls (Theme Toggle & Lang Switcher) ────────────────────── */
+.header-switches {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  min-height: unset !important;
+  height: auto !important;
+}
+
+.header-switches > * {
+  min-height: unset !important;
+  line-height: 1 !important;
+}
+
+.theme-toggle {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.theme-toggle:active {
+  transform: translateY(0) scale(0.92);
+}
+
+.theme-toggle:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-dim);
+}
+
+/* ── Nav Menu ──────────────────────────────────────────────────────────── */
 .menu {
   display: flex;
   align-items: center;
@@ -195,54 +262,35 @@ code, pre, kbd, samp {
   text-underline-offset: 4px;
 }
 
-/* ── Theme Toggle Button (Ultra-Polished & Glitch-Free) ────────────────── */
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+/* ── Mobile Responsive Header (< 768px) ────────────────────────────────── */
+@media (max-width: 768px) {
+  .header-nav {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px 16px 8px;
+    gap: 8px;
+    min-height: unset;
+    height: auto;
+  }
 
-.logo-switches {
-  display: inline-flex;
-  align-items: center;
-  min-height: unset !important;
-}
+  .header-brand-wrap {
+    width: 100%;
+    justify-content: space-between;
+  }
 
-.theme-toggle {
-  position: relative;
-  width: 36px;
-  height: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  color: var(--text-dim);
-  cursor: pointer;
-  padding: 0;
-  margin: 0;
-  outline: none;
-  box-sizing: border-box;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
+  .menu {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    gap: 14px;
+    padding: 4px 0 2px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
 
-.theme-toggle:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-dim);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.theme-toggle:active {
-  transform: translateY(0) scale(0.92);
-}
-
-.theme-toggle:focus-visible {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-dim);
+  .menu::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Ensure absolute positioning so icons occupy the exact same center position and never overlap */
@@ -1392,3 +1440,147 @@ code, pre, kbd, samp {
 }
 
 .error-btn-secondary:hover { opacity: 0.75; }
+
+/* ==========================================================================
+   AUTO-TRANSLATE SWITCHER & GOOGLE TRANSLATE ENGINE TWEAKS
+   ========================================================================== */
+
+.lang-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  height: 32px;
+  padding: 2px 4px;
+  border-radius: 6px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  user-select: none;
+  vertical-align: middle;
+}
+
+.lang-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 6px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.lang-btn:hover {
+  color: var(--text);
+  background: var(--tertiary);
+}
+
+.lang-btn.active {
+  color: var(--accent-contrast, #090b0e) !important;
+  background: var(--accent) !important;
+  font-weight: 700;
+}
+
+.lang-slash {
+  color: var(--line);
+  font-size: 0.65rem;
+  opacity: 0.8;
+  margin: 0 1px;
+}
+
+/* Hide Google Translate offscreen so it initializes and stays interactive without visual artifacts */
+.google-translate-hidden,
+#google_translate_element {
+  position: fixed !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: -9999 !important;
+}
+
+/* Hide top banner frame and prevent page top displacement */
+iframe.goog-te-banner-frame,
+.goog-te-banner-frame,
+.VIpgJd-ZVi9od-xl07Ob-OEVmcd {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  max-height: 0 !important;
+}
+
+html, body {
+  top: 0px !important;
+  position: static !important;
+}
+
+/* Hide hover popups, balloons, and tooltips */
+#goog-gt-tt,
+#goog-gt-vt,
+.goog-te-balloon-frame,
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Eliminate hover highlight and background shift */
+.goog-text-highlight {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  cursor: inherit !important;
+}
+
+font {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Minimalist Terminal Toast for Language Switch Feedback */
+.terminal-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--entry);
+  color: var(--text);
+  border: 1px solid var(--accent);
+  padding: 8px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  z-index: 999999;
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.terminal-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.terminal-toast .toast-prefix {
+  color: var(--accent);
+  margin-right: 6px;
+}
+
