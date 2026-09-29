@@ -94,7 +94,6 @@
       var statsEl = document.querySelector('.post-stats-pill') || document.querySelector('.post-stats');
       if (statsEl) renderStats(statsEl, current);
 
-      var label = document.getElementById('copy-btn-label');
       if (navigator.share && /mobile|android|iphone/i.test(navigator.userAgent)) {
         navigator.share({
           title: document.title,
@@ -102,11 +101,9 @@
         }).catch(function () {});
       } else if (navigator.clipboard) {
         navigator.clipboard.writeText(window.location.href).then(function () {
-          if (label) {
-            var oldText = label.textContent;
-            label.textContent = 'Đã chép link! ✨';
-            setTimeout(function () { label.textContent = oldText; }, 2000);
-          }
+          var oldText = copyBtn.textContent;
+          copyBtn.textContent = '[LINK COPIED!]';
+          setTimeout(function () { copyBtn.textContent = oldText; }, 2000);
         });
       }
       return;

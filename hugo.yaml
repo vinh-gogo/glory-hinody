@@ -13,7 +13,7 @@ outputs:
 params:
   env: production
   title: "Glory Hinody"
-  description: "Blog cá nhân của Lê Quang Vinh — AI Engineer. Chuyên sâu về Generative AI, AI Agentic RAG, On-Device AI và Kiến trúc phần mềm."
+  description: "Technical logbook của Lê Quang Vinh (AI Engineer). Chuyên sâu về Generative AI, Video Diffusion, GraphRAG và On-Device AI."
   keywords: ["AI Engineer", "Generative AI", "Video Diffusion", "GraphRAG", "On-Device AI", "Lê Quang Vinh", "PaperMod"]
   author: "Lê Quang Vinh"
   defaultTheme: auto
@@ -28,8 +28,8 @@ params:
   ShareButtons: ["facebook", "linkedin", "telegram", "x"]
 
   homeInfoParams:
-    Title: "Xin chào, tôi là Lê Quang Vinh 👋"
-    Content: "Kỹ sư AI chuyên sâu về Generative AI, AI Agentic RAG và On-Device AI."
+    Title: "Glory Hinody"
+    Content: "Technical logbook của Lê Quang Vinh."
     AlignSocialIconsTo: left
 
   socialIcons:
@@ -54,7 +54,7 @@ params:
 
 menu:
   main:
-    - { name: "📝 Bài viết", url: "/posts/", weight: 1 }
-    - { name: "🏷️ Chủ đề", url: "/tags/", weight: 2 }
-    - { name: "🔍 Tìm kiếm", url: "/search/", weight: 3 }
-    - { name: "👤 Giới thiệu", url: "/about/", weight: 4 }
+    - { name: "BÀI VIẾT", url: "/posts/", weight: 1 }
+    - { name: "CHỦ ĐỀ", url: "/tags/", weight: 2 }
+    - { name: "TÌM KIẾM", url: "/search/", weight: 3 }
+    - { name: "TÁC GIẢ", url: "/about/", weight: 4 }

@@ -1,39 +1,38 @@
-<div class="post-meta-wrapper">
-  <div class="post-meta-line">
+<div class="single-post-meta">
+  <div class="single-meta-row">
+    <span class="meta-tag">// LOG</span>
+    <span class="meta-slash">/</span>
     {{- if not .Date.IsZero }}
-    <span class="meta-item meta-date" title="{{ .Date }}">
-      <svg class="meta-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-      {{ .Date | time.Format (default "02/01/2006" .Site.Params.DateFormat) }}
-    </span>
+    <time class="meta-date">{{ .Date.Format "2006.01.02" }}</time>
+    <span class="meta-slash">/</span>
     {{- end }}
-
     {{- if (.Param "ShowReadingTime") }}
-    <span class="meta-item meta-readtime">
-      <svg class="meta-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-      {{ i18n "read_time" .ReadingTime | default (printf "dành %d phút để đọc" .ReadingTime) }}
-    </span>
+    <span class="meta-readtime">{{ printf "%02d" .ReadingTime }} MIN READ</span>
+    <span class="meta-slash">/</span>
     {{- end }}
-
     <div class="post-stats-pill">
-      <span class="stat-badge stat-likes" title="Lượt thích">
-        <span class="stat-icon">❤️</span>
+      <span class="stat-badge stat-likes" title="Reactions">
+        <span class="stat-label">REACTION:</span>
         <span class="stat-count">0</span>
       </span>
+      <span class="stat-sep">/</span>
       <span class="stat-badge stat-comments" title="Bình luận">
-        <span class="stat-icon">💬</span>
+        <span class="stat-label">COMMENTS:</span>
         <span class="stat-count">0</span>
       </span>
+      <span class="stat-sep">/</span>
       <span class="stat-badge stat-shares" title="Chia sẻ">
-        <span class="stat-icon">🔗</span>
+        <span class="stat-label">SHARES:</span>
         <span class="stat-count">0</span>
       </span>
     </div>
   </div>
 
   {{- with (.Param "tags") }}
-  <div class="post-tags-pill-list">
+  <div class="single-tags-row">
+    <span class="tags-label">TAGS //</span>
     {{- range . }}
-    <a href="/tags/{{ . | urlize }}/" class="post-tag-badge">#{{ . }}</a>
+    <a href="/tags/{{ . | urlize }}/" class="tag-bracket">[{{ . }}]</a>
     {{- end }}
   </div>
   {{- end }}
