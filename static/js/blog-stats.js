@@ -52,11 +52,17 @@
     var stats   = load();
     var current = stats[path] || {};
 
-    current.likes    = msg.discussion.reactions
-      ? Object.values(msg.discussion.reactions).reduce(function (s, v) {
-          return s + (typeof v === 'number' ? v : 0);
-        }, 0)
-      : (current.likes || 0);
+    /* Giscus gửi reactionGroups: [{content, count, viewerHasReacted}] */
+    if (msg.discussion.reactionGroups) {
+      current.likes = msg.discussion.reactionGroups.reduce(function (s, g) {
+        return s + (g.count || 0);
+      }, 0);
+    } else if (msg.discussion.reactions) {
+      /* Fallback nếu format cũ */
+      current.likes = Object.values(msg.discussion.reactions).reduce(function (s, v) {
+        return s + (typeof v === 'number' ? v : 0);
+      }, 0);
+    }
     current.comments = msg.discussion.totalCommentCount != null
       ? msg.discussion.totalCommentCount
       : (current.comments || 0);
