@@ -1,0 +1,18 @@
+baseURL: "https://glory-hinody.pages.dev/"   # sẽ đổi khi có tên miền riêng
+locale: vi
+defaultContentLanguage: vi
+title: "Glory Hinody"
+theme: PaperMod
+
+params:
+  description: "Mô tả ngắn về blog"
+  defaultTheme: auto        # tự theo sáng/tối của thiết bị
+  ShowReadingTime: true
+  ShowShareButtons: true    # nút chia sẻ
+  comments: true            # bật khung bình luận
+  ShareButtons: ["facebook", "twitter", "telegram", "whatsapp", "linkedin"]
+
+menu:
+  main:
+    - { name: "Bài viết", url: "/posts/", weight: 1 }
+    - { name: "Giới thiệu", url: "/about/", weight: 2 }
