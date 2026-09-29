@@ -1,14 +1,26 @@
 {{- with site.Params.homeInfoParams }}
 <article class="first-entry home-info">
-    <header class="entry-header">
-        <h1>{{ .Title | markdownify }}</h1>
-    </header>
-    <div class="entry-content md-content">
-        {{ $opts := dict "display" "block" }}
-        {{ .Content | $.Page.RenderString $opts }}
+  <header class="entry-header">
+    <div class="hero-eyebrow">~/logbook</div>
+    <h1 class="hero-name">LÊ QUANG VINH</h1>
+    <div class="hero-role">[RESEARCH &amp; DEV]</div>
+    <p class="hero-tagline">On-Device AI · Diffusion Transformers · Agentic Systems</p>
+  </header>
+  <div class="entry-content md-content">
+    <p class="hero-bio">Kỹ sư AI tại TP. Hồ Chí Minh. Tốt nghiệp Khoa học Máy tính (IUH, 4.0/4.0), công bố khoa học tại SSRC. Tập trung tối ưu hóa suy luận mô hình trên phần cứng tài nguyên giới hạn.</p>
+    <div class="hero-tech-stack">
+      <span class="tech-chip">int8 / fp4</span>
+      <span class="tech-chip">LangGraph</span>
+      <span class="tech-chip">ONNX</span>
+      <span class="tech-chip">DiT</span>
+      <span class="tech-chip">KMP</span>
     </div>
-    <footer class="entry-footer">
-        {{ partial "social_icons.html" (dict "align" site.Params.homeInfoParams.AlignSocialIconsTo) }}
-    </footer>
+  </div>
+  <footer class="entry-footer">
+    <div class="hero-footer-row">
+      {{ partial "social_icons.html" (dict "align" "left") }}
+      <a class="hero-cta" href="/about/">HỒ SƠ NĂNG LỰC →</a>
+    </div>
+  </footer>
 </article>
 {{- end -}}

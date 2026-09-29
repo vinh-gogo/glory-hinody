@@ -1,64 +1,64 @@
----
-title: "Quantization Int8/FP4: Chạy Model AI Lớn Trên GPU Tài Nguyên Giới Hạn"
-date: 2026-09-29T12:00:00+07:00
+﻿---
+title: "Quantization Int8/FP4: Cháº¡y Model AI Lá»›n TrÃªn GPU TÃ i NguyÃªn Giá»›i Háº¡n"
+date: 2026-09-18T10:00:00+07:00
 draft: false
 tags: ["generative-ai", "on-device-ai", "optimization"]
-description: "Phân tích toán học và đo đạc thực nghiệm kỹ thuật nén lượng tử hóa Int8 và FP4 giúp chạy các mô hình Diffusion Transformer 13B–30B trên GPU 16GB không bị tràn bộ nhớ (OOM)."
-summary: "Phân tích toán học và đo đạc thực nghiệm kỹ thuật nén lượng tử hóa Int8 và FP4 giúp chạy các mô hình Diffusion Transformer 13B–30B trên GPU 16GB không bị tràn bộ nhớ (OOM)."
+description: "PhÃ¢n tÃ­ch toÃ¡n há»c vÃ  Ä‘o Ä‘áº¡c thá»±c nghiá»‡m ká»¹ thuáº­t nÃ©n lÆ°á»£ng tá»­ hÃ³a Int8 vÃ  FP4 giÃºp cháº¡y cÃ¡c mÃ´ hÃ¬nh Diffusion Transformer 13Bâ€“30B trÃªn GPU 16GB khÃ´ng bá»‹ trÃ n bá»™ nhá»› (OOM)."
+summary: "PhÃ¢n tÃ­ch toÃ¡n há»c vÃ  Ä‘o Ä‘áº¡c thá»±c nghiá»‡m ká»¹ thuáº­t nÃ©n lÆ°á»£ng tá»­ hÃ³a Int8 vÃ  FP4 giÃºp cháº¡y cÃ¡c mÃ´ hÃ¬nh Diffusion Transformer 13Bâ€“30B trÃªn GPU 16GB khÃ´ng bá»‹ trÃ n bá»™ nhá»› (OOM)."
 ShowToc: true
 TocOpen: true
 ---
 
-## 1. Minh Chứng & Bảng Đo Đạc Thực Nghiệm (Evidence & Benchmarks)
+## 1. Minh Chá»©ng & Báº£ng Äo Äáº¡c Thá»±c Nghiá»‡m (Evidence & Benchmarks)
 
-Các số liệu dưới đây được đo đạc trực tiếp trên mô hình **LTX-2.5 Diffusion Transformer** sử dụng card đồ họa **NVIDIA GeForce RTX 4080 (16GB VRAM)** trong quá trình xây dựng dự án OpenVideoLab:
+CÃ¡c sá»‘ liá»‡u dÆ°á»›i Ä‘Ã¢y Ä‘Æ°á»£c Ä‘o Ä‘áº¡c trá»±c tiáº¿p trÃªn mÃ´ hÃ¬nh **LTX-2.5 Diffusion Transformer** sá»­ dá»¥ng card Ä‘á»“ há»a **NVIDIA GeForce RTX 4080 (16GB VRAM)** trong quÃ¡ trÃ¬nh xÃ¢y dá»±ng dá»± Ã¡n OpenVideoLab:
 
-| Định dạng lượng tử hóa | VRAM tiêu thụ | Tốc độ / frame | Mức giảm VRAM | Biến thiên FID | Trạng thái thực thi |
+| Äá»‹nh dáº¡ng lÆ°á»£ng tá»­ hÃ³a | VRAM tiÃªu thá»¥ | Tá»‘c Ä‘á»™ / frame | Má»©c giáº£m VRAM | Biáº¿n thiÃªn FID | Tráº¡ng thÃ¡i thá»±c thi |
 |---|---|---|---|---|---|
-| **FP16 (Baseline)** | `~26.4 GB` | N/A | 0% | 0.0 (Chuẩn) | ❌ **OOM (Tràn VRAM)** |
-| **Int8 Weight-Only** | `~13.2 GB` | `2.8 giây` | **- 50.0%** | `+ 2.4%` (Rất tốt) | ✅ **Chạy mượt mà** |
-| **FP4 (Microscaling)** | `~7.1 GB` | `1.6 giây` | **- 73.1%** | `+ 9.8%` (Chấp nhận) | ✅ **Chạy siêu tốc** |
-| **FP4 + KV-Cache Opt** | `~7.6 GB` | `1.1 giây` | **- 71.2%** | `+ 9.8%` | ✅ **Preview tức thì** |
+| **FP16 (Baseline)** | `~26.4 GB` | N/A | 0% | 0.0 (Chuáº©n) | âŒ **OOM (TrÃ n VRAM)** |
+| **Int8 Weight-Only** | `~13.2 GB` | `2.8 giÃ¢y` | **- 50.0%** | `+ 2.4%` (Ráº¥t tá»‘t) | âœ… **Cháº¡y mÆ°á»£t mÃ ** |
+| **FP4 (Microscaling)** | `~7.1 GB` | `1.6 giÃ¢y` | **- 73.1%** | `+ 9.8%` (Cháº¥p nháº­n) | âœ… **Cháº¡y siÃªu tá»‘c** |
+| **FP4 + KV-Cache Opt** | `~7.6 GB` | `1.1 giÃ¢y` | **- 71.2%** | `+ 9.8%` | âœ… **Preview tá»©c thÃ¬** |
 
-- **Mã nguồn tham chiếu:** [`github.com/vinh-gogo/open-video-lab`](https://github.com/vinh-gogo/open-video-lab)
-- **Thư viện sử dụng:** `torchao` (PyTorch Architecture Optimization) và `bitsandbytes`.
+- **MÃ£ nguá»“n tham chiáº¿u:** [`github.com/vinh-gogo/open-video-lab`](https://github.com/vinh-gogo/open-video-lab)
+- **ThÆ° viá»‡n sá»­ dá»¥ng:** `torchao` (PyTorch Architecture Optimization) vÃ  `bitsandbytes`.
 
 ---
 
-## 2. Bản Chất Toán Học Của Quá Trình Lượng Tử Hóa
+## 2. Báº£n Cháº¥t ToÃ¡n Há»c Cá»§a QuÃ¡ TrÃ¬nh LÆ°á»£ng Tá»­ HÃ³a
 
-Mỗi trọng số $W$ trong mô hình neural network chuẩn FP16 cần 16 bit: 1 bit dấu, 5 bit số mũ, 10 bit phần định trị.
+Má»—i trá»ng sá»‘ $W$ trong mÃ´ hÃ¬nh neural network chuáº©n FP16 cáº§n 16 bit: 1 bit dáº¥u, 5 bit sá»‘ mÅ©, 10 bit pháº§n Ä‘á»‹nh trá»‹.
 
-Để nén ma trận trọng số $W$ về **Int8 (8-bit có dấu: $[-128, 127]$)**, ta thực hiện phép ánh xạ affine với hệ số tỷ lệ (**Scale Factor** $S$) và điểm zero (**Zero Point** $Z$):
+Äá»ƒ nÃ©n ma tráº­n trá»ng sá»‘ $W$ vá» **Int8 (8-bit cÃ³ dáº¥u: $[-128, 127]$)**, ta thá»±c hiá»‡n phÃ©p Ã¡nh xáº¡ affine vá»›i há»‡ sá»‘ tá»· lá»‡ (**Scale Factor** $S$) vÃ  Ä‘iá»ƒm zero (**Zero Point** $Z$):
 
 $$Q = \text{clamp}\left(\left\lfloor \frac{W}{S} \right\rceil + Z, -128, 127\right)$$
 
-Trong đó hệ số tỷ lệ $S$ được tính toán trên từng khối (per-channel hoặc per-group block):
+Trong Ä‘Ã³ há»‡ sá»‘ tá»· lá»‡ $S$ Ä‘Æ°á»£c tÃ­nh toÃ¡n trÃªn tá»«ng khá»‘i (per-channel hoáº·c per-group block):
 
 $$S = \frac{\max(W) - \min(W)}{2^b - 1}$$
 
-Khi suy luận (De-quantization), ta giải mã ngược lại trên thanh ghi tensor cores:
+Khi suy luáº­n (De-quantization), ta giáº£i mÃ£ ngÆ°á»£c láº¡i trÃªn thanh ghi tensor cores:
 
 $$\tilde{W} = S \times (Q - Z)$$
 
-Nhờ giữ được độ phân giải động cục bộ theo từng block (Block-wise quantization với block size = 64 hoặc 128), ma trận trọng số Int8 tái tạo lại 97.6% độ chính xác của FP16 nhưng giải phóng một nửa dung lượng bộ nhớ.
+Nhá» giá»¯ Ä‘Æ°á»£c Ä‘á»™ phÃ¢n giáº£i Ä‘á»™ng cá»¥c bá»™ theo tá»«ng block (Block-wise quantization vá»›i block size = 64 hoáº·c 128), ma tráº­n trá»ng sá»‘ Int8 tÃ¡i táº¡o láº¡i 97.6% Ä‘á»™ chÃ­nh xÃ¡c cá»§a FP16 nhÆ°ng giáº£i phÃ³ng má»™t ná»­a dung lÆ°á»£ng bá»™ nhá»›.
 
 ---
 
-## 3. Vì Sao FP4 Microscaling (Micro-exponent) Vượt Trội?
+## 3. VÃ¬ Sao FP4 Microscaling (Micro-exponent) VÆ°á»£t Trá»™i?
 
-Định dạng 4-bit thông thường (Int4) thường bị hiện tượng "kẹt dải giá trị" (underflow) ở các trọng số có độ lệch lớn (outliers). 
+Äá»‹nh dáº¡ng 4-bit thÃ´ng thÆ°á»ng (Int4) thÆ°á»ng bá»‹ hiá»‡n tÆ°á»£ng "káº¹t dáº£i giÃ¡ trá»‹" (underflow) á»Ÿ cÃ¡c trá»ng sá»‘ cÃ³ Ä‘á»™ lá»‡ch lá»›n (outliers). 
 
-Giải pháp hiện đại là **FP4 E2M1** (2 bit exponent, 1 bit mantissa) kết hợp cơ chế **Microscaling (MXFP4)**:
-- Chia ma trận thành các cụm nhỏ 32 phần tử.
-- Mỗi cụm có một hệ số scale FP8 chung.
-- 4 bit còn lại chỉ biểu diễn giá trị tương đối trong cụm.
+Giáº£i phÃ¡p hiá»‡n Ä‘áº¡i lÃ  **FP4 E2M1** (2 bit exponent, 1 bit mantissa) káº¿t há»£p cÆ¡ cháº¿ **Microscaling (MXFP4)**:
+- Chia ma tráº­n thÃ nh cÃ¡c cá»¥m nhá» 32 pháº§n tá»­.
+- Má»—i cá»¥m cÃ³ má»™t há»‡ sá»‘ scale FP8 chung.
+- 4 bit cÃ²n láº¡i chá»‰ biá»ƒu diá»…n giÃ¡ trá»‹ tÆ°Æ¡ng Ä‘á»‘i trong cá»¥m.
 
-Kỹ thuật này cho phép nén mô hình từ 26GB xuống chỉ còn **7.1GB**, cho phép load trọn vẹn LTX-2.5 vào GPU 16GB và còn dư tới 9GB VRAM cho các tác vụ Text Encoder (T5-XXL) và VAE Decoder.
+Ká»¹ thuáº­t nÃ y cho phÃ©p nÃ©n mÃ´ hÃ¬nh tá»« 26GB xuá»‘ng chá»‰ cÃ²n **7.1GB**, cho phÃ©p load trá»n váº¹n LTX-2.5 vÃ o GPU 16GB vÃ  cÃ²n dÆ° tá»›i 9GB VRAM cho cÃ¡c tÃ¡c vá»¥ Text Encoder (T5-XXL) vÃ  VAE Decoder.
 
 ---
 
-## 4. Đoạn Mã Triển Khai Thực Tế Với `torchao`
+## 4. Äoáº¡n MÃ£ Triá»ƒn Khai Thá»±c Táº¿ Vá»›i `torchao`
 
 ```python
 import torch
@@ -66,15 +66,15 @@ from torchao.quantization import quantize_, int8_weight_only, fpx_weight_only
 
 def optimize_diffusion_transformer(model):
     """
-    Tối ưu hóa DiT model để chạy trên GPU 16GB VRAM
+    Tá»‘i Æ°u hÃ³a DiT model Ä‘á»ƒ cháº¡y trÃªn GPU 16GB VRAM
     """
-    # 1. Chuyển model sang bfloat16 làm nền tảng
+    # 1. Chuyá»ƒn model sang bfloat16 lÃ m ná»n táº£ng
     model = model.to(torch.bfloat16)
     
-    # 2. Áp dụng int8 weight-only cho các tầng Linear nhạy cảm
+    # 2. Ãp dá»¥ng int8 weight-only cho cÃ¡c táº§ng Linear nháº¡y cáº£m
     quantize_(model, int8_weight_only())
     
-    # 3. Kích hoạt FlashAttention-2 để giảm dung lượng KV-Cache
+    # 3. KÃ­ch hoáº¡t FlashAttention-2 Ä‘á»ƒ giáº£m dung lÆ°á»£ng KV-Cache
     model.set_attention_slice("auto")
     
     return model
@@ -82,7 +82,7 @@ def optimize_diffusion_transformer(model):
 
 ---
 
-## 5. Tài Liệu Tham Khảo (References)
+## 5. TÃ i Liá»‡u Tham Kháº£o (References)
 
 ```
 [01] Dettmers, T., Pagnoni, A., Holtzman, A., & Zettlemoyer, L. (2023). QLoRA: Efficient 
@@ -97,9 +97,9 @@ def optimize_diffusion_transformer(model):
 
 ---
 
-## 6. Bài Viết Liên Quan (Related Logs)
+## 6. BÃ i Viáº¿t LiÃªn Quan (Related Logs)
 
-- [OpenVideoLab: Tạo Sinh Video AI Đa Phương Thức Trên GPU 16GB](/posts/openvideolab-video-diffusion/)  
-  *Xem ứng dụng trực tiếp của kỹ thuật Int8/FP4 trong việc xây dựng pipeline sinh video hoàn chỉnh.*
-- [On-Device AI: Chạy Neural Network Offline Với ONNX Trên Mobile](/posts/on-device-ai-onnx-kotlin/)  
-  *Kỹ thuật nén mô hình phục vụ chạy offline trên chip di động NPU/CPU.*
+- [OpenVideoLab: Táº¡o Sinh Video AI Äa PhÆ°Æ¡ng Thá»©c TrÃªn GPU 16GB](/posts/openvideolab-video-diffusion/)  
+  *Xem á»©ng dá»¥ng trá»±c tiáº¿p cá»§a ká»¹ thuáº­t Int8/FP4 trong viá»‡c xÃ¢y dá»±ng pipeline sinh video hoÃ n chá»‰nh.*
+- [On-Device AI: Cháº¡y Neural Network Offline Vá»›i ONNX TrÃªn Mobile](/posts/on-device-ai-onnx-kotlin/)  
+  *Ká»¹ thuáº­t nÃ©n mÃ´ hÃ¬nh phá»¥c vá»¥ cháº¡y offline trÃªn chip di Ä‘á»™ng NPU/CPU.*

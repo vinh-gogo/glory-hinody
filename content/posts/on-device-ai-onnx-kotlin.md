@@ -1,93 +1,93 @@
----
-title: "On-Device AI: Chạy Neural Network Offline Với ONNX Trên Mobile"
-date: 2026-09-29T12:00:00+07:00
+﻿---
+title: "On-Device AI: Cháº¡y Neural Network Offline Vá»›i ONNX TrÃªn Mobile"
+date: 2026-09-05T10:00:00+07:00
 draft: false
 tags: ["on-device-ai", "du-an", "kotlin-multiplatform"]
-description: "AI Lingua – ứng dụng học ngoại ngữ đa nền tảng (iOS, Android, Desktop) tích hợp mạng nơ-ron ONNX nhận diện nét viết offline hoàn toàn (0đ chi phí API), thuật toán FSRS và LLM Fallback Chain."
-summary: "AI Lingua – ứng dụng học ngoại ngữ đa nền tảng (iOS, Android, Desktop) tích hợp mạng nơ-ron ONNX nhận diện nét viết offline hoàn toàn (0đ chi phí API), thuật toán FSRS và LLM Fallback Chain."
+description: "AI Lingua â€“ á»©ng dá»¥ng há»c ngoáº¡i ngá»¯ Ä‘a ná»n táº£ng (iOS, Android, Desktop) tÃ­ch há»£p máº¡ng nÆ¡-ron ONNX nháº­n diá»‡n nÃ©t viáº¿t offline hoÃ n toÃ n (0Ä‘ chi phÃ­ API), thuáº­t toÃ¡n FSRS vÃ  LLM Fallback Chain."
+summary: "AI Lingua â€“ á»©ng dá»¥ng há»c ngoáº¡i ngá»¯ Ä‘a ná»n táº£ng (iOS, Android, Desktop) tÃ­ch há»£p máº¡ng nÆ¡-ron ONNX nháº­n diá»‡n nÃ©t viáº¿t offline hoÃ n toÃ n (0Ä‘ chi phÃ­ API), thuáº­t toÃ¡n FSRS vÃ  LLM Fallback Chain."
 ShowToc: true
 TocOpen: true
 ---
 
-## 1. Minh Chứng & Video Demo Thực Tế (Evidence & Demos)
+## 1. Minh Chá»©ng & Video Demo Thá»±c Táº¿ (Evidence & Demos)
 
-Dự án **AI Lingua** là minh chứng rõ ràng nhất cho tính khả thi của việc đưa AI sâu vào thiết bị đầu cuối với chi phí vận hành bằng 0:
+Dá»± Ã¡n **AI Lingua** lÃ  minh chá»©ng rÃµ rÃ ng nháº¥t cho tÃ­nh kháº£ thi cá»§a viá»‡c Ä‘Æ°a AI sÃ¢u vÃ o thiáº¿t bá»‹ Ä‘áº§u cuá»‘i vá»›i chi phÃ­ váº­n hÃ nh báº±ng 0:
 
-| Hạng mục | Minh chứng thực tế | Chi tiết kỹ thuật |
+| Háº¡ng má»¥c | Minh chá»©ng thá»±c táº¿ | Chi tiáº¿t ká»¹ thuáº­t |
 |---|---|---|
-| **Mã nguồn (GitHub)** | [`github.com/Vinh-Gogo/ai-english`](https://github.com/Vinh-Gogo/ai-english) | Kiến trúc KMP, MVI, ONNX inference bindings, Compose UI |
-| **Video Demo (TikTok)** | [`vt.tiktok.com/ZSbkSYhjv/`](https://vt.tiktok.com/ZSbkSYhjv/) | Trình diễn nhận diện nét vẽ offline, chấm điểm phát âm & flashcards |
-| **Nền tảng hỗ trợ** | iOS, Android, Desktop (macOS/Windows) | Chia sẻ >85% mã nguồn UI và business logic |
-| **Chi phí suy luận Cloud** | **0 VNĐ / tháng** | Mô hình nơ-ron chạy trực tiếp trên NPU/CPU của điện thoại |
-| **Thuật toán Spaced Repetition** | **FSRS-4.5** (Free Spaced Repetition) | Giảm 23% số lần ôn tập so với thuật toán SM-2 cổ điển của Anki |
-| **Tính khả dụng mạng** | Hoạt động **100% Offline** | Tự động chuyển qua Gemini API (LLM Fallback Chain) khi có mạng |
-| **Bộ công nghệ cốt lõi** | KMP, Compose Multiplatform, ONNX Runtime, SQLite, Koin, Ktor, Gemini API | Kiến trúc Vertical Slicing kết hợp Clean Architecture |
+| **MÃ£ nguá»“n (GitHub)** | [`github.com/Vinh-Gogo/ai-english`](https://github.com/Vinh-Gogo/ai-english) | Kiáº¿n trÃºc KMP, MVI, ONNX inference bindings, Compose UI |
+| **Video Demo (TikTok)** | [`vt.tiktok.com/ZSbkSYhjv/`](https://vt.tiktok.com/ZSbkSYhjv/) | TrÃ¬nh diá»…n nháº­n diá»‡n nÃ©t váº½ offline, cháº¥m Ä‘iá»ƒm phÃ¡t Ã¢m & flashcards |
+| **Ná»n táº£ng há»— trá»£** | iOS, Android, Desktop (macOS/Windows) | Chia sáº» >85% mÃ£ nguá»“n UI vÃ  business logic |
+| **Chi phÃ­ suy luáº­n Cloud** | **0 VNÄ / thÃ¡ng** | MÃ´ hÃ¬nh nÆ¡-ron cháº¡y trá»±c tiáº¿p trÃªn NPU/CPU cá»§a Ä‘iá»‡n thoáº¡i |
+| **Thuáº­t toÃ¡n Spaced Repetition** | **FSRS-4.5** (Free Spaced Repetition) | Giáº£m 23% sá»‘ láº§n Ã´n táº­p so vá»›i thuáº­t toÃ¡n SM-2 cá»• Ä‘iá»ƒn cá»§a Anki |
+| **TÃ­nh kháº£ dá»¥ng máº¡ng** | Hoáº¡t Ä‘á»™ng **100% Offline** | Tá»± Ä‘á»™ng chuyá»ƒn qua Gemini API (LLM Fallback Chain) khi cÃ³ máº¡ng |
+| **Bá»™ cÃ´ng nghá»‡ cá»‘t lÃµi** | KMP, Compose Multiplatform, ONNX Runtime, SQLite, Koin, Ktor, Gemini API | Kiáº¿n trÃºc Vertical Slicing káº¿t há»£p Clean Architecture |
 
 ---
 
-## 2. Vì Sao Cần On-Device AI Thay Vì Phụ Thuộc Hoàn Toàn Vào Cloud?
+## 2. VÃ¬ Sao Cáº§n On-Device AI Thay VÃ¬ Phá»¥ Thuá»™c HoÃ n ToÃ n VÃ o Cloud?
 
-Xây dựng ứng dụng giáo dục dựa trên Cloud API gặp 3 rào cản tài chính và kỹ thuật sống còn:
+XÃ¢y dá»±ng á»©ng dá»¥ng giÃ¡o dá»¥c dá»±a trÃªn Cloud API gáº·p 3 rÃ o cáº£n tÃ i chÃ­nh vÃ  ká»¹ thuáº­t sá»‘ng cÃ²n:
 
-1. **Gánh nặng chi phí Token:** Nếu 10.000 người dùng tích cực luyện viết 50 từ/ngày qua cloud vision API, hóa đơn hàng tháng có thể lên tới hàng nghìn USD mà chưa có doanh thu bù đắp.
-2. **Độ trễ và rớt mạng:** Học viên thường học trên tàu điện, máy bay, hoặc nơi sóng yếu. Chờ cloud API 1-2 giây cho mỗi nét chữ làm vỡ vụn trải nghiệm học tập tức thì.
-3. **Quyền riêng tư (Privacy):** Nét viết, giọng nói và dữ liệu ghi nhớ của học viên được xử lý hoàn toàn cục bộ, bảo vệ quyền riêng tư tuyệt đối.
+1. **GÃ¡nh náº·ng chi phÃ­ Token:** Náº¿u 10.000 ngÆ°á»i dÃ¹ng tÃ­ch cá»±c luyá»‡n viáº¿t 50 tá»«/ngÃ y qua cloud vision API, hÃ³a Ä‘Æ¡n hÃ ng thÃ¡ng cÃ³ thá»ƒ lÃªn tá»›i hÃ ng nghÃ¬n USD mÃ  chÆ°a cÃ³ doanh thu bÃ¹ Ä‘áº¯p.
+2. **Äá»™ trá»… vÃ  rá»›t máº¡ng:** Há»c viÃªn thÆ°á»ng há»c trÃªn tÃ u Ä‘iá»‡n, mÃ¡y bay, hoáº·c nÆ¡i sÃ³ng yáº¿u. Chá» cloud API 1-2 giÃ¢y cho má»—i nÃ©t chá»¯ lÃ m vá»¡ vá»¥n tráº£i nghiá»‡m há»c táº­p tá»©c thÃ¬.
+3. **Quyá»n riÃªng tÆ° (Privacy):** NÃ©t viáº¿t, giá»ng nÃ³i vÃ  dá»¯ liá»‡u ghi nhá»› cá»§a há»c viÃªn Ä‘Æ°á»£c xá»­ lÃ½ hoÃ n toÃ n cá»¥c bá»™, báº£o vá»‡ quyá»n riÃªng tÆ° tuyá»‡t Ä‘á»‘i.
 
 ---
 
-## 3. Kiến Trúc AI Lingua: KMP & ONNX Runtime
+## 3. Kiáº¿n TrÃºc AI Lingua: KMP & ONNX Runtime
 
-Để đưa mạng nơ-ron nhận diện nét viết (Handwriting Stroke Recognition) lên cả iOS và Android mà không phải nhân đôi công sức, tôi sử dụng **Kotlin Multiplatform (KMP)**:
+Äá»ƒ Ä‘Æ°a máº¡ng nÆ¡-ron nháº­n diá»‡n nÃ©t viáº¿t (Handwriting Stroke Recognition) lÃªn cáº£ iOS vÃ  Android mÃ  khÃ´ng pháº£i nhÃ¢n Ä‘Ã´i cÃ´ng sá»©c, tÃ´i sá»­ dá»¥ng **Kotlin Multiplatform (KMP)**:
 
 ```mermaid
 flowchart TD
     UI["Compose Multiplatform UI (iOS/Android)"] --> A1
     
     subgraph ARCH["MVI ARCHITECTURE"]
-        A1["Unidirectional Data Flow · Koin DI"]
+        A1["Unidirectional Data Flow Â· Koin DI"]
     end
     
     A1 -->|"Offline"| L1
-    A1 -->|"Online / Nâng cao"| C1
+    A1 -->|"Online / NÃ¢ng cao"| C1
     
     subgraph ENGINES["INFERENCE ENGINES"]
-        L1["ONNX Mobile (CoreML/NNAPI)<br/>Int8 ~12MB · Độ trễ &lt; 45ms"]
-        C1["LLM Fallback (Gemini Flash)<br/>Phân tích ngữ pháp chuyên sâu"]
+        L1["ONNX Mobile (CoreML/NNAPI)<br/>Int8 ~12MB Â· Äá»™ trá»… &lt; 45ms"]
+        C1["LLM Fallback (Gemini Flash)<br/>PhÃ¢n tÃ­ch ngá»¯ phÃ¡p chuyÃªn sÃ¢u"]
     end
 ```
 
-### Triển khai ONNX Runtime qua KMP Expect/Actual:
-- **Mô hình nơ-ron:** Được huấn luyện trên PyTorch, tối ưu hóa qua kỹ thuật Post-Training Quantization (PTQ) về kích thước chỉ còn **~12MB**.
-- **ONNX Mobile Runtime:** Gọi thông qua lớp abstraction KMP, tận dụng CoreML trên iOS và NNAPI trên Android để đạt tốc độ suy luận dưới **45ms / ký tự**.
+### Triá»ƒn khai ONNX Runtime qua KMP Expect/Actual:
+- **MÃ´ hÃ¬nh nÆ¡-ron:** ÄÆ°á»£c huáº¥n luyá»‡n trÃªn PyTorch, tá»‘i Æ°u hÃ³a qua ká»¹ thuáº­t Post-Training Quantization (PTQ) vá» kÃ­ch thÆ°á»›c chá»‰ cÃ²n **~12MB**.
+- **ONNX Mobile Runtime:** Gá»i thÃ´ng qua lá»›p abstraction KMP, táº­n dá»¥ng CoreML trÃªn iOS vÃ  NNAPI trÃªn Android Ä‘á»ƒ Ä‘áº¡t tá»‘c Ä‘á»™ suy luáº­n dÆ°á»›i **45ms / kÃ½ tá»±**.
 
 ---
 
-## 4. Thuật Toán Ghi Nhớ FSRS vs SM-2 Cổ Điển
+## 4. Thuáº­t ToÃ¡n Ghi Nhá»› FSRS vs SM-2 Cá»• Äiá»ƒn
 
-Hầu hết các app flashcard hiện nay vẫn dùng thuật toán **SuperMemo-2 (SM-2)** ra đời từ năm 1987 với các tham số cứng nhắc. AI Lingua triển khai thuật toán **FSRS (Free Spaced Repetition Scheduler)** dựa trên mô hình trí nhớ 3 thành phần DSR:
+Háº§u háº¿t cÃ¡c app flashcard hiá»‡n nay váº«n dÃ¹ng thuáº­t toÃ¡n **SuperMemo-2 (SM-2)** ra Ä‘á»i tá»« nÄƒm 1987 vá»›i cÃ¡c tham sá»‘ cá»©ng nháº¯c. AI Lingua triá»ƒn khai thuáº­t toÃ¡n **FSRS (Free Spaced Repetition Scheduler)** dá»±a trÃªn mÃ´ hÃ¬nh trÃ­ nhá»› 3 thÃ nh pháº§n DSR:
 
-- **Retrievability (R):** Xác suất nhớ lại được từ vựng ở thời điểm hiện tại.
-- **Stability (S):** Thời gian trí nhớ tồn tại (tính bằng ngày) trước khi xác suất rơi xuống 90%.
-- **Difficulty (D):** Độ khó cố hữu của từ vựng đối với cá nhân người học.
+- **Retrievability (R):** XÃ¡c suáº¥t nhá»› láº¡i Ä‘Æ°á»£c tá»« vá»±ng á»Ÿ thá»i Ä‘iá»ƒm hiá»‡n táº¡i.
+- **Stability (S):** Thá»i gian trÃ­ nhá»› tá»“n táº¡i (tÃ­nh báº±ng ngÃ y) trÆ°á»›c khi xÃ¡c suáº¥t rÆ¡i xuá»‘ng 90%.
+- **Difficulty (D):** Äá»™ khÃ³ cá»‘ há»¯u cá»§a tá»« vá»±ng Ä‘á»‘i vá»›i cÃ¡ nhÃ¢n ngÆ°á»i há»c.
 
 $$\text{R}(t) = \left(1 + \text{factor} \cdot \frac{t}{\text{S}}\right)^{-\text{power}}$$
 
-Nhờ khả năng ước tính chính xác đường cong quên lãng theo từng cá nhân, FSRS giúp người học **giảm 23.4% số lần ôn tập dư thừa** mà vẫn duy trì tỷ lệ nhớ trên 90%.
+Nhá» kháº£ nÄƒng Æ°á»›c tÃ­nh chÃ­nh xÃ¡c Ä‘Æ°á»ng cong quÃªn lÃ£ng theo tá»«ng cÃ¡ nhÃ¢n, FSRS giÃºp ngÆ°á»i há»c **giáº£m 23.4% sá»‘ láº§n Ã´n táº­p dÆ° thá»«a** mÃ  váº«n duy trÃ¬ tá»· lá»‡ nhá»› trÃªn 90%.
 
 ---
 
-## 5. Cơ Chế LLM Fallback Chain
+## 5. CÆ¡ Cháº¿ LLM Fallback Chain
 
-Để xử lý các câu hỏi ngữ pháp hoặc giải thích câu thành ngữ phức tạp mà mô hình On-Device 12MB không kham nổi, AI Lingua áp dụng cơ chế tự phục hồi **Fallback Chain**:
+Äá»ƒ xá»­ lÃ½ cÃ¡c cÃ¢u há»i ngá»¯ phÃ¡p hoáº·c giáº£i thÃ­ch cÃ¢u thÃ nh ngá»¯ phá»©c táº¡p mÃ  mÃ´ hÃ¬nh On-Device 12MB khÃ´ng kham ná»•i, AI Lingua Ã¡p dá»¥ng cÆ¡ cháº¿ tá»± phá»¥c há»“i **Fallback Chain**:
 
-1. **Level 0 (Local ONNX):** Nhận diện nét viết, đối soát từ vựng, tính toán lịch ôn FSRS (100% Offline, $0 cost).
-2. **Level 1 (Gemini Flash via Ktor):** Phân tích ngữ cảnh câu và giải thích ngữ pháp ngắn (<500ms).
-3. **Level 2 (Gemini Pro):** Dự phòng khi câu hỏi đòi hỏi lý luận phức tạp hoặc sửa bài luận dài.
-4. **Offline Graceful Degradation:** Nếu mất kết nối, app tự động thông báo và chuyển mượt mà về chế độ luyện tập cục bộ mà không bao giờ bị crash.
+1. **Level 0 (Local ONNX):** Nháº­n diá»‡n nÃ©t viáº¿t, Ä‘á»‘i soÃ¡t tá»« vá»±ng, tÃ­nh toÃ¡n lá»‹ch Ã´n FSRS (100% Offline, $0 cost).
+2. **Level 1 (Gemini Flash via Ktor):** PhÃ¢n tÃ­ch ngá»¯ cáº£nh cÃ¢u vÃ  giáº£i thÃ­ch ngá»¯ phÃ¡p ngáº¯n (<500ms).
+3. **Level 2 (Gemini Pro):** Dá»± phÃ²ng khi cÃ¢u há»i Ä‘Ã²i há»i lÃ½ luáº­n phá»©c táº¡p hoáº·c sá»­a bÃ i luáº­n dÃ i.
+4. **Offline Graceful Degradation:** Náº¿u máº¥t káº¿t ná»‘i, app tá»± Ä‘á»™ng thÃ´ng bÃ¡o vÃ  chuyá»ƒn mÆ°á»£t mÃ  vá» cháº¿ Ä‘á»™ luyá»‡n táº­p cá»¥c bá»™ mÃ  khÃ´ng bao giá» bá»‹ crash.
 
 ---
 
-## 6. Tài Liệu Tham Khảo (References)
+## 6. TÃ i Liá»‡u Tham Kháº£o (References)
 
 ```
 [01] Microsoft. (2024). ONNX Runtime Mobile: Optimized Machine Learning on Mobile and Edge. 
@@ -102,9 +102,9 @@ Nhờ khả năng ước tính chính xác đường cong quên lãng theo từn
 
 ---
 
-## 7. Bài Viết Liên Quan (Related Logs)
+## 7. BÃ i Viáº¿t LiÃªn Quan (Related Logs)
 
-- [Quantization Int8/FP4: Chạy Model AI Lớn Trên GPU Tài Nguyên Giới Hạn](/posts/quantization-int8-fp4-inference/)  
-  *Tìm hiểu sâu về kỹ thuật nén lượng tử hóa mô hình để đưa kích thước file xuống mức vài megabyte.*
-- [Multi-Agent Workflow: Tự Động Hóa CSKH Với LangGraph và FastMCP](/posts/multi-agent-workflow-langraph/)  
-  *Cách thiết kế kiến trúc Fallback và cơ chế tự phục hồi lỗi khi tích hợp LLM vào ứng dụng thực tế.*
+- [Quantization Int8/FP4: Cháº¡y Model AI Lá»›n TrÃªn GPU TÃ i NguyÃªn Giá»›i Háº¡n](/posts/quantization-int8-fp4-inference/)  
+  *TÃ¬m hiá»ƒu sÃ¢u vá» ká»¹ thuáº­t nÃ©n lÆ°á»£ng tá»­ hÃ³a mÃ´ hÃ¬nh Ä‘á»ƒ Ä‘Æ°a kÃ­ch thÆ°á»›c file xuá»‘ng má»©c vÃ i megabyte.*
+- [Multi-Agent Workflow: Tá»± Äá»™ng HÃ³a CSKH Vá»›i LangGraph vÃ  FastMCP](/posts/multi-agent-workflow-langraph/)  
+  *CÃ¡ch thiáº¿t káº¿ kiáº¿n trÃºc Fallback vÃ  cÆ¡ cháº¿ tá»± phá»¥c há»“i lá»—i khi tÃ­ch há»£p LLM vÃ o á»©ng dá»¥ng thá»±c táº¿.*

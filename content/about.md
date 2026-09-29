@@ -3,19 +3,21 @@ date: '2026-09-29T18:39:42+07:00'
 draft: false
 title: 'Tác Giả // Hồ Sơ Năng Lực'
 description: 'Lê Quang Vinh — AI Engineer & Software Engineer. Chuyên sâu về Generative AI, AI Agentic, On-Device AI và Kiến trúc phần mềm.'
+layout: about
 ShowToc: true
 TocOpen: true
+hideMeta: true
+comments: false
 ---
 
 # LÊ QUANG VINH
 **AI Engineer | Software Engineer**
 
-- **Điện thoại:** [+84 985 189 541](tel:+84985189541)
 - **Email:** [lea26462@gmail.com](mailto:lea26462@gmail.com)
 - **GitHub:** [github.com/Vinh-Gogo](https://github.com/Vinh-Gogo)
 - **LinkedIn:** [linkedin.com/in/quangvinh2302](https://linkedin.com/in/quangvinh2302)
 - **Học vấn:** Cử nhân Khoa học Máy tính — Đại học Công nghiệp TP.HCM (IUH, 2021–2025)
-- **Khóa luận tốt nghiệp:** **4.0 / 4.0** | **Ngoại ngữ:** Tiếng Anh B1
+- **Ngoại ngữ:** Tiếng Anh B1
 
 ---
 

@@ -1,50 +1,50 @@
----
-title: "GraphRAG: Kết Hợp Neo4j và Qdrant Để Giảm Hallucination"
-date: 2026-09-29T12:00:00+07:00
+﻿---
+title: "GraphRAG: Káº¿t Há»£p Neo4j vÃ  Qdrant Äá»ƒ Giáº£m Hallucination"
+date: 2026-08-15T10:00:00+07:00
 draft: false
 tags: ["agentic-rag", "du-an", "rag"]
-description: "Vượt qua giới hạn của Semantic RAG thuần túy bằng cách kết hợp Knowledge Graph (Neo4j) và Vector Search (Qdrant) trên tập tài liệu kỹ thuật >200 trang tại WETEC, đạt 95% Hit@1 và độ trễ <2s."
-summary: "Vượt qua giới hạn của Semantic RAG thuần túy bằng cách kết hợp Knowledge Graph (Neo4j) và Vector Search (Qdrant) trên tập tài liệu kỹ thuật >200 trang tại WETEC, đạt 95% Hit@1 và độ trễ <2s."
+description: "VÆ°á»£t qua giá»›i háº¡n cá»§a Semantic RAG thuáº§n tÃºy báº±ng cÃ¡ch káº¿t há»£p Knowledge Graph (Neo4j) vÃ  Vector Search (Qdrant) trÃªn táº­p tÃ i liá»‡u ká»¹ thuáº­t >200 trang táº¡i WETEC, Ä‘áº¡t 95% Hit@1 vÃ  Ä‘á»™ trá»… <2s."
+summary: "VÆ°á»£t qua giá»›i háº¡n cá»§a Semantic RAG thuáº§n tÃºy báº±ng cÃ¡ch káº¿t há»£p Knowledge Graph (Neo4j) vÃ  Vector Search (Qdrant) trÃªn táº­p tÃ i liá»‡u ká»¹ thuáº­t >200 trang táº¡i WETEC, Ä‘áº¡t 95% Hit@1 vÃ  Ä‘á»™ trá»… <2s."
 ShowToc: true
 TocOpen: true
 ---
 
-## 1. Minh Chứng & Bối Cảnh Thực Tế (Evidence & Project Context)
+## 1. Minh Chá»©ng & Bá»‘i Cáº£nh Thá»±c Táº¿ (Evidence & Project Context)
 
-Giải pháp **GraphRAG** này được nghiên cứu và triển khai thực chiến tại **WETEC (Công ty CP Công nghệ Năng lượng & Môi trường Nước)** nhằm giải quyết bài toán tra cứu tài liệu kỹ thuật chuyên ngành cực kỳ phức tạp:
+Giáº£i phÃ¡p **GraphRAG** nÃ y Ä‘Æ°á»£c nghiÃªn cá»©u vÃ  triá»ƒn khai thá»±c chiáº¿n táº¡i **WETEC (CÃ´ng ty CP CÃ´ng nghá»‡ NÄƒng lÆ°á»£ng & MÃ´i trÆ°á»ng NÆ°á»›c)** nháº±m giáº£i quyáº¿t bÃ i toÃ¡n tra cá»©u tÃ i liá»‡u ká»¹ thuáº­t chuyÃªn ngÃ nh cá»±c ká»³ phá»©c táº¡p:
 
-| Hạng mục | Minh chứng thực tế | Chi tiết kỹ thuật |
+| Háº¡ng má»¥c | Minh chá»©ng thá»±c táº¿ | Chi tiáº¿t ká»¹ thuáº­t |
 |---|---|---|
-| **Mã nguồn (GitHub)** | [`github.com/Vinh-Gogo/pdf-rag`](https://github.com/Vinh-Gogo/pdf-rag) | Pipeline trích xuất PDF, Neo4j Graph Builder, Qdrant Vector Store, FastAPI |
-| **Quy mô dữ liệu** | Tài liệu kỹ thuật chuyên sâu `> 200 trang` | Chứa bảng biểu, sơ đồ quan hệ thiết bị, tiêu chuẩn xử lý nước |
-| **Thu thập dữ liệu** | **Firecrawl AI** | Tự động crawl, làm sạch và chuẩn hóa dữ liệu phi cấu trúc từ web/docs |
-| **Độ trễ truy xuất (Latency)** | `< 2.0 giây` toàn trình | Bao gồm entity extraction, graph traversal, vector search và LLM response |
-| **Độ chính xác (Accuracy)** | `95% Hit@1` và `99% Hit@5` | Đo đạc trên 3.200 câu truy vấn kỹ thuật có kiểm chứng của chuyên gia |
-| **Hạ tầng triển khai** | Neo4j, Qdrant, SQLite, LangGraph, FastAPI, Docker, Vercel, Neon | Kiến trúc microservices đóng gói container hoàn chỉnh |
+| **MÃ£ nguá»“n (GitHub)** | [`github.com/Vinh-Gogo/pdf-rag`](https://github.com/Vinh-Gogo/pdf-rag) | Pipeline trÃ­ch xuáº¥t PDF, Neo4j Graph Builder, Qdrant Vector Store, FastAPI |
+| **Quy mÃ´ dá»¯ liá»‡u** | TÃ i liá»‡u ká»¹ thuáº­t chuyÃªn sÃ¢u `> 200 trang` | Chá»©a báº£ng biá»ƒu, sÆ¡ Ä‘á»“ quan há»‡ thiáº¿t bá»‹, tiÃªu chuáº©n xá»­ lÃ½ nÆ°á»›c |
+| **Thu tháº­p dá»¯ liá»‡u** | **Firecrawl AI** | Tá»± Ä‘á»™ng crawl, lÃ m sáº¡ch vÃ  chuáº©n hÃ³a dá»¯ liá»‡u phi cáº¥u trÃºc tá»« web/docs |
+| **Äá»™ trá»… truy xuáº¥t (Latency)** | `< 2.0 giÃ¢y` toÃ n trÃ¬nh | Bao gá»“m entity extraction, graph traversal, vector search vÃ  LLM response |
+| **Äá»™ chÃ­nh xÃ¡c (Accuracy)** | `95% Hit@1` vÃ  `99% Hit@5` | Äo Ä‘áº¡c trÃªn 3.200 cÃ¢u truy váº¥n ká»¹ thuáº­t cÃ³ kiá»ƒm chá»©ng cá»§a chuyÃªn gia |
+| **Háº¡ táº§ng triá»ƒn khai** | Neo4j, Qdrant, SQLite, LangGraph, FastAPI, Docker, Vercel, Neon | Kiáº¿n trÃºc microservices Ä‘Ã³ng gÃ³i container hoÃ n chá»‰nh |
 
 ---
 
-## 2. Vì Sao Semantic RAG Thuần Túy Thất Bại Trước Tài Liệu Kỹ Thuật?
+## 2. VÃ¬ Sao Semantic RAG Thuáº§n TÃºy Tháº¥t Báº¡i TrÆ°á»›c TÃ i Liá»‡u Ká»¹ Thuáº­t?
 
-Khi xây dựng RAG cho tài liệu kỹ thuật dài (>200 trang), phương pháp truyền thống (Chunking + Vector Embedding) bộc lộ 3 tử huyệt:
+Khi xÃ¢y dá»±ng RAG cho tÃ i liá»‡u ká»¹ thuáº­t dÃ i (>200 trang), phÆ°Æ¡ng phÃ¡p truyá»n thá»‘ng (Chunking + Vector Embedding) bá»™c lá»™ 3 tá»­ huyá»‡t:
 
-1. **Mất đứt gãy ngữ cảnh quan hệ (Relational Context Blindness):** Vector search chỉ tính độ tương đồng cosin giữa câu hỏi và đoạn văn. Khi người dùng hỏi: *"Nếu nồng độ COD vượt 500mg/L thì quy trình vận hành thiết bị bể UASB ở trang 42 cần điều chỉnh theo tiêu chuẩn nào tại trang 180?"*, vector embedding không thể liên kết 2 trang cách xa nhau.
-2. **Ảo giác khi suy luận đa bước (Multi-hop Hallucination):** LLM phải đoán mò thông tin nằm rải rác giữa các chunks độc lập, dẫn đến câu trả lời bịa đặt nhưng nghe rất thuyết phục.
-3. **Mất cấu trúc phân cấp:** Thông tin dạng danh mục, sơ đồ đấu dây hoặc chuỗi vận hành tuần tự bị cắt vụn thành các đoạn văn vô nghĩa.
+1. **Máº¥t Ä‘á»©t gÃ£y ngá»¯ cáº£nh quan há»‡ (Relational Context Blindness):** Vector search chá»‰ tÃ­nh Ä‘á»™ tÆ°Æ¡ng Ä‘á»“ng cosin giá»¯a cÃ¢u há»i vÃ  Ä‘oáº¡n vÄƒn. Khi ngÆ°á»i dÃ¹ng há»i: *"Náº¿u ná»“ng Ä‘á»™ COD vÆ°á»£t 500mg/L thÃ¬ quy trÃ¬nh váº­n hÃ nh thiáº¿t bá»‹ bá»ƒ UASB á»Ÿ trang 42 cáº§n Ä‘iá»u chá»‰nh theo tiÃªu chuáº©n nÃ o táº¡i trang 180?"*, vector embedding khÃ´ng thá»ƒ liÃªn káº¿t 2 trang cÃ¡ch xa nhau.
+2. **áº¢o giÃ¡c khi suy luáº­n Ä‘a bÆ°á»›c (Multi-hop Hallucination):** LLM pháº£i Ä‘oÃ¡n mÃ² thÃ´ng tin náº±m ráº£i rÃ¡c giá»¯a cÃ¡c chunks Ä‘á»™c láº­p, dáº«n Ä‘áº¿n cÃ¢u tráº£ lá»i bá»‹a Ä‘áº·t nhÆ°ng nghe ráº¥t thuyáº¿t phá»¥c.
+3. **Máº¥t cáº¥u trÃºc phÃ¢n cáº¥p:** ThÃ´ng tin dáº¡ng danh má»¥c, sÆ¡ Ä‘á»“ Ä‘áº¥u dÃ¢y hoáº·c chuá»—i váº­n hÃ nh tuáº§n tá»± bá»‹ cáº¯t vá»¥n thÃ nh cÃ¡c Ä‘oáº¡n vÄƒn vÃ´ nghÄ©a.
 
 ---
 
-## 3. Kiến Trúc GraphRAG: Hai Lớp Tri Thức Bổ Trợ
+## 3. Kiáº¿n TrÃºc GraphRAG: Hai Lá»›p Tri Thá»©c Bá»• Trá»£
 
-Để khắc phục hoàn toàn, tôi thiết kế kiến trúc kết hợp **Đồ thị tri thức (Knowledge Graph)** và **Không gian vector ngữ nghĩa (Vector Space)**:
+Äá»ƒ kháº¯c phá»¥c hoÃ n toÃ n, tÃ´i thiáº¿t káº¿ kiáº¿n trÃºc káº¿t há»£p **Äá»“ thá»‹ tri thá»©c (Knowledge Graph)** vÃ  **KhÃ´ng gian vector ngá»¯ nghÄ©a (Vector Space)**:
 
 ```mermaid
 flowchart TD
-    Q["User Query: Câu hỏi kỹ thuật"] --> NER["Trích xuất Thực thể (NER)"]
-    Q --> EMB["Tạo Vector Embedding"]
+    Q["User Query: CÃ¢u há»i ká»¹ thuáº­t"] --> NER["TrÃ­ch xuáº¥t Thá»±c thá»ƒ (NER)"]
+    Q --> EMB["Táº¡o Vector Embedding"]
     
-    subgraph RETRIEVAL["TRUY XUẤT HYBRID (GRAPH + VECTOR)"]
-        NER --> NEO["Neo4j Graph (Cypher 2–3 hops)"]
+    subgraph RETRIEVAL["TRUY XUáº¤T HYBRID (GRAPH + VECTOR)"]
+        NER --> NEO["Neo4j Graph (Cypher 2â€“3 hops)"]
         EMB --> QDR["Qdrant DB (Dense Similarity)"]
     end
     
@@ -52,35 +52,35 @@ flowchart TD
     QDR --> RRF
     
     RRF --> LLM["Context-Augmented LLM"]
-    LLM --> ANS["Câu trả lời chính xác (Độ trễ &lt; 2s)"]
+    LLM --> ANS["CÃ¢u tráº£ lá»i chÃ­nh xÃ¡c (Äá»™ trá»… &lt; 2s)"]
 ```
 
-### Cách thức hoạt động:
-1. **Neo4j (Knowledge Graph):** Lưu trữ các thực thể kỹ thuật (Thiết bị, Thông số, Tiêu chuẩn, Sự cố) và các quan hệ có hướng:
+### CÃ¡ch thá»©c hoáº¡t Ä‘á»™ng:
+1. **Neo4j (Knowledge Graph):** LÆ°u trá»¯ cÃ¡c thá»±c thá»ƒ ká»¹ thuáº­t (Thiáº¿t bá»‹, ThÃ´ng sá»‘, TiÃªu chuáº©n, Sá»± cá»‘) vÃ  cÃ¡c quan há»‡ cÃ³ hÆ°á»›ng:
    ```cypher
-   (:ThietBi {ten: "Bể UASB"})-[:CO_THONG_SO_KIEM_SOAT]->(:ThongSo {ten: "COD"})
+   (:ThietBi {ten: "Bá»ƒ UASB"})-[:CO_THONG_SO_KIEM_SOAT]->(:ThongSo {ten: "COD"})
    (:ThongSo {ten: "COD"})-[:QUY_DINH_BOI]->(:TieuChuan {ma: "QCVN 40:2011/BTNMT"})
    ```
-2. **Qdrant (Vector Database):** Index các đoạn văn bản giải thích nguyên lý hoạt động, hướng dẫn vận hành chi tiết.
-3. **Fusion Engine:** Khi truy vấn, Neo4j cung cấp **bản đồ cấu trúc logic** (các thực thể liên quan), trong khi Qdrant cung cấp **nội dung chi tiết**. LLM chỉ cần tổng hợp dựa trên sự thật vững chắc đã được neo trên đồ thị.
+2. **Qdrant (Vector Database):** Index cÃ¡c Ä‘oáº¡n vÄƒn báº£n giáº£i thÃ­ch nguyÃªn lÃ½ hoáº¡t Ä‘á»™ng, hÆ°á»›ng dáº«n váº­n hÃ nh chi tiáº¿t.
+3. **Fusion Engine:** Khi truy váº¥n, Neo4j cung cáº¥p **báº£n Ä‘á»“ cáº¥u trÃºc logic** (cÃ¡c thá»±c thá»ƒ liÃªn quan), trong khi Qdrant cung cáº¥p **ná»™i dung chi tiáº¿t**. LLM chá»‰ cáº§n tá»•ng há»£p dá»±a trÃªn sá»± tháº­t vá»¯ng cháº¯c Ä‘Ã£ Ä‘Æ°á»£c neo trÃªn Ä‘á»“ thá»‹.
 
 ---
 
-## 4. Kết Quả Đo Đạc Thực Nghiệm
+## 4. Káº¿t Quáº£ Äo Äáº¡c Thá»±c Nghiá»‡m
 
-So sánh hiệu năng giữa Semantic RAG truyền thống và GraphRAG trên tập kiểm thử 3.200 truy vấn:
+So sÃ¡nh hiá»‡u nÄƒng giá»¯a Semantic RAG truyá»n thá»‘ng vÃ  GraphRAG trÃªn táº­p kiá»ƒm thá»­ 3.200 truy váº¥n:
 
-| Chỉ số đánh giá | Semantic RAG thuần túy | GraphRAG (Neo4j + Qdrant) | Độ cải thiện |
+| Chá»‰ sá»‘ Ä‘Ã¡nh giÃ¡ | Semantic RAG thuáº§n tÃºy | GraphRAG (Neo4j + Qdrant) | Äá»™ cáº£i thiá»‡n |
 |---|---|---|---|
-| **Hit@1 (Đúng ngay kết quả đầu)** | 78.4% | **95.2%** | **+ 16.8%** |
-| **Hit@5 (Nằm trong top 5)** | 89.1% | **99.1%** | **+ 10.0%** |
-| **Tỷ lệ ảo giác (Hallucination Rate)** | 14.6% | **< 1.8%** | **Giảm 87.6%** |
-| **Thời gian phản hồi trung bình** | ~180 ms | ~210 ms | Tăng nhẹ 30ms |
-| **Thời gian xử lý tài liệu kỹ thuật** | 12s | **< 2s** | Rút ngắn 6 lần |
+| **Hit@1 (ÄÃºng ngay káº¿t quáº£ Ä‘áº§u)** | 78.4% | **95.2%** | **+ 16.8%** |
+| **Hit@5 (Náº±m trong top 5)** | 89.1% | **99.1%** | **+ 10.0%** |
+| **Tá»· lá»‡ áº£o giÃ¡c (Hallucination Rate)** | 14.6% | **< 1.8%** | **Giáº£m 87.6%** |
+| **Thá»i gian pháº£n há»“i trung bÃ¬nh** | ~180 ms | ~210 ms | TÄƒng nháº¹ 30ms |
+| **Thá»i gian xá»­ lÃ½ tÃ i liá»‡u ká»¹ thuáº­t** | 12s | **< 2s** | RÃºt ngáº¯n 6 láº§n |
 
 ---
 
-## 5. Tài Liệu Tham Khảo (References)
+## 5. TÃ i Liá»‡u Tham Kháº£o (References)
 
 ```
 [01] Edge, D., Trinh, H., Cheng, N., Bradley, J., Chao, A., Mody, J., Truitt, S., & Larson, J. 
@@ -96,9 +96,9 @@ So sánh hiệu năng giữa Semantic RAG truyền thống và GraphRAG trên t�
 
 ---
 
-## 6. Bài Viết Liên Quan (Related Logs)
+## 6. BÃ i Viáº¿t LiÃªn Quan (Related Logs)
 
-- [Multi-Agent Workflow: Tự Động Hóa CSKH Với LangGraph và FastMCP](/posts/multi-agent-workflow-langraph/)  
-  *Cách tích hợp GraphRAG làm công cụ tra cứu cho hệ thống Multi-Agent đạt 99% Hit@5 trên vLLM.*
-- [Quantization Int8/FP4: Chạy Model AI Lớn Trên GPU Tài Nguyên Giới Hạn](/posts/quantization-int8-fp4-inference/)  
-  *Kỹ thuật tối ưu hóa bộ nhớ GPU khi cần tự host LLM và Embedding model cho hệ thống RAG nội bộ.*
+- [Multi-Agent Workflow: Tá»± Äá»™ng HÃ³a CSKH Vá»›i LangGraph vÃ  FastMCP](/posts/multi-agent-workflow-langraph/)  
+  *CÃ¡ch tÃ­ch há»£p GraphRAG lÃ m cÃ´ng cá»¥ tra cá»©u cho há»‡ thá»‘ng Multi-Agent Ä‘áº¡t 99% Hit@5 trÃªn vLLM.*
+- [Quantization Int8/FP4: Cháº¡y Model AI Lá»›n TrÃªn GPU TÃ i NguyÃªn Giá»›i Háº¡n](/posts/quantization-int8-fp4-inference/)  
+  *Ká»¹ thuáº­t tá»‘i Æ°u hÃ³a bá»™ nhá»› GPU khi cáº§n tá»± host LLM vÃ  Embedding model cho há»‡ thá»‘ng RAG ná»™i bá»™.*

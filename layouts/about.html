@@ -1,0 +1,36 @@
+{{- define "main" }}
+
+<article class="about-page">
+
+  {{/* Header — chỉ tiêu đề + description, không có LOG/READ TIME/stats */}}
+  <header class="about-header">
+    <div class="about-title-row">
+      <h1 class="about-title">{{ .Title }}</h1>
+    </div>
+    {{- if .Description }}
+    <p class="about-description">{{ .Description }}</p>
+    {{- end }}
+    {{- if (.Param "ShowToc") }}
+    {{- partial "toc.html" . }}
+    {{- end }}
+  </header>
+
+  {{/* Content — CV/hồ sơ đầy đủ */}}
+  {{- if .Content }}
+  <div class="post-content md-content about-content">
+    {{- partial "anchored_headings.html" .Content -}}
+  </div>
+  {{- end }}
+
+  {{/* Footer tối giản — chỉ social links, không có share/comments */}}
+  <footer class="about-footer">
+    <div class="about-social-links">
+      <a href="https://github.com/vinh-gogo" target="_blank" rel="noopener noreferrer">[GITHUB ↗]</a>
+      <a href="https://linkedin.com/in/quangvinh2302" target="_blank" rel="noopener noreferrer">[LINKEDIN ↗]</a>
+      <a href="mailto:lea26462@gmail.com">[EMAIL ↗]</a>
+    </div>
+  </footer>
+
+</article>
+
+{{- end }}

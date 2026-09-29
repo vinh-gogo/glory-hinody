@@ -1,86 +1,86 @@
----
-title: "OpenVideoLab: Tạo Sinh Video AI Đa Phương Thức Trên GPU 16GB"
-date: 2026-09-29T12:00:00+07:00
+﻿---
+title: "OpenVideoLab: Táº¡o Sinh Video AI Äa PhÆ°Æ¡ng Thá»©c TrÃªn GPU 16GB"
+date: 2026-09-12T10:00:00+07:00
 draft: false
 tags: ["generative-ai", "du-an", "video-diffusion"]
-description: "Pipeline sinh video AI đa phương thức với LTX-2.5, MiniMax, Wan; tối ưu quantization int8/fp4 chạy ổn định trên GPU 16GB (<60s/cảnh) và nội suy mượt 48/96fps (RIFE)."
-summary: "Pipeline sinh video AI đa phương thức với LTX-2.5, MiniMax, Wan; tối ưu quantization int8/fp4 chạy ổn định trên GPU 16GB (<60s/cảnh) và nội suy mượt 48/96fps (RIFE)."
+description: "Pipeline sinh video AI Ä‘a phÆ°Æ¡ng thá»©c vá»›i LTX-2.5, MiniMax, Wan; tá»‘i Æ°u quantization int8/fp4 cháº¡y á»•n Ä‘á»‹nh trÃªn GPU 16GB (<60s/cáº£nh) vÃ  ná»™i suy mÆ°á»£t 48/96fps (RIFE)."
+summary: "Pipeline sinh video AI Ä‘a phÆ°Æ¡ng thá»©c vá»›i LTX-2.5, MiniMax, Wan; tá»‘i Æ°u quantization int8/fp4 cháº¡y á»•n Ä‘á»‹nh trÃªn GPU 16GB (<60s/cáº£nh) vÃ  ná»™i suy mÆ°á»£t 48/96fps (RIFE)."
 ShowToc: true
 TocOpen: true
 ---
 
-## 1. Minh Chứng & Bản Thử Nghiệm (Evidence & Demos)
+## 1. Minh Chá»©ng & Báº£n Thá»­ Nghiá»‡m (Evidence & Demos)
 
-Mọi tuyên bố kỹ thuật trong dự án **OpenVideoLab** đều được kiểm chứng thông qua mã nguồn mở và các bản demo video thực tế đã xuất xưởng:
+Má»i tuyÃªn bá»‘ ká»¹ thuáº­t trong dá»± Ã¡n **OpenVideoLab** Ä‘á»u Ä‘Æ°á»£c kiá»ƒm chá»©ng thÃ´ng qua mÃ£ nguá»“n má»Ÿ vÃ  cÃ¡c báº£n demo video thá»±c táº¿ Ä‘Ã£ xuáº¥t xÆ°á»Ÿng:
 
-| Hạng mục | Minh chứng thực tế | Ghi chú kỹ thuật |
+| Háº¡ng má»¥c | Minh chá»©ng thá»±c táº¿ | Ghi chÃº ká»¹ thuáº­t |
 |---|---|---|
-| **Mã nguồn (GitHub)** | [`github.com/vinh-gogo/open-video-lab`](https://github.com/vinh-gogo/open-video-lab) | Pipeline PyTorch, Diffusers, ComfyUI nodes, Colab notebooks |
-| **Video Demo 1 (LTX Video)** | [`vt.tiktok.com/ZSbk6H2FT/`](https://vt.tiktok.com/ZSbk6H2FT/) | Text-to-Video với LTX-2.5, camera motion mượt mà |
+| **MÃ£ nguá»“n (GitHub)** | [`github.com/vinh-gogo/open-video-lab`](https://github.com/vinh-gogo/open-video-lab) | Pipeline PyTorch, Diffusers, ComfyUI nodes, Colab notebooks |
+| **Video Demo 1 (LTX Video)** | [`vt.tiktok.com/ZSbk6H2FT/`](https://vt.tiktok.com/ZSbk6H2FT/) | Text-to-Video vá»›i LTX-2.5, camera motion mÆ°á»£t mÃ  |
 | **Video Demo 2 (MiniMax Video)** | [`vt.tiktok.com/ZSbkMLwVv/`](https://vt.tiktok.com/ZSbkMLwVv/) | Image-to-Video First/Last frame conditioning |
-| **Nền tảng triển khai** | Web UI (Gradio), Google Colab (Tesla T4 / A100), Local GPU | Chạy trực tiếp từ notebook hoặc local environment |
-| **Tốc độ đo đạc (Benchmark)** | `< 60 giây / phân cảnh` trên GPU 16GB VRAM | Denoising 8 bước với TurboLoRA, 24fps gốc |
-| **Nội suy khung hình (RIFE)** | `48 fps` (RIFE 2×) & `96 fps` (RIFE 4×) | Loại bỏ hiện tượng rung lắc (jitter) giữa các khung hình |
+| **Ná»n táº£ng triá»ƒn khai** | Web UI (Gradio), Google Colab (Tesla T4 / A100), Local GPU | Cháº¡y trá»±c tiáº¿p tá»« notebook hoáº·c local environment |
+| **Tá»‘c Ä‘á»™ Ä‘o Ä‘áº¡c (Benchmark)** | `< 60 giÃ¢y / phÃ¢n cáº£nh` trÃªn GPU 16GB VRAM | Denoising 8 bÆ°á»›c vá»›i TurboLoRA, 24fps gá»‘c |
+| **Ná»™i suy khung hÃ¬nh (RIFE)** | `48 fps` (RIFE 2Ã—) & `96 fps` (RIFE 4Ã—) | Loáº¡i bá» hiá»‡n tÆ°á»£ng rung láº¯c (jitter) giá»¯a cÃ¡c khung hÃ¬nh |
 
 ---
 
-## 2. Thách Thức Kỹ Thuật: Video Diffusion Trên Phần Cứng Giới Hạn
+## 2. ThÃ¡ch Thá»©c Ká»¹ Thuáº­t: Video Diffusion TrÃªn Pháº§n Cá»©ng Giá»›i Háº¡n
 
-Các kiến trúc **Diffusion Transformers (DiT)** thế hệ mới trong xử lý video như **LTX-2.5**, **MiniMax-Video**, và **Wan** đã đưa chất lượng tạo sinh tiệm cận chuẩn điện ảnh. Tuy nhiên, rào cản lớn nhất nằm ở tài nguyên phần cứng:
+CÃ¡c kiáº¿n trÃºc **Diffusion Transformers (DiT)** tháº¿ há»‡ má»›i trong xá»­ lÃ½ video nhÆ° **LTX-2.5**, **MiniMax-Video**, vÃ  **Wan** Ä‘Ã£ Ä‘Æ°a cháº¥t lÆ°á»£ng táº¡o sinh tiá»‡m cáº­n chuáº©n Ä‘iá»‡n áº£nh. Tuy nhiÃªn, rÃ o cáº£n lá»›n nháº¥t náº±m á»Ÿ tÃ i nguyÃªn pháº§n cá»©ng:
 
-1. **Bùng nổ tham số:** Mô hình kích thước từ 13B đến 30B tham số. Ở định dạng FP16 (2 bytes/param), riêng trọng số đã ngốn 26GB–60GB VRAM, vượt ngưỡng của các GPU phổ thông như RTX 4080 (16GB) hay Tesla T4 (16GB).
-2. **Kích thước Spatio-Temporal Attention:** Chú ý 3 chiều (không gian + thời gian) tiêu tốn bộ nhớ theo cấp số nhân khi tăng số lượng khung hình ($T$) và độ phân giải ($H \times W$).
-3. **Hiện tượng giật khung hình:** Video sinh trực tiếp từ diffusion model thường dừng ở 24fps hoặc thấp hơn, chuyển động nhanh dễ bị mờ hoặc gãy frame.
+1. **BÃ¹ng ná»• tham sá»‘:** MÃ´ hÃ¬nh kÃ­ch thÆ°á»›c tá»« 13B Ä‘áº¿n 30B tham sá»‘. á»ž Ä‘á»‹nh dáº¡ng FP16 (2 bytes/param), riÃªng trá»ng sá»‘ Ä‘Ã£ ngá»‘n 26GBâ€“60GB VRAM, vÆ°á»£t ngÆ°á»¡ng cá»§a cÃ¡c GPU phá»• thÃ´ng nhÆ° RTX 4080 (16GB) hay Tesla T4 (16GB).
+2. **KÃ­ch thÆ°á»›c Spatio-Temporal Attention:** ChÃº Ã½ 3 chiá»u (khÃ´ng gian + thá»i gian) tiÃªu tá»‘n bá»™ nhá»› theo cáº¥p sá»‘ nhÃ¢n khi tÄƒng sá»‘ lÆ°á»£ng khung hÃ¬nh ($T$) vÃ  Ä‘á»™ phÃ¢n giáº£i ($H \times W$).
+3. **Hiá»‡n tÆ°á»£ng giáº­t khung hÃ¬nh:** Video sinh trá»±c tiáº¿p tá»« diffusion model thÆ°á»ng dá»«ng á»Ÿ 24fps hoáº·c tháº¥p hÆ¡n, chuyá»ƒn Ä‘á»™ng nhanh dá»… bá»‹ má» hoáº·c gÃ£y frame.
 
 ---
 
-## 3. Kiến Trúc Pipeline OpenVideoLab
+## 3. Kiáº¿n TrÃºc Pipeline OpenVideoLab
 
-Để giải quyết bài toán trên mà không đánh đổi chất lượng hình ảnh, tôi thiết kế pipeline 4 tầng tối ưu:
+Äá»ƒ giáº£i quyáº¿t bÃ i toÃ¡n trÃªn mÃ  khÃ´ng Ä‘Ã¡nh Ä‘á»•i cháº¥t lÆ°á»£ng hÃ¬nh áº£nh, tÃ´i thiáº¿t káº¿ pipeline 4 táº§ng tá»‘i Æ°u:
 
 ```mermaid
 flowchart TD
-    IN["Văn bản / Ảnh tham chiếu / Audio"] --> T1
+    IN["VÄƒn báº£n / áº¢nh tham chiáº¿u / Audio"] --> T1
     
-    T1["<b>TẦNG 1: ĐIỀU PHỐI ĐA PHƯƠNG THỨC</b><br/>Text/Image-to-Video · Audio-to-Video (A2V) · MSR"]
-    T2["<b>TẦNG 2: DIT CORE (QUANTIZED INT8/FP4)</b><br/>LTX-2.5 / MiniMax / Wan · TurboLoRA · VRAM peak: dưới 14.5GB"]
-    T3["<b>TẦNG 3: NỘI SUY CHUYỂN ĐỘNG RIFE</b><br/>24fps — RIFE 2x ➔ 48fps · 4x ➔ 96fps Cinematic"]
-    T4["<b>TẦNG 4: HẬU KỲ TỰ ĐỘNG (FFMPEG)</b><br/>Stitching · Audio Sync · Mã hóa H.264 / H.265"]
+    T1["<b>Táº¦NG 1: ÄIá»€U PHá»I ÄA PHÆ¯Æ NG THá»¨C</b><br/>Text/Image-to-Video Â· Audio-to-Video (A2V) Â· MSR"]
+    T2["<b>Táº¦NG 2: DIT CORE (QUANTIZED INT8/FP4)</b><br/>LTX-2.5 / MiniMax / Wan Â· TurboLoRA Â· VRAM peak: dÆ°á»›i 14.5GB"]
+    T3["<b>Táº¦NG 3: Ná»˜I SUY CHUYá»‚N Äá»˜NG RIFE</b><br/>24fps â€” RIFE 2x âž” 48fps Â· 4x âž” 96fps Cinematic"]
+    T4["<b>Táº¦NG 4: Háº¬U Ká»² Tá»° Äá»˜NG (FFMPEG)</b><br/>Stitching Â· Audio Sync Â· MÃ£ hÃ³a H.264 / H.265"]
     
     T1 --> T2
     T2 -->|"Video Raw (24fps, 720p)"| T3
     T3 --> T4
 ```
 
-### Các tính năng cốt lõi:
-- **First/Last Frame Conditioning:** Cho phép chỉ định ảnh bắt đầu và ảnh kết thúc, model tự nội suy hành động logic ở các frame giữa.
-- **Audio-to-Video (A2V):** Đồng bộ chuyển động môi và biểu cảm nhân vật khớp với nhịp điệu audio đầu vào.
-- **Multi-Subject Reference (MSR):** Trích xuất feature vector của nhân vật chính từ nhiều góc ảnh khác nhau, inject vào cross-attention để giữ nhất quán diện mạo qua nhiều cảnh quay.
+### CÃ¡c tÃ­nh nÄƒng cá»‘t lÃµi:
+- **First/Last Frame Conditioning:** Cho phÃ©p chá»‰ Ä‘á»‹nh áº£nh báº¯t Ä‘áº§u vÃ  áº£nh káº¿t thÃºc, model tá»± ná»™i suy hÃ nh Ä‘á»™ng logic á»Ÿ cÃ¡c frame giá»¯a.
+- **Audio-to-Video (A2V):** Äá»“ng bá»™ chuyá»ƒn Ä‘á»™ng mÃ´i vÃ  biá»ƒu cáº£m nhÃ¢n váº­t khá»›p vá»›i nhá»‹p Ä‘iá»‡u audio Ä‘áº§u vÃ o.
+- **Multi-Subject Reference (MSR):** TrÃ­ch xuáº¥t feature vector cá»§a nhÃ¢n váº­t chÃ­nh tá»« nhiá»u gÃ³c áº£nh khÃ¡c nhau, inject vÃ o cross-attention Ä‘á»ƒ giá»¯ nháº¥t quÃ¡n diá»‡n máº¡o qua nhiá»u cáº£nh quay.
 
 ---
 
-## 4. Tối Ưu Hóa Suy Luận: Int8 / FP4 & TurboLoRA
+## 4. Tá»‘i Æ¯u HÃ³a Suy Luáº­n: Int8 / FP4 & TurboLoRA
 
-### Cấu hình Quantization thực tế:
-- **Int8 Quantization (`torchao` / `bitsandbytes`):** Nén ma trận trọng số Linear về 8-bit, giảm VRAM tiêu thụ từ 26GB xuống còn **13GB**, giữ nguyên 97.6% chất lượng FID so với FP16.
-- **FP4 Micro-exponent:** Dùng cho chế độ dựng thử nghiệm (preview) nhanh, đưa VRAM xuống mức **7GB** để có thể chạy song song các tiến trình khác.
+### Cáº¥u hÃ¬nh Quantization thá»±c táº¿:
+- **Int8 Quantization (`torchao` / `bitsandbytes`):** NÃ©n ma tráº­n trá»ng sá»‘ Linear vá» 8-bit, giáº£m VRAM tiÃªu thá»¥ tá»« 26GB xuá»‘ng cÃ²n **13GB**, giá»¯ nguyÃªn 97.6% cháº¥t lÆ°á»£ng FID so vá»›i FP16.
+- **FP4 Micro-exponent:** DÃ¹ng cho cháº¿ Ä‘á»™ dá»±ng thá»­ nghiá»‡m (preview) nhanh, Ä‘Æ°a VRAM xuá»‘ng má»©c **7GB** Ä‘á»ƒ cÃ³ thá»ƒ cháº¡y song song cÃ¡c tiáº¿n trÃ¬nh khÃ¡c.
 
-### Rút ngắn bước lặp với TurboLoRA:
-Thay vì cần 30–50 bước DDIM sampling truyền thống, OpenVideoLab tích hợp LoRA distillation (TurboLoRA / LCM):
-- Số bước sampling giảm xuống còn **4 đến 8 steps**.
-- Thời gian sinh mỗi cảnh 5 giây giảm từ 4 phút xuống **dưới 60 giây**.
-
----
-
-## 5. Nâng Mượt Khung Hình 48/96fps Với RIFE
-
-Sau khi mô hình diffusion xuất ra video gốc ở 24fps, pipeline chuyển qua mô-đun **RIFE (Real-Time Intermediate Flow Estimation)**:
-- RIFE sử dụng mạng nơ-ron ước lượng dòng quang học (optical flow) giữa hai frame kề nhau, sinh ra các khung hình trung gian hoàn toàn không bị ghosting.
-- Kết quả video 48fps hoặc 96fps mang lại cảm giác cinematic mượt mà, sẵn sàng phục vụ sản xuất nội dung số.
+### RÃºt ngáº¯n bÆ°á»›c láº·p vá»›i TurboLoRA:
+Thay vÃ¬ cáº§n 30â€“50 bÆ°á»›c DDIM sampling truyá»n thá»‘ng, OpenVideoLab tÃ­ch há»£p LoRA distillation (TurboLoRA / LCM):
+- Sá»‘ bÆ°á»›c sampling giáº£m xuá»‘ng cÃ²n **4 Ä‘áº¿n 8 steps**.
+- Thá»i gian sinh má»—i cáº£nh 5 giÃ¢y giáº£m tá»« 4 phÃºt xuá»‘ng **dÆ°á»›i 60 giÃ¢y**.
 
 ---
 
-## 6. Tài Liệu Tham Khảo (References)
+## 5. NÃ¢ng MÆ°á»£t Khung HÃ¬nh 48/96fps Vá»›i RIFE
+
+Sau khi mÃ´ hÃ¬nh diffusion xuáº¥t ra video gá»‘c á»Ÿ 24fps, pipeline chuyá»ƒn qua mÃ´-Ä‘un **RIFE (Real-Time Intermediate Flow Estimation)**:
+- RIFE sá»­ dá»¥ng máº¡ng nÆ¡-ron Æ°á»›c lÆ°á»£ng dÃ²ng quang há»c (optical flow) giá»¯a hai frame ká» nhau, sinh ra cÃ¡c khung hÃ¬nh trung gian hoÃ n toÃ n khÃ´ng bá»‹ ghosting.
+- Káº¿t quáº£ video 48fps hoáº·c 96fps mang láº¡i cáº£m giÃ¡c cinematic mÆ°á»£t mÃ , sáºµn sÃ ng phá»¥c vá»¥ sáº£n xuáº¥t ná»™i dung sá»‘.
+
+---
+
+## 6. TÃ i Liá»‡u Tham Kháº£o (References)
 
 ```
 [01] Peebles, W., & Xie, S. (2023). Scalable Diffusion Models with Transformers (DiT). 
@@ -97,9 +97,9 @@ Sau khi mô hình diffusion xuất ra video gốc ở 24fps, pipeline chuyển q
 
 ---
 
-## 7. Bài Viết Liên Quan (Related Logs)
+## 7. BÃ i Viáº¿t LiÃªn Quan (Related Logs)
 
-- [Quantization Int8/FP4: Chạy Model AI Lớn Trên GPU Tài Nguyên Giới Hạn](/posts/quantization-int8-fp4-inference/)  
-  *Phân tích chuyên sâu về toán học đằng sau 8-bit và 4-bit quantization cùng bảng đo đạc VRAM thực tế.*
-- [On-Device AI: Chạy Neural Network Offline Với ONNX Trên Mobile](/posts/on-device-ai-onnx-kotlin/)  
-  *Cách đưa mô hình AI chạy trực tiếp trên thiết bị di động mà không cần kết nối internet hay chi phí cloud API.*
+- [Quantization Int8/FP4: Cháº¡y Model AI Lá»›n TrÃªn GPU TÃ i NguyÃªn Giá»›i Háº¡n](/posts/quantization-int8-fp4-inference/)  
+  *PhÃ¢n tÃ­ch chuyÃªn sÃ¢u vá» toÃ¡n há»c Ä‘áº±ng sau 8-bit vÃ  4-bit quantization cÃ¹ng báº£ng Ä‘o Ä‘áº¡c VRAM thá»±c táº¿.*
+- [On-Device AI: Cháº¡y Neural Network Offline Vá»›i ONNX TrÃªn Mobile](/posts/on-device-ai-onnx-kotlin/)  
+  *CÃ¡ch Ä‘Æ°a mÃ´ hÃ¬nh AI cháº¡y trá»±c tiáº¿p trÃªn thiáº¿t bá»‹ di Ä‘á»™ng mÃ  khÃ´ng cáº§n káº¿t ná»‘i internet hay chi phÃ­ cloud API.*

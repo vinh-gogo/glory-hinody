@@ -1160,3 +1160,235 @@ code, pre, kbd, samp {
   max-width: 100%;
   max-height: 460px;
 }
+
+/* ── Homepage Hero (Enhanced) ─────────────────────────────────────────── */
+.home-info .hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  opacity: 0.85;
+}
+
+.home-info .hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-bright);
+  margin: 0 0 6px;
+  line-height: 1.1;
+}
+
+.home-info .hero-role {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  margin-bottom: 12px;
+}
+
+.home-info .hero-tagline {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 20px;
+  line-height: 1.4;
+}
+
+.home-info .hero-bio {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 560px;
+  margin-bottom: 16px;
+}
+
+.hero-tech-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.tech-chip {
+  font-family: var(--font-mono);
+  font-size: 0.73rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  background: var(--accent-dim);
+}
+
+.hero-footer-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-cta {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent-contrast) !important;
+  background: var(--accent);
+  padding: 7px 16px;
+  border-radius: 4px;
+  text-decoration: none !important;
+  transition: opacity 0.15s ease;
+}
+
+.hero-cta:hover {
+  opacity: 0.85;
+}
+
+/* ── About Page Layout ────────────────────────────────────────────────── */
+.about-page {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+.about-header {
+  padding: 40px 0 32px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 40px;
+}
+
+.about-title-row {
+  margin-bottom: 8px;
+}
+
+.about-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 800;
+  color: var(--text-bright);
+  margin: 0 0 8px;
+}
+
+.about-description {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.55;
+}
+
+.about-content {
+  padding-top: 0;
+}
+
+.about-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.about-social-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.about-social-links a {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+}
+
+.about-social-links a:hover {
+  text-decoration: underline;
+}
+
+/* ── 404 Error Page ───────────────────────────────────────────────────── */
+.error-page {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 80px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.error-code {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 15vw, 8rem);
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 0;
+}
+
+.error-slash {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  color: var(--muted);
+  margin: 4px 0 12px;
+}
+
+.error-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 4vw, 1.8rem);
+  font-weight: 800;
+  color: var(--text-bright);
+  letter-spacing: 0.05em;
+  margin: 0 0 16px;
+}
+
+.error-msg {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.error-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.error-btn-primary {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent-contrast) !important;
+  background: var(--accent);
+  padding: 8px 18px;
+  border-radius: 4px;
+  text-decoration: none !important;
+  transition: opacity 0.15s;
+}
+
+.error-btn-primary:hover { opacity: 0.85; }
+
+.error-btn-secondary {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent) !important;
+  border: 1px solid var(--accent);
+  background: var(--accent-dim);
+  padding: 8px 18px;
+  border-radius: 4px;
+  text-decoration: none !important;
+  transition: opacity 0.15s;
+}
+
+.error-btn-secondary:hover { opacity: 0.75; }
