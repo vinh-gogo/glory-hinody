@@ -5,7 +5,7 @@
 ## ✅ What Works
 
 ### Core Site
-- [x] Hugo build: 55 pages, 0 warnings, 0 errors
+- [x] Hugo build: 125 pages (63 VI + 62 EN), 0 warnings, 0 errors
 - [x] Cloudflare Pages deployment từ `main`
 - [x] PaperMod theme với local overrides
 - [x] Dark/light mode toggle
@@ -14,49 +14,40 @@
 - [x] Giscus comments
 - [x] RSS feed (fixed deprecated LanguageCode)
 - [x] OpenGraph (fixed deprecated LanguageCode)
+- [x] Bài viết mới: `skills-kmp` kiến trúc KMP, 22 Design Patterns & Refactoring (VI + EN)
 
 ### Security System
 - [x] HTTP security headers via `_headers` (CSP, HSTS, X-Frame-Options, Permissions-Policy)
 - [x] Attack path blocking via `_redirects` (20+ paths)
-- [x] Client-side DOM guard `security-guard.js` v3
-  - Per-page CSP counter (không tích luỹ cross-page)
-  - Google Translate whitelist (không false alarm)
-  - Script injection detection
-  - Clickjacking protection
+- [x] Client-side DOM guard `security-guard.js` v3 (đã trung hòa alert banner thừa)
 - [x] SRI hashes cho tất cả CDN resources
 - [x] `security.txt` RFC 9116
 - [x] `robots.txt`
 
-### Language Switching
-- [x] Cookie + reload mechanism (PR #7, pending merge)
-- [x] Google Translate banner hoàn toàn ẩn (CSS + JS)
-- [x] Body.top reset qua MutationObserver
-- [x] State persist: cookie (30 ngày) + localStorage
-- [x] Button active state cập nhật đúng
-- [x] Toast notification khi switch
+### Language Switching (Native Hugo / Payload CMS Pattern)
+- [x] Routing đa ngôn ngữ chuẩn static: Tiếng Việt tại `/`, Tiếng Anh tại `/en/`
+- [x] Pure HTML navigation không phụ thuộc JavaScript hay cookies
+- [x] Hỗ trợ song ngữ 100% tất cả các bài viết và trang hệ thống
+- [x] Cập nhật `<link rel="alternate">` phục vụ SEO tối ưu
 
 ## ⏳ Pending (Cần Merge)
-- [ ] **PR #7** — Language switcher cookie+reload fix (OPEN, chưa merge)
+- [ ] Merge branch `dev` vào `main` để kích hoạt Cloudflare Pages build bài viết mới
 
 ## 🚧 Known Issues / Limitations
-1. **`'unsafe-inline'` trong CSP** — bắt buộc vì Google Translate dùng inline handlers. Không thể xoá nếu muốn giữ translate.
-2. **`unsafe: true` goldmark** — bắt buộc cho KaTeX. Chấp nhận được vì solo blog.
-3. **Google Translate font/style CDN** — không có SRI (Google không cung cấp hash ổn định). Đã whitelist trong CSP.
-4. **Cloudflare _headers chỉ apply trên production** — local `hugo server` không apply security headers.
+1. **`unsafe: true` goldmark** — bắt buộc cho KaTeX math formulas.
+2. **Cloudflare _headers chỉ apply trên production** — local `hugo server` không apply security headers.
 
 ## 📋 Backlog (Optional Improvements)
 - [ ] Self-host KaTeX fonts (xoá dependency CDN hoàn toàn)
 - [ ] CSP `report-uri` endpoint qua Cloudflare Workers (violation telemetry)
-- [ ] Refactor Google Translate integration để xoá `'unsafe-inline'` khỏi CSP
-- [ ] A/B test SecurityHeaders.com sau deploy PR #7 (target: A grade)
 - [ ] Mozilla Observatory scan (target: 80+/100)
 
 ## 📊 Build Metrics
 ```
-Pages:            55
-Static files:     33
-Aliases:          19
-Build time:       ~120ms
+Pages:            125 (63 VI + 62 EN)
+Static files:     34
+Aliases:          23 VI / 22 EN
+Build time:       ~770ms
 Warnings:         0
 Errors:           0
 ```
