@@ -67,12 +67,12 @@ AI Engineer (B.S. in Computer Science, IUH) specializing in RAG, Agentic AI, and
 
 ### 3. AI Lingua — Cross-Platform Language Learning Platform *(2026)*
 - **Repository:** [`github.com/Vinh-Gogo/ai-english`](https://github.com/Vinh-Gogo/ai-english)
-- **Technical Report:** [Deploying On-Device AI with ONNX Runtime on Kotlin](/posts/on-device-ai-onnx-kotlin/)
+- **Technical Report:** [Offline-First Language Learning Architecture with KMP & AI](/posts/on-device-ai-onnx-kotlin/)
 - **Engineering & Contributions:**
-  - Developed cross-platform applications (Desktop & Mobile) using **Kotlin Multiplatform (KMP)**, MVI, and Clean Architecture, sharing **85%** of business logic and Compose UI code.
-  - Integrated on-device neural networks via **ONNX Runtime** for offline Chinese/Kanji stroke recognition, completely eliminating cloud API operational costs for handwriting recognition.
-  - Implemented the **FSRS** spaced repetition algorithm for vocabulary retention optimization (-23% reviews compared to SM-2), and engineered an **LLM Fallback Chain** for seamless automated model failover during network degradations.
-- **Core Tech Stack:** On-Device AI (ONNX Runtime), Kotlin Multiplatform (KMP), Compose Multiplatform, FSRS Spaced Repetition.
+  - Developed cross-platform applications (Desktop Windows/macOS/Linux & Mobile Android) using **Kotlin Multiplatform (KMP)**, Vertical Slicing, and 5-tier Clean Architecture with MVI, sharing **85%** of business logic and Compose UI code.
+  - Built an offline Handwriting Pad utilizing a local geometric engine (**GeometricRecognizer**) coupled with prefix tree dictionaries (**VietnameseDictionaryTrie / EnglishDictionaryTrie**), cutting cloud vision API costs to zero.
+  - Architected an Offline-First system powered by a **normalized 3NF SQLDelight SQLite** database, integrated the **FSRS** spaced repetition algorithm (-23% reviews compared to SM-2), and engineered an **LLM Fallback Chain** (Gemini + Novita AI) via Ktor Client for automated failover during outages.
+- **Core Tech Stack:** Kotlin Multiplatform (KMP), Compose Multiplatform, SQLDelight SQLite, Ktor, FSRS Spaced Repetition.
 
 ---
 

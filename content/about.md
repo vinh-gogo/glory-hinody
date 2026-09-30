@@ -67,12 +67,12 @@ Kỹ sư AI (Cử nhân KHMT, IUH) chuyên sâu về RAG, AI Agent và tối ưu
 
 ### 3. AI Lingua — Nền Tảng Học Ngoại Ngữ Đa Nền Tảng *(2026)*
 - **Mã nguồn:** [`github.com/Vinh-Gogo/ai-english`](https://github.com/Vinh-Gogo/ai-english)
-- **Báo cáo kỹ thuật:** [Triển khai On-Device AI với ONNX Runtime trên Kotlin](/posts/on-device-ai-onnx-kotlin/)
+- **Báo cáo kỹ thuật:** [Kiến Trúc Học Ngoại Ngữ Offline-First Với KMP & AI](/posts/on-device-ai-onnx-kotlin/)
 - **Kỹ thuật & Đóng góp:**
-  - Phát triển ứng dụng đa nền tảng (Desktop & Mobile) theo kiến trúc **Kotlin Multiplatform (KMP)**, MVI và Clean Architecture, chia sẻ **85%** mã nguồn logic và giao diện Compose.
-  - Nhúng mạng nơ-ron **On-Device AI qua ONNX Runtime** để nhận diện nét viết chữ Hán/Kanji offline trực tiếp trên thiết bị, loại bỏ 100% chi phí cloud API cho tính năng nhận diện này.
-  - Ứng dụng thuật toán lặp lại ngắt quãng **FSRS** tối ưu hóa đường cong ghi nhớ từ vựng (-23% lượt ôn so với SM-2) và thiết kế cơ chế **LLM Fallback Chain** tự động chuyển đổi mô hình dự phòng khi quá tải hoặc đứt mạng.
-- **Công nghệ cốt lõi:** On-Device AI (ONNX Runtime), Kotlin Multiplatform (KMP), Compose Multiplatform, Thuật toán FSRS.
+  - Phát triển ứng dụng đa nền tảng (Desktop Windows/macOS/Linux & Mobile Android) theo kiến trúc **Kotlin Multiplatform (KMP)**, Vertical Slicing và Clean Architecture 5 lớp kết hợp MVI, chia sẻ **85%** mã nguồn logic và giao diện Compose.
+  - Xây dựng Handwriting Pad nhận diện nét viết tay cục bộ với bộ nhận diện hình học (**GeometricRecognizer**) kết hợp cấu trúc Trie từ điển (**VietnameseDictionaryTrie / EnglishDictionaryTrie**), loại bỏ 100% chi phí cloud API.
+  - Thiết kế kiến trúc Offline-First với cơ sở dữ liệu **SQLDelight SQLite chuẩn hóa 3NF**, tích hợp thuật toán lặp lại ngắt quãng **FSRS** (-23% lượt ôn so với SM-2) và cơ chế **LLM Fallback Chain** (Gemini + Novita AI) qua Ktor Client tự động chuyển đổi khi quá tải hoặc đứt mạng.
+- **Công nghệ cốt lõi:** Kotlin Multiplatform (KMP), Compose Multiplatform, SQLDelight SQLite, Ktor, Thuật toán FSRS.
 
 ---
 
