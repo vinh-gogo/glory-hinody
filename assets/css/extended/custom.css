@@ -976,90 +976,174 @@ code, pre, kbd, samp {
   border-color: var(--line-strong);
 }
 
-/* ── Discussions / Giscus Container ────────────────────────────────────── */
+/* ── Post Page Layout with Fixed Left Comments Sidebar ───────────────────── */
+.post-page-layout {
+  width: 100%;
+}
+
+.post-main-article {
+  width: 100%;
+}
+
+/* Fallback for when comments are disabled or non-existent */
+.post-page-layout:not(.has-sidebar) .post-main-article {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+/* ── Discussions / Giscus Container Default ────────────────────────────── */
 .editorial-comments-container {
-  margin-top: 48px;
-  padding-top: 24px;
-  border-top: 2px solid var(--line-strong);
+  margin-top: 0;
+  padding-top: 0;
   scroll-margin-top: 80px;
+}
+
+.editorial-comments-container iframe.giscus-frame {
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 .comments-terminal-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
   font-family: var(--font-mono);
 }
 
 .comments-title {
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   color: var(--text-bright);
 }
 
 .comments-badge {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: var(--accent);
   border: 1px solid var(--accent);
-  padding: 2px 6px;
+  padding: 1px 6px;
+  white-space: nowrap;
 }
 
 .comments-instructions {
-  font-size: 0.9rem;
-  color: var(--muted);
-  margin: 0 0 24px 0;
-}
-
-/* ── Top-Left Post Discussion & Reaction Callout ──────────────────────── */
-.post-discussion-callout {
-  margin-top: 20px;
-  padding: 14px 18px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--accent);
-  text-align: left;
-  max-width: 640px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.post-discussion-callout .comments-terminal-header {
-  margin-bottom: 6px;
-  gap: 8px;
-}
-
-.post-discussion-callout .comments-title {
-  font-size: 0.82rem;
-}
-
-.post-discussion-callout .comments-badge {
-  font-size: 0.68rem;
-  padding: 1px 5px;
-}
-
-.post-discussion-callout .comments-instructions {
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   line-height: 1.55;
   color: var(--muted);
-  margin: 0;
+  margin: 0 0 16px 0;
 }
 
-.post-discussion-callout .discussion-jump-btn {
-  display: inline-block;
-  margin-left: 6px;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--accent);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color 0.15s ease;
+/* Desktop: 2-Column with Fixed/Sticky Left Comments Sidebar */
+@media (min-width: 1100px) {
+  body.has-comments-sidebar .main {
+    max-width: 1320px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  body.has-comments-sidebar .header-nav {
+    max-width: 1320px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .post-page-layout.has-sidebar {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 36px;
+    width: 100%;
+  }
+
+  .post-sidebar-left {
+    order: 1;
+    flex: 0 0 350px;
+    width: 350px;
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 96px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 18px 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+    z-index: 10;
+  }
+
+  .post-sidebar-left::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .post-sidebar-left::-webkit-scrollbar-thumb {
+    background: var(--line-strong);
+    border-radius: 3px;
+  }
+
+  .post-sidebar-left::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+  }
+
+  .post-main-article {
+    order: 2;
+    flex: 1 1 0%;
+    min-width: 0;
+    max-width: 860px;
+  }
 }
 
-.post-discussion-callout .discussion-jump-btn:hover {
-  text-decoration: underline;
-  color: var(--text-bright);
+/* Wide Desktop Screens (>= 1400px) */
+@media (min-width: 1400px) {
+  body.has-comments-sidebar .main {
+    max-width: 1400px;
+  }
+
+  body.has-comments-sidebar .header-nav {
+    max-width: 1400px;
+  }
+
+  .post-sidebar-left {
+    flex: 0 0 380px;
+    width: 380px;
+  }
+}
+
+/* Mobile & Tablet Fallback (< 1100px) */
+@media (max-width: 1099px) {
+  .post-page-layout.has-sidebar {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .post-main-article {
+    order: 1;
+    width: 100%;
+  }
+
+  .post-sidebar-left {
+    order: 2;
+    width: 100%;
+    margin-top: 40px;
+    position: static;
+    max-height: none;
+    overflow: visible;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  }
 }
 
 /* ── Interactive Stat Badges & Actions ──────────────────────────────── */
@@ -1114,21 +1198,22 @@ button.stat-likes.is-liked svg {
 /* Comments Highlight Flash on scroll */
 @keyframes commentsPulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(200, 240, 73, 0.4);
-    border-top-color: var(--accent);
+    box-shadow: 0 0 0 0 rgba(200, 240, 73, 0.45);
+    border-left-color: var(--accent);
   }
   50% {
     box-shadow: 0 0 0 10px rgba(200, 240, 73, 0.2);
-    border-top-color: var(--accent);
+    border-left-color: var(--accent);
   }
   100% {
     box-shadow: 0 0 0 0 transparent;
   }
 }
 
-.editorial-comments-container.highlight-flash {
+.editorial-comments-container.highlight-flash,
+.post-sidebar-left.highlight-flash {
   animation: commentsPulse 1.6s ease-out;
-  border-top-color: var(--accent) !important;
+  border-left-color: var(--accent) !important;
 }
 
 /* ─── Share Modal Popup ──────────────────────────────────────────────── */

@@ -292,11 +292,15 @@
       e.stopPropagation();
 
       var commentsSection = document.getElementById('comments');
-      if (commentsSection) {
-        commentsSection.scrollIntoView({ behavior: 'smooth' });
-        commentsSection.classList.add('highlight-flash');
+      var sidebar = document.getElementById('post-sidebar-left');
+      var target = sidebar || commentsSection;
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (sidebar) sidebar.classList.add('highlight-flash');
+        if (commentsSection) commentsSection.classList.add('highlight-flash');
         setTimeout(function () {
-          commentsSection.classList.remove('highlight-flash');
+          if (sidebar) sidebar.classList.remove('highlight-flash');
+          if (commentsSection) commentsSection.classList.remove('highlight-flash');
         }, 1800);
       } else {
         var pill = commentBtn.closest('.post-stats-pill');

@@ -3,6 +3,13 @@
     <span class="comments-title">// COMMENTS &amp; REACTION THREAD</span>
     <span class="comments-badge">[GITHUB-POWERED]</span>
   </div>
+  <p class="comments-instructions">
+    {{- if eq .Language.Lang "en" -}}
+    Comments and reactions are synced directly with GitHub Discussions. Sign in with GitHub to participate.
+    {{- else -}}
+    Bình luận và reaction được đồng bộ trực tiếp với GitHub Discussions của repo. Đăng nhập bằng tài khoản GitHub để bình luận hoặc phản hồi bài viết.
+    {{- end -}}
+  </p>
 
   <script src="https://giscus.app/client.js"
     data-repo="vinh-gogo/glory-hinody"
