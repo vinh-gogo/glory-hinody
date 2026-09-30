@@ -23,7 +23,7 @@ comments: false
 
 ## 1. Professional Summary
 
-Computer Science AI Engineer (IUH) with a scientific publication at the SSRC conference and hands-on production experience developing Generative AI (Video Diffusion), Agentic AI (GraphRAG), and On-Device AI systems. Specialized in model inference optimization on hardware-constrained environments (Low-VRAM, int8/fp4 Quantization) and delivering systems from proof-of-concept to production deployment.
+AI & Software Engineer (B.S. in Computer Science — IUH) with a pragmatic, production-first engineering mindset, grounded in model inference optimization and real-world system delivery. As a Junior engineer, my core mission is to collaborate closely with experienced technical teams, deliver measurable product impact, and continuously earn trust and capability to take on larger, mission-critical challenges.
 
 ---
 

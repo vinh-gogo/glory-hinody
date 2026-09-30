@@ -23,7 +23,7 @@ comments: false
 
 ## 1. Tóm Tắt Nghề Nghiệp
 
-Kỹ sư AI chuyên ngành Khoa học Máy tính (IUH) với 1 công bố khoa học tại hội nghị SSRC và kinh nghiệm thực chiến phát triển các giải pháp Generative AI (Video Diffusion), AI Agentic (GraphRAG) và On-Device AI. Có thế mạnh tối ưu hóa suy luận mô hình trên phần cứng tài nguyên giới hạn (Low-VRAM, Quantization int8/fp4) và hoàn thiện sản phẩm từ PoC đến triển khai thực tế.
+Kỹ sư AI / Phần mềm (Cử nhân KHMT — IUH) với tư duy thực chiến, có nền tảng vững về tối ưu hóa suy luận mô hình và triển khai ứng dụng thực tế. Ở vị trí Junior, mục tiêu lớn nhất của tôi là dốc sức cọ xát cùng đội ngũ kỹ thuật giàu kinh nghiệm, mang lại giá trị đo lường được cho sản phẩm và từng bước tích lũy năng lực để đảm đương những bài toán quy mô lớn hơn.
 
 ---
 
