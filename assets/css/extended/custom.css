@@ -1607,20 +1607,216 @@ button.stat-likes.is-liked svg {
   line-height: 1.5;
 }
 
-/* ── Footer ────────────────────────────────────────────────────────────── */
-.footer {
+/* ── Architectural Technical Footer (Left & Right Sections) ─────────────── */
+.footer.site-footer {
   border-top: 1px solid var(--line);
-  padding: 32px 20px;
+  background: var(--bg);
+  padding: 56px 20px 48px 20px;
+  margin-top: 64px;
+  text-align: left;
+  max-width: 100%;
+}
+
+.footer-container {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 48px;
+  box-sizing: border-box;
+}
+
+/* ── Footer Left: Branding, Mission, Status, Copyright ──────────────────── */
+.footer-left {
+  flex: 0 1 480px;
+  max-width: 520px;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-bright);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer-logo:hover {
+  color: var(--accent);
+}
+
+.footer-logo-prefix {
+  color: var(--accent);
+  font-family: var(--font-mono);
+}
+
+.footer-badge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 1px 6px;
+  letter-spacing: 0.05em;
+}
+
+.footer-desc {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 0 16px 0;
+}
+
+.footer-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-bottom: 16px;
+  border-radius: 2px;
+}
+
+.status-indicator-dot {
+  width: 7px;
+  height: 7px;
+  background-color: var(--accent);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 6px var(--accent);
+  animation: statusBlink 2.4s infinite ease-in-out;
+}
+
+@keyframes statusBlink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.status-indicator-text {
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.04em;
+}
+
+.status-sep {
+  color: var(--line-strong);
+}
+
+.status-indicator-meta {
+  color: var(--muted);
+}
+
+.footer-copyright {
   font-family: var(--font-mono);
   font-size: 0.76rem;
   color: var(--muted);
-  text-align: center;
-  max-width: var(--max-width);
-  margin: 0 auto;
 }
 
-.footer a {
+.footer-copyright a {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer-copyright a:hover {
   color: var(--accent);
+}
+
+/* ── Footer Right: Navigation & Links Columns ───────────────────────────── */
+.footer-right {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.footer-col {
+  min-width: 140px;
+}
+
+.footer-col-title {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
+.footer-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.footer-links li {
+  margin: 0;
+  padding: 0;
+}
+
+.footer-links a {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s ease, transform 0.15s ease;
+  display: inline-block;
+}
+
+.footer-links a:hover {
+  color: var(--accent);
+  transform: translateX(2px);
+}
+
+.footer-back-to-top {
+  font-weight: 700;
+  color: var(--accent) !important;
+}
+
+/* Responsive Footer Breakdown */
+@media (max-width: 860px) {
+  .footer-container {
+    flex-direction: column;
+    gap: 36px;
+  }
+
+  .footer-left {
+    max-width: 100%;
+  }
+
+  .footer-right {
+    justify-content: flex-start;
+    gap: 32px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 540px) {
+  .footer-right {
+    flex-direction: column;
+    gap: 24px;
+  }
 }
 
 

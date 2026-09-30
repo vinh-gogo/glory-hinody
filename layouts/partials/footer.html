@@ -1,0 +1,74 @@
+{{- if not (.Param "hideFooter") }}
+<footer class="footer site-footer">
+  <div class="footer-container">
+    {{/* ── PHẦN BÊN TRÁI (FOOTER LEFT) ── */}}
+    <div class="footer-left">
+      <div class="footer-brand">
+        <a href="{{ site.Home.Permalink }}" class="footer-logo">
+          <span class="footer-logo-prefix">//</span> GLORY HINODY
+        </a>
+        <span class="footer-badge">[ENGINEERING LOG]</span>
+      </div>
+
+      <p class="footer-desc">
+        {{- if eq .Language.Lang "en" -}}
+        Deep-dive technical logbook &amp; research on Generative AI, Multi-Agent Workflows, On-Device AI, and Enterprise Software Architecture by Lê Quang Vinh.
+        {{- else -}}
+        Ghi chép kỹ thuật &amp; nghiên cứu chuyên sâu về Generative AI, Multi-Agent Workflows, On-Device AI và Kiến trúc phần mềm doanh nghiệp bởi Lê Quang Vinh.
+        {{- end -}}
+      </p>
+
+      <div class="footer-status-pill">
+        <span class="status-indicator-dot" aria-hidden="true"></span>
+        <span class="status-indicator-text">SYSTEM: OPERATIONAL</span>
+        <span class="status-sep">/</span>
+        <span class="status-indicator-meta">CLOUDFLARE PAGES</span>
+      </div>
+
+      <div class="footer-copyright">
+        <span>&copy; {{ now.Year }} <a href="{{ site.Home.Permalink }}">Lê Quang Vinh</a>. All rights reserved.</span>
+      </div>
+    </div>
+
+    {{/* ── PHẦN BÊN PHẢI (FOOTER RIGHT) ── */}}
+    <div class="footer-right">
+      <div class="footer-col">
+        <div class="footer-col-title">// {{ if eq .Language.Lang "en" }}NAVIGATION{{ else }}ĐIỀU HƯỚNG{{ end }}</div>
+        <ul class="footer-links">
+          <li><a href="{{ "/posts/" | relLangURL }}">{{ if eq .Language.Lang "en" }}Articles{{ else }}Bài Viết{{ end }}</a></li>
+          <li><a href="{{ "/tags/" | relLangURL }}">{{ if eq .Language.Lang "en" }}Topics &amp; Tags{{ else }}Chủ Đề{{ end }}</a></li>
+          <li><a href="{{ "/search/" | relLangURL }}">{{ if eq .Language.Lang "en" }}Search{{ else }}Tìm Kiếm{{ end }}</a></li>
+          <li><a href="{{ "/about/" | relLangURL }}">{{ if eq .Language.Lang "en" }}About Author{{ else }}Hồ Sơ Tác Giả{{ end }}</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-title">// {{ if eq .Language.Lang "en" }}CONNECT{{ else }}KẾT NỐI{{ end }}</div>
+        <ul class="footer-links">
+          <li><a href="https://github.com/vinh-gogo" target="_blank" rel="noopener noreferrer">GitHub ↗</a></li>
+          <li><a href="https://linkedin.com/in/quangvinh2302" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a></li>
+          <li><a href="mailto:lea26462@gmail.com">Email ↗</a></li>
+          <li><a href="{{ "/index.xml" | relLangURL }}" target="_blank" rel="noopener noreferrer">RSS Feed ↗</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-title">// {{ if eq .Language.Lang "en" }}COMMUNITY{{ else }}CỘNG ĐỒNG{{ end }}</div>
+        <ul class="footer-links">
+          <li><a href="https://github.com/vinh-gogo/glory-hinody/discussions" target="_blank" rel="noopener noreferrer">Discussions ↗</a></li>
+          <li><a href="https://github.com/vinh-gogo/glory-hinody" target="_blank" rel="noopener noreferrer">Source Repo ↗</a></li>
+          <li><a href="#top" class="footer-back-to-top" id="footer-back-to-top">[{{ if eq .Language.Lang "en" }}TOP &uarr;{{ else }}LÊN ĐẦU TRANG &uarr;{{ end }}]</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+{{- end }}
+
+{{- if (not site.Params.disableScrollToTop) }}
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+    <path d="M12 6H0l6-6z" />
+  </svg>
+</a>
+{{- end }}
