@@ -34,30 +34,18 @@ Hugo lookup order: `layouts/` → `themes/PaperMod/layouts/`
 - Templates (with underscore prefix): `layouts/partials/templates/<name>.html`
 - Top-level templates: `layouts/<name>.xml`
 
-### 2. Language Switching: Cookie + Reload
-**Decision:** Dùng `googtrans` cookie + `location.reload()` thay vì poll `.goog-te-combo`
+### 2. Language Switching: Native Route-Based Localization (Payload CMS Pattern)
+**Decision:** Loại bỏ hoàn toàn Google Translate widget; chuyển sang kiến trúc **Native Multilingual Routing** (chuẩn Payload CMS / static i18n).
+- Tiếng Việt (mặc định): phục vụ tại root `/` (`/posts/...`, `/about/`, `/search/`).
+- Tiếng Anh: phục vụ tại `/en/` (`/en/posts/...`, `/en/about/`, `/en/search/`).
+- Header language switcher sử dụng pure HTML link `<a>` liên kết trực tiếp giữa `.RelPermalink` của 2 ngôn ngữ.
 
-**Lý do (đã học qua bug):**
-- Poll `.goog-te-combo` → fail khi MutationObserver che iframe → reload loop vô hạn
-- Cookie approach: Google Translate tự đọc cookie khi load → 100% reliable
-- `watchBodyTop()` MutationObserver chỉ fix `body.top`, KHÔNG gọi `suppressBanner`
+**Lý do:**
+- Google Translate widget là công nghệ cũ (deprecated), gây ra chuỗi lỗi dây chuyền: CSP violations (43/49 lần), popup banner đỏ, giật layout `body.top = 39px`, vỡ code blocks và KaTeX math, không dịch ổn định.
+- Native multilingual giải quyết triệt để 100%: 0ms lag, không JavaScript, không cookie, không CSP violation, chuẩn SEO (hreflang tags tự động).
 
-```javascript
-// ✅ ĐÚNG
-window.switchLanguage = function(lang) {
-  if (lang === 'en') { setGoogCookie('/vi/en'); location.reload(); }
-  else               { clearGoogCookie(); location.reload(); }
-};
-
-// ❌ SAI — gây infinite reload
-function applyEnglish() {
-  setInterval(() => { if (!select) location.reload(); }, 100); // BUG!
-}
-```
-
-### 3. Security Guard: Per-Page Counter
-**Decision:** CSP violation count là in-memory (`_pageCSPCount`), reset khi navigate.
-**Lý do:** sessionStorage tích luỹ cross-page → false alarm banner sau 15+ pages.
+### 3. Security Guard: DOM Protection & No False Alarm
+**Decision:** CSP violation không trigger banner cảnh báo người dùng (chỉ log console/sessionStorage ngầm). Banner cảnh báo chỉ dành cho tấn công thật (script lạ ngoài domain tin cậy, clickjacking, eval/atob injection).
 Banner chỉ trigger từ DOM injection thật (script lạ, eval/atob, IP resource).
 
 ### 4. Google Translate Whitelist

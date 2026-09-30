@@ -13,39 +13,13 @@
 ### 2. `unsafe: true` trong goldmark — KHÔNG thay đổi
 KaTeX cần raw HTML trong Markdown. Thay đổi sẽ làm vỡ math rendering.
 
-### 3. `'unsafe-inline'` trong CSP — KHÔNG xoá
-Google Translate dùng inline onclick handlers. Xoá sẽ làm vỡ language switching.
-
-### 4. Language switching chỉ dùng cookie + reload
-```javascript
-// ✅ ĐÚNG — simple, reliable
-window.switchLanguage = function(lang) {
-  setGoogCookie('/vi/en');
-  location.reload();
-};
-
-// ❌ SAI — gây infinite reload loop
-function applyEnglish() {
-  setInterval(() => {
-    if (!document.querySelector('.goog-te-combo')) location.reload(); // BUG!
-  }, 100);
-}
-```
-
-### 5. MutationObserver watchBodyTop() chỉ fix body.top
-```javascript
-// ✅ ĐÚNG
-var mo = new MutationObserver(function() {
-  if (body.style.top !== '0px') body.style.setProperty('top', '0', 'important');
-  // KHÔNG gọi gì khác
-});
-
-// ❌ SAI — gọi suppressBanner trong MO phá Google Translate init
-var mo = new MutationObserver(function() {
-  fixBodyTop();
-  suppressBanner(); // ← phá vỡ .goog-te-combo creation
-});
-```
+### 3. Native Multilingual Localization (Payload CMS Pattern)
+Không bao giờ dùng Google Translate widget client-side! Thay vào đó:
+- Tiếng Việt (mặc định) tại `/posts/...`, `/about/`, `/search/`
+- Tiếng Anh tại `/en/posts/...`, `/en/about/`, `/en/search/`
+- Tạo file `.en.md` bên cạnh file `.md` tiếng Việt
+- Header language switcher tự động lấy link qua `.Translations` trong Hugo
+- Zero JavaScript, 0ms lag, không CSP violation, bảo toàn công thức KaTeX và diagram Mermaid 100%.
 
 ---
 

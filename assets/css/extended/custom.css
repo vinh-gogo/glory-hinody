@@ -1478,18 +1478,21 @@ code, pre, kbd, samp {
   justify-content: center;
   border-radius: 4px;
   line-height: 1;
+  text-decoration: none;
   transition: all 0.15s ease;
 }
 
 .lang-btn:hover {
   color: var(--text);
   background: var(--tertiary);
+  text-decoration: none;
 }
 
 .lang-btn.active {
   color: var(--accent-contrast, #090b0e) !important;
   background: var(--accent) !important;
   font-weight: 700;
+  pointer-events: none;
 }
 
 .lang-slash {
@@ -1499,121 +1502,4 @@ code, pre, kbd, samp {
   margin: 0 1px;
 }
 
-/* ── Google Translate: ẩn hoàn toàn mọi UI inject ──────────────── */
-
-/* Widget container: ẩn khỏi viewport nhưng vẫn init được */
-.google-translate-hidden,
-#google_translate_element {
-  position: fixed !important;
-  top: -9999px !important;
-  left: -9999px !important;
-  width: 1px !important;
-  height: 1px !important;
-  overflow: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  z-index: -9999 !important;
-  clip: rect(0,0,0,0) !important;
-}
-
-/* ── Block TOÀN BỘ banner / toolbar translate ─────────────────── */
-/* Selector bao quát nhất có thể — Google thỉnh thoảng đổi class */
-iframe.goog-te-banner-frame,
-iframe[id^="goog-gt-"],
-iframe[class*="goog-te-"],
-iframe[class*="VIpgJd-"],
-.goog-te-banner-frame,
-.VIpgJd-ZVi9od-xl07Ob-OEVmcd,
-.VIpgJd-ZVi9od-xl07Ob,
-[class*="VIpgJd-ZVi9od"] {
-  display: none !important;
-  visibility: hidden !important;
-  height: 0 !important;
-  max-height: 0 !important;
-  min-height: 0 !important;
-  overflow: hidden !important;
-  border: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
-
-/* ── Chặn body/html bị push xuống bởi translate ──────────────── */
-html,
-body {
-  top: 0 !important;
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-
-/* Translate thêm position:relative vào body → undo */
-body.translated-ltr,
-body.translated-rtl,
-body[style*="top:"],
-body[style*="top :"] {
-  top: 0 !important;
-  position: static !important;
-}
-
-/* ── Ẩn popup, balloon, tooltip khi hover ────────────────────── */
-#goog-gt-tt,
-#goog-gt-vt,
-.goog-te-balloon-frame,
-.goog-te-ftab-frame,
-.goog-tooltip,
-.goog-tooltip:hover,
-[class*="goog-te-balloon"],
-[class*="goog-te-ftab"] {
-  display: none !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  opacity: 0 !important;
-}
-
-/* ── Loại bỏ hiệu ứng highlight khi hover vào text đã dịch ──── */
-.goog-text-highlight {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-  cursor: inherit !important;
-}
-
-/* Google Translate wrap text trong <font> tag */
-font {
-  background-color: transparent !important;
-  box-shadow: none !important;
-}
-
-/* Minimalist Terminal Toast for Language Switch Feedback */
-.terminal-toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: var(--entry);
-  color: var(--text);
-  border: 1px solid var(--accent);
-  padding: 8px 14px;
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  border-radius: 4px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-  z-index: 999999;
-  opacity: 0;
-  transform: translateY(12px);
-  pointer-events: none;
-  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.terminal-toast.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.terminal-toast .toast-prefix {
-  color: var(--accent);
-  margin-right: 6px;
-}
 

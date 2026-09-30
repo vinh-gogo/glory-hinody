@@ -1,8 +1,8 @@
 baseURL: "https://glory-hinody.pages.dev/"
 theme: PaperMod
 title: "Glory Hinody"
-locale: "vi"
 defaultContentLanguage: "vi"
+defaultContentLanguageInSubdir: false
 
 outputs:
   home:
@@ -14,7 +14,6 @@ params:
   env: production
   author: "Lê Quang Vinh"
   title: "Glory Hinody"
-  description: "Technical logbook của Lê Quang Vinh (AI Engineer). Chuyên sâu về Generative AI, Video Diffusion, GraphRAG và On-Device AI."
   keywords: ["AI Engineer", "Generative AI", "Video Diffusion", "GraphRAG", "On-Device AI", "Lê Quang Vinh", "PaperMod"]
   defaultTheme: auto
   ShowReadingTime: true
@@ -52,12 +51,39 @@ params:
     minMatchCharLength: 2
     keys: ["title", "permalink", "summary", "content"]
 
-menu:
-  main:
-    - { name: "BÀI VIẾT", url: "/posts/", weight: 1 }
-    - { name: "CHỦ ĐỀ", url: "/tags/", weight: 2 }
-    - { name: "TÌM KIẾM", url: "/search/", weight: 3 }
-    - { name: "TÁC GIẢ", url: "/about/", weight: 4 }
+languages:
+  vi:
+    locale: "vi"
+    label: "VI"
+    weight: 1
+    title: "Glory Hinody"
+    params:
+      description: "Technical logbook của Lê Quang Vinh (AI Engineer). Chuyên sâu về Generative AI, Video Diffusion, GraphRAG và On-Device AI."
+      homeInfoParams:
+        Title: "Glory Hinody"
+        Content: "Technical logbook của Lê Quang Vinh (AI Engineer)."
+    menu:
+      main:
+        - { name: "BÀI VIẾT", url: "/posts/", weight: 1 }
+        - { name: "CHỦ ĐỀ", url: "/tags/", weight: 2 }
+        - { name: "TÌM KIẾM", url: "/search/", weight: 3 }
+        - { name: "TÁC GIẢ", url: "/about/", weight: 4 }
+  en:
+    locale: "en"
+    label: "EN"
+    weight: 2
+    title: "Glory Hinody"
+    params:
+      description: "Technical logbook of Le Quang Vinh (AI Engineer). Focusing on Generative AI, Video Diffusion, GraphRAG, and On-Device AI."
+      homeInfoParams:
+        Title: "Glory Hinody"
+        Content: "Technical logbook of Le Quang Vinh (AI Engineer)."
+    menu:
+      main:
+        - { name: "POSTS", url: "/en/posts/", weight: 1 }
+        - { name: "TAGS", url: "/en/tags/", weight: 2 }
+        - { name: "SEARCH", url: "/en/search/", weight: 3 }
+        - { name: "ABOUT", url: "/en/about/", weight: 4 }
 
 markup:
   goldmark:
