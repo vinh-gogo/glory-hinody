@@ -56,21 +56,21 @@ Lạm dụng `when (platform)` hoặc tạo quá nhiều hàm `expect/actual` nh
 
 ```mermaid
 flowchart TD
-    subgraph UI_LAYER["1. TẦNG GIAO DIỆN (:composeApp)"]
-        UI["Compose Multiplatform UI<br/>(Android / Desktop / Web WASM)"]
+    subgraph UI_LAYER["1. TẦNG GIAO DIỆN :composeApp"]
+        UI["Compose Multiplatform UI<br/>Android / Desktop / Web WASM"]
         VM["Feature ViewModel (MVI Intent Handler)"]
         UI --> VM
     end
 
-    subgraph APP_LAYER["2. TẦNG ỨNG DỤNG (:shared:application)"]
-        UC["Small Focused UseCases<br/>(CQRS-lite: Command & Query)"]
-        VAL["Input Validators & DTO Mappers"]
+    subgraph APP_LAYER["2. TẦNG ỨNG DỤNG :shared:application"]
+        UC["Small Focused UseCases<br/>CQRS-lite: Command and Query"]
+        VAL["Input Validators and DTO Mappers"]
         VM --> UC
         UC --> VAL
     end
 
-    subgraph DOMAIN_LAYER["3. TẦNG NGHIỆP VỤ LÕI (:shared:domain) — 'VÔ TRÙNG'"]
-        ENT["Rich Domain Entities & Value Objects"]
+    subgraph DOMAIN_LAYER["3. TẦNG NGHIỆP VỤ LÕI :shared:domain - VÔ TRÙNG"]
+        ENT["Rich Domain Entities and Value Objects"]
         REPO_INT["Repository Interfaces (Contracts)"]
         RULES["Pure Business Rules"]
         UC --> REPO_INT
@@ -78,12 +78,12 @@ flowchart TD
         ENT --> RULES
     end
 
-    subgraph INFRA_LAYER["4. TẦNG HẠ TẦNG (:shared:infrastructure)"]
+    subgraph INFRA_LAYER["4. TẦNG HẠ TẦNG :shared:infrastructure"]
         SQL["SQLDelight Database Driver"]
         KTOR["Ktor HTTP Network Client"]
-        FS["File Storage & OS Specifics"]
+        FS["File Storage and OS Specifics"]
         REPO_IMPL["Repository Implementations"]
-        REPO_IMPL -.->|"Implements (DIP)"| REPO_INT
+        REPO_IMPL -.->|Implements DIP| REPO_INT
         REPO_IMPL --> SQL
         REPO_IMPL --> KTOR
         REPO_IMPL --> FS
@@ -249,10 +249,9 @@ Chúng tôi đã thực hiện quy trình Refactoring chuẩn mực theo 3 bư�
 
 ```mermaid
 flowchart LR
-    A["God Composable (1.400 dòng)<br/>Ôm trọn SQL, UI, Audio, Logic"]
-    -->|"BƯỚC 1: Extract Class"| B["Tách ViewModel (MVI)<br/>UI chỉ còn giữ State & Intent"]
-    -->|"BƯỚC 2: Extract UseCase"| C["Tách UseCase (CQRS-lite)<br/>CalculateFSRS & SaveResult"]
-    -->|"BƯỚC 3: Replace Conditional"| D["Modular Hoàn Hảo<br/>3 Composable nhỏ (120 dòng)<br/>100% Testable"]
+    A["God Composable: 1.400 dòng<br/>Ôm trọn SQL, UI, Audio, Logic"] -->|BƯỚC 1: Extract Class| B["Tách ViewModel MVI<br/>UI chỉ còn giữ State và Intent"]
+    B -->|BƯỚC 2: Extract UseCase| C["Tách UseCase CQRS-lite<br/>CalculateFSRS và SaveResult"]
+    C -->|BƯỚC 3: Replace Conditional| D["Modular Hoàn Hảo<br/>3 Composable nhỏ 120 dòng<br/>100% Testable"]
 ```
 
 1. **Bước 1: Trích xuất ViewModel (Extract Class):** Toàn bộ trạng thái mutable (`var isFlipped`, `var score`) được gom về `FlashcardUiState`. Tách rời việc phát âm thanh sang `AudioPlayerStrategy`.

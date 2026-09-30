@@ -56,21 +56,21 @@ To neutralize these code smells permanently, the architecture codified in [`skil
 
 ```mermaid
 flowchart TD
-    subgraph UI_LAYER["1. UI LAYER (:composeApp)"]
-        UI["Compose Multiplatform UI<br/>(Android / Desktop / Web WASM)"]
+    subgraph UI_LAYER["1. UI LAYER :composeApp"]
+        UI["Compose Multiplatform UI<br/>Android / Desktop / Web WASM"]
         VM["Feature ViewModel (MVI Intent Handler)"]
         UI --> VM
     end
 
-    subgraph APP_LAYER["2. APPLICATION LAYER (:shared:application)"]
-        UC["Small Focused UseCases<br/>(CQRS-lite: Command & Query)"]
-        VAL["Input Validators & DTO Mappers"]
+    subgraph APP_LAYER["2. APPLICATION LAYER :shared:application"]
+        UC["Small Focused UseCases<br/>CQRS-lite: Command and Query"]
+        VAL["Input Validators and DTO Mappers"]
         VM --> UC
         UC --> VAL
     end
 
-    subgraph DOMAIN_LAYER["3. CORE DOMAIN LAYER (:shared:domain) — 'STERILE'"]
-        ENT["Rich Domain Entities & Value Objects"]
+    subgraph DOMAIN_LAYER["3. CORE DOMAIN LAYER :shared:domain - STERILE"]
+        ENT["Rich Domain Entities and Value Objects"]
         REPO_INT["Repository Interfaces (Contracts)"]
         RULES["Pure Business Rules"]
         UC --> REPO_INT
@@ -78,12 +78,12 @@ flowchart TD
         ENT --> RULES
     end
 
-    subgraph INFRA_LAYER["4. INFRASTRUCTURE LAYER (:shared:infrastructure)"]
+    subgraph INFRA_LAYER["4. INFRASTRUCTURE LAYER :shared:infrastructure"]
         SQL["SQLDelight Database Driver"]
         KTOR["Ktor HTTP Network Client"]
-        FS["File Storage & OS Specifics"]
+        FS["File Storage and OS Specifics"]
         REPO_IMPL["Repository Implementations"]
-        REPO_IMPL -.->|"Implements (DIP)"| REPO_INT
+        REPO_IMPL -.->|Implements DIP| REPO_INT
         REPO_IMPL --> SQL
         REPO_IMPL --> KTOR
         REPO_IMPL --> FS
@@ -246,10 +246,9 @@ We executed a disciplined 3-step refactoring procedure:
 
 ```mermaid
 flowchart LR
-    A["Monolithic Composable (1,400 lines)<br/>Entangling SQL, UI, Audio, Logic"]
-    -->|"STEP 1: Extract Class"| B["Isolate ViewModel (MVI)<br/>UI handles only State & Intents"]
-    -->|"STEP 2: Extract UseCase"| C["Isolate UseCases (CQRS-lite)<br/>CalculateFSRS & SaveResult"]
-    -->|"STEP 3: Decompose Views"| D["Clean Modular Structure<br/>3 Focused Composables (120 lines)<br/>100% Test Coverage"]
+    A["Monolithic Composable: 1,400 lines<br/>Entangling SQL, UI, Audio, Logic"] -->|STEP 1: Extract Class| B["Isolate ViewModel MVI<br/>UI handles only State and Intents"]
+    B -->|STEP 2: Extract UseCase| C["Isolate UseCases CQRS-lite<br/>CalculateFSRS and SaveResult"]
+    C -->|STEP 3: Decompose Views| D["Clean Modular Structure<br/>3 Focused Composables 120 lines<br/>100% Test Coverage"]
 ```
 
 1. **Step 1: Extract ViewModel (Extract Class):** Hoisted all mutable variables (`var isFlipped`, `var score`) into an immutable `FlashcardUiState`. Decoupled audio execution into `AudioPlayerStrategy`.
