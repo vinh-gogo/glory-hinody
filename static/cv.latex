@@ -75,7 +75,7 @@ Cử nhân Khoa học Máy tính -- Khóa luận: 4.0/4.0 \hfill \textbf{Ngoại
 \large{\textbf{Mã nguồn: }\textit{\href{https://github.com/Vinh-Gogo/pdf-rag}{\small\faGithub\ \large{github.com/Vinh-Gogo/pdf-rag}}} \\[3pt]
 $\bullet$ Xây dựng pipeline tự động thu thập và tiền xử lý dữ liệu với Firecrawl AI.\\[2pt]
 $\bullet$ Triển khai hệ thống Semantic RAG \& Knowledge Base xử lý tài liệu kỹ thuật PDF phức tạp ($>200$ trang), kết hợp Neo4j và Qdrant giúp rút ngắn thời gian truy xuất xuống $<$2s và hạn chế tối đa ảo giác thông tin.\\[2pt]
-$\bullet$ \textbf{Công nghệ:} Neo4j, Qdrant, SQLite, LangGraph, LangChain, FastAPI, Linux, Docker, Vercel, Neon.\\[5pt]}
+$\bullet$ \textbf{Công nghệ:} GraphRAG (Neo4j, Qdrant), LangGraph, FastAPI, Docker.\\[5pt]}
 
 % --- DỰ ÁN TIÊU BIỂU ---
 \vspace*{-0.15cm}
@@ -85,20 +85,20 @@ $\bullet$ \textbf{Công nghệ:} Neo4j, Qdrant, SQLite, LangGraph, LangChain, Fa
 \large{\textbf{Mã nguồn: }\textit{\href{https://github.com/vinh-gogo/open-video-lab}{\small\faGithub\ \large{GitHub}}} ~|~ \textbf{Demo: }\textit{\href{https://vt.tiktok.com/ZSbk6H2FT/}{\small\faTiktok\ \large{LTX Video}}} ~|~ \textit{\href{https://vt.tiktok.com/ZSbkMLwVv/}{\small\faTiktok\ \large{MiniMax Video}}} ~|~ \textbf{Nền tảng:} Web, Colab \\[3pt]
 $\bullet$ Xây dựng pipeline sinh video đa phương thức linh hoạt (Text/Image-to-Video First/Last Frame, A2V) và duy trì tính nhất quán nhân vật (MSR).\\[2pt]
 $\bullet$ Tối ưu hóa suy luận với Quantization (int8/fp4) chạy ổn định trên GPU 16GB ($<$60s/cảnh), tự động ghép nối phân cảnh và nâng mượt 48/96fps (RIFE).\\[2pt]
-$\bullet$ \textbf{Công nghệ:} PyTorch, ComfyUI, DiT (LTX-2.5, MiniMax, Wan), Gradio, RIFE, FFmpeg, Turbo LoRA.\\[5pt]}
+$\bullet$ \textbf{Công nghệ:} PyTorch, Diffusion Transformers (DiT), Quantization (int8/fp4), TurboLoRA.\\[5pt]}
 
 \noindent\textbf{\Large{AI Lingua -- Nền Tảng Học Ngoại Ngữ Đa Nền Tảng}} \hfill Cá nhân | \textbf{2026} \\[2pt]
 \large{\textbf{Mã nguồn: }\textit{\href{https://github.com/Vinh-Gogo/ai-english}{\small\faGithub\ \large{GitHub}}} ~|~ \textbf{Demo: }\textit{\href{https://vt.tiktok.com/ZSbkSYhjv/}{\small\faTiktok\ \large{TikTok}}} ~|~ \textbf{Nền tảng: }Desktop \& Mobile (iOS \& Android) \\[3pt]
 $\bullet$ Áp dụng kiến trúc KMP \& MVI (Unidirectional Data Flow) kết hợp Vertical Slicing, tối đa hóa chia sẻ mã nguồn UI và logic.\\[2pt]
 $\bullet$ Tích hợp On-Device Neural AI (ONNX) nhận diện nét viết offline, loại bỏ 100\% chi phí cloud API; kết hợp thuật toán lặp lại ngắt quãng FSRS tối ưu hóa ghi nhớ từ vựng.\\[2pt]
 $\bullet$ Thiết kế cơ chế LLM Fallback Chain tự động chuyển đổi mô hình dự phòng khi quá tải hoặc đứt mạng, duy trì phản hồi 24/7.\\[2pt]
-$\bullet$ \textbf{Công nghệ:} Kotlin Multiplatform, Compose Multiplatform, ONNX, SQLite, Koin, Ktor, Gemini API.\\[5pt]}
+$\bullet$ \textbf{Công nghệ:} On-Device AI (ONNX Runtime), Kotlin Multiplatform (KMP), Compose Multiplatform, Thuật toán FSRS.\\[5pt]}
 
 \noindent\textbf{\Large{Hệ Thống AI Agentic (Automation Agent)}} \hfill Freelancer | \textbf{06/2025 -- 10/2025} \\[2pt]
 \large{\textbf{Video Demo: }\textit{\href{https://youtu.be/R_IvnHsHmTw}{\small\faYoutube\ \large{YouTube}}} ~|~ \textit{\href{https://lnkd.in/p/ejjivmDG}{\small\faLinkedin\ \large{LinkedIn}}} ~|~ \textbf{Vai trò: }Thành viên \\[3pt]
 $\bullet$ Xây dựng hệ thống Multi-Agent tự động hóa CSKH đa tác vụ (tra cứu thông tin, lập hóa đơn tự động); thiết kế pipeline tìm kiếm lai (Semantic + BM25) tích hợp tiền xử lý tiếng Việt chuyên sâu.\\[2pt]
 $\bullet$ Đạt độ chính xác 95\% Hit@1 và 99\% Hit@5 trên 3.200 truy vấn kiểm thử (2 tập dữ liệu món ăn và điện thoại); cấu hình vLLM trên GPU A100 phục vụ xử lý song song.\\[2pt]
-$\bullet$ \textbf{Công nghệ:} FastMCP, LangGraph, LangChain, FastAPI, vLLM, Neo4j, FAISS, PostgreSQL, Docker.\\[6pt]}
+$\bullet$ \textbf{Công nghệ:} FastMCP (Model Context Protocol), LangGraph, vLLM (Serving A100), Hybrid Search (Semantic + BM25).\\[6pt]}
 
 % --- DỰ ÁN KHÁC & NGHIÊN CỨU ---
 \vspace*{-0.15cm}
@@ -109,9 +109,9 @@ $\bullet$ \textbf{Hệ thống Sinh Mô hình 3D từ Ảnh (Image-to-3D AI):} T
 % --- KỸ NĂNG CHUYÊN MÔN ---
 \vspace*{-0.15cm}
 \section{\Large{KỸ NĂNG CHUYÊN MÔN}}
-\large{\textbf{Generative AI \& Multimodal:} Diffusion Transformers (LTX, MiniMax, Wan), ComfyUI, Audio-to-Video (A2V), Multi-Subject Reference (MSR), Quantization (int8, fp4), Turbo LoRA, RIFE AI.\\[2pt]
-\textbf{AI Agentic \& RAG:} Multi-Agent Workflows, FastMCP, LangGraph, LangChain, Graph RAG (Neo4j, Qdrant, FAISS), On-Device AI (ONNX), vLLM, Computer Vision (Image-to-3D, Depth Estimation).\\[2pt]
-\textbf{Kiến trúc \& Nền tảng:} Kotlin Multiplatform (KMP), Compose Multiplatform, Clean Architecture, Strict Vertical Slicing, MVI (Unidirectional Data Flow).\\[2pt]
-\textbf{Ngôn ngữ \& Công cụ:} Python, Kotlin, FastAPI, Docker Compose, Linux, Neo4j, Qdrant, FAISS, SQLite, Hugging Face, Git, Kaggle, Colab.}
+\large{\textbf{Generative AI \& Multimodal:} Diffusion Transformers (DiT), Multi-Subject Consistency, Quantization (int8/fp4), TurboLoRA, RIFE AI.\\[2pt]
+\textbf{AI Agentic \& RAG:} Multi-Agent Workflows, FastMCP, LangGraph, GraphRAG (Neo4j, Qdrant), vLLM, On-Device AI (ONNX Runtime).\\[2pt]
+\textbf{Kiến trúc \& Nền tảng:} Kotlin Multiplatform (KMP), Compose Multiplatform, Clean Architecture, Strict Vertical Slicing, MVI.\\[2pt]
+\textbf{Ngôn ngữ \& Công cụ:} Python, Kotlin, PyTorch, FastAPI, Docker Compose, Linux, Git.}
 
 \end{document}

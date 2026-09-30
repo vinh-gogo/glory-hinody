@@ -35,7 +35,7 @@ AI & Software Engineer (B.S. in Computer Science — IUH) with a pragmatic, prod
 
 - Engineered an automated data collection and preprocessing pipeline using **Firecrawl AI**.
 - Deployed a Semantic RAG & Knowledge Base architecture handling complex PDF technical documentation (>200 pages), fusing **Neo4j** and **Qdrant** to cut retrieval latencies to **<2 seconds** while eliminating hallucination risks.
-- **Tech Stack:** Neo4j, Qdrant, SQLite, LangGraph, LangChain, FastAPI, Linux, Docker, Vercel, Neon.
+- **Tech Stack:** GraphRAG (Neo4j, Qdrant), LangGraph, FastAPI, Docker.
 
 ---
 
@@ -47,20 +47,20 @@ AI & Software Engineer (B.S. in Computer Science — IUH) with a pragmatic, prod
 - **Demo Video (MiniMax):** [`vt.tiktok.com/ZSbkMLwVv/`](https://vt.tiktok.com/ZSbkMLwVv/)
 - **Environment:** Web UI (Gradio), Google Colab, Local GPUs.
 - **Engineering:** Built an end-to-end multimodal video generation pipeline (Text/Image-to-Video First/Last Frame, Audio-to-Video) with character consistency (MSR). Optimized inference with int8/fp4 Quantization running stably on 16GB GPUs (<60s/scene), automated shot stitching, and 48/96fps frame interpolation (RIFE).
-- **Tech Stack:** PyTorch, ComfyUI, DiT (LTX-2.5, MiniMax, Wan), Gradio, RIFE, FFmpeg, TurboLoRA.
+- **Tech Stack:** PyTorch, Diffusion Transformers (DiT), Quantization (int8/fp4), TurboLoRA.
 
 ### 2. AI Lingua — Cross-Platform Language Learning *(2026)*
 - **Repository:** [`github.com/Vinh-Gogo/ai-english`](https://github.com/Vinh-Gogo/ai-english)
 - **Demo Video:** [`vt.tiktok.com/ZSbkSYhjv/`](https://vt.tiktok.com/ZSbkSYhjv/)
 - **Target:** Desktop & Mobile (iOS & Android).
 - **Engineering:** Implemented KMP & MVI (Unidirectional Data Flow) with strict Vertical Slicing to maximize UI and logic sharing. Integrated On-Device Neural AI (ONNX) for offline handwriting recognition, cutting cloud API expenses to zero; adopted the FSRS spaced repetition algorithm to optimize retention (-23% reviews compared to SM-2). Architected an LLM Fallback Chain for automatic failover during outages, guaranteeing 24/7 responsiveness.
-- **Tech Stack:** Kotlin Multiplatform, Compose Multiplatform, ONNX, SQLite, Koin, Ktor, Gemini API.
+- **Tech Stack:** On-Device AI (ONNX Runtime), Kotlin Multiplatform (KMP), Compose Multiplatform, FSRS Spaced Repetition.
 
 ### 3. Agentic AI Automation System *(Freelance, 06/2025 – 10/2025)*
 - **Demo Video (YouTube):** [`youtu.be/R_IvnHsHmTw`](https://youtu.be/R_IvnHsHmTw)
 - **Demo Video (LinkedIn):** [`lnkd.in/p/ejjivmDG`](https://lnkd.in/p/ejjivmDG)
 - **Engineering:** Constructed a multi-agent automation workflow for customer support and automated invoicing; developed a hybrid retrieval pipeline (Semantic + BM25) with specialized Vietnamese text normalization. Attained 95% Hit@1 and 99% Hit@5 across 3,200 benchmark test queries; configured vLLM on an A100 GPU for parallel processing.
-- **Tech Stack:** FastMCP, LangGraph, LangChain, FastAPI, vLLM, Neo4j, FAISS, PostgreSQL, Docker.
+- **Tech Stack:** FastMCP (Model Context Protocol), LangGraph, vLLM (Serving A100), Hybrid Search (Semantic + BM25).
 
 ---
 
@@ -77,7 +77,7 @@ AI & Software Engineer (B.S. in Computer Science — IUH) with a pragmatic, prod
 
 | Domain | Core Technologies |
 |---|---|
-| **Generative AI & Multimodal** | Diffusion Transformers (LTX, MiniMax, Wan), ComfyUI, Audio-to-Video (A2V), Multi-Subject Reference (MSR), Quantization (int8, fp4), Turbo LoRA, RIFE AI. |
-| **Agentic AI & RAG** | Multi-Agent Workflows, FastMCP, LangGraph, LangChain, Graph RAG (Neo4j, Qdrant, FAISS), On-Device AI (ONNX), vLLM, Computer Vision (Depth Estimation). |
-| **Architecture & Platform** | Kotlin Multiplatform (KMP), Compose Multiplatform, Clean Architecture, Strict Vertical Slicing, MVI (Unidirectional Data Flow). |
-| **Languages & Tools** | Python, Kotlin, FastAPI, Docker Compose, Linux, Neo4j, Qdrant, FAISS, SQLite, Hugging Face, Git, Kaggle, Colab. |
+| **Generative AI & Multimodal** | Diffusion Transformers (DiT), Multi-Subject Consistency, Quantization (int8/fp4), TurboLoRA, RIFE AI. |
+| **Agentic AI & RAG** | Multi-Agent Workflows, FastMCP, LangGraph, GraphRAG (Neo4j, Qdrant), vLLM, On-Device AI (ONNX Runtime). |
+| **Architecture & Platform** | Kotlin Multiplatform (KMP), Compose Multiplatform, Clean Architecture, Strict Vertical Slicing, MVI. |
+| **Languages & Tools** | Python, Kotlin, PyTorch, FastAPI, Docker Compose, Linux, Git. |
