@@ -1,11 +1,8 @@
-<div class="editorial-comments-container">
+<div id="comments" class="editorial-comments-container">
   <div class="comments-terminal-header">
-    <span class="comments-title">// DISCUSSIONS & REACTION</span>
+    <span class="comments-title">// COMMENTS &amp; REACTION THREAD</span>
     <span class="comments-badge">[GITHUB-POWERED]</span>
   </div>
-  <p class="comments-instructions">
-    Bình luận và reaction được đồng bộ trực tiếp với GitHub Discussions của repo. Đăng nhập bằng tài khoản GitHub để bình luận hoặc phản hồi bài viết.
-  </p>
 
   <script src="https://giscus.app/client.js"
     data-repo="vinh-gogo/glory-hinody"
@@ -18,7 +15,7 @@
     data-emit-metadata="1"
     data-input-position="top"
     data-theme="preferred_color_scheme"
-    data-lang="vi"
+    data-lang="{{ if eq .Language.Lang "en" }}en{{ else }}vi{{ end }}"
     crossorigin="anonymous"
     async>
   </script>

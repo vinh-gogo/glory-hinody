@@ -11,7 +11,7 @@
 - [x] Dark/light mode toggle
 - [x] KaTeX math rendering (SRI protected)
 - [x] Mermaid diagrams (securityLevel: antiscript, SRI protected)
-- [x] Giscus comments
+- [x] Giscus comments & reactions (callout thông báo đưa lên phía trên bên trái bài viết + quick jump link)
 - [x] RSS feed (fixed deprecated LanguageCode)
 - [x] OpenGraph (fixed deprecated LanguageCode)
 - [x] Bài viết mới: `skills-kmp` kiến trúc KMP, 22 Design Patterns & Refactoring (VI + EN)

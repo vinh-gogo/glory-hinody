@@ -981,6 +981,7 @@ code, pre, kbd, samp {
   margin-top: 48px;
   padding-top: 24px;
   border-top: 2px solid var(--line-strong);
+  scroll-margin-top: 80px;
 }
 
 .comments-terminal-header {
@@ -1009,6 +1010,67 @@ code, pre, kbd, samp {
   font-size: 0.9rem;
   color: var(--muted);
   margin: 0 0 24px 0;
+}
+
+/* ── Top-Left Post Discussion & Reaction Callout ──────────────────────── */
+.post-discussion-callout {
+  margin-top: 20px;
+  padding: 14px 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  text-align: left;
+  max-width: 640px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.post-discussion-callout .comments-terminal-header {
+  margin-bottom: 6px;
+  gap: 8px;
+}
+
+.post-discussion-callout .comments-title {
+  font-size: 0.82rem;
+}
+
+.post-discussion-callout .comments-badge {
+  font-size: 0.68rem;
+  padding: 1px 5px;
+}
+
+.post-discussion-callout .comments-instructions {
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--muted);
+  margin: 0;
+}
+
+.post-discussion-callout .discussion-jump-btn {
+  display: inline-block;
+  margin-left: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.post-discussion-callout .discussion-jump-btn:hover {
+  text-decoration: underline;
+  color: var(--text-bright);
+}
+
+.post-stats-pill a.stat-badge {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.post-stats-pill a.stat-badge:hover {
+  color: var(--accent);
 }
 
 /* ── Search Page ───────────────────────────────────────────────────────── */

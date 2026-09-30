@@ -9,12 +9,14 @@
   - Giọng văn kỹ thuật dí dỏm, thực chiến, không lý thuyết suông, đầy đủ Mermaid diagrams và code mẫu Kotlin.
   - Build: **63 trang VI + 62 trang EN (Tổng 125 pages), 0 warnings, 0 errors** ✅
 
-## Recent Changes (Session này)
-1. **Bài viết kỹ thuật mới `skills-kmp`:**
+1. **Điều hướng UX: Di chuyển Discussion & Reaction Callout lên phía trên bên trái:**
+   - Tạo `layouts/_default/single.html` ghi đè template single của PaperMod.
+   - Di chuyển khối thông báo `// DISCUSSIONS & REACTION [GITHUB-POWERED]` lên phía trên bên trái của bài viết (bên trong `header.post-header`, ngay dưới metadata).
+   - Thêm nút cuộn mượt `[XUỐNG PHẦN BÌNH LUẬN ↓]` / `[JUMP TO COMMENTS ↓]` trỏ tới `#comments`.
+   - Nâng cấp `stat-likes` và `stat-comments` trong `layouts/partials/post_meta.html` thành liên kết nhảy nhanh xuống Giscus container.
+   - Thêm styling `post-discussion-callout` trong `custom.css` bám phong cách terminal cyberpunk.
+   - Tối ưu hóa Giscus data-lang (`en` cho EN, `vi` cho VI).
+2. **Bài viết kỹ thuật mới `skills-kmp`:**
    - Tạo `content/posts/skills-kmp-architecture-design-patterns.md` (Bản Tiếng Việt).
    - Tạo `content/posts/skills-kmp-architecture-design-patterns.en.md` (Bản Tiếng Anh tương thích 1:1).
-   - Thiết lập date `2026-09-30T09:30:00+07:00` để render ngay lập tức trên Hugo.
-   - Kiểm tra đường dẫn chéo VI/EN: `<link rel="alternate">` và nút chuyển ngôn ngữ hoạt động 100% không dùng JS.
-2. **Kiến trúc Payload CMS i18n & Bảo mật:**
-   - Hệ thống i18n native route (`/` cho VI, `/en/` cho EN) ổn định.
-   - Neutralize hoàn toàn false alert từ security guard banner.
+   - Build 125 pages song ngữ, 0 warnings, 0 errors.
