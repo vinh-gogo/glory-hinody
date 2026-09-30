@@ -15,6 +15,11 @@
     'fonts.googleapis.com',
     'fonts.gstatic.com',
     'giscus.app',
+    'static.cloudflareinsights.com',
+    'cloudflareinsights.com',
+    'www.googletagmanager.com',
+    'www.google-analytics.com',
+    'analytics.google.com',
     'translate.google.com',
     'translate.googleapis.com',
     'www.gstatic.com',
@@ -45,6 +50,8 @@
    * 2. HELPERS
    * ════════════════════════════════════════════════════════ */
   function isHostTrusted(url) {
+    if (!url) return true;
+    if (/^(chrome-extension|moz-extension|safari-extension):\/\//.test(url)) return true;
     try {
       var host = new URL(url, location.origin).hostname;
       for (var i = 0; i < TRUSTED_HOSTS.length; i++) {
@@ -95,28 +102,12 @@
   }
 
   /* ══════════════════════════════════════════════════════════
-   * 4. BANNER — chỉ hiện khi có tấn công rõ ràng
+   * 4. BANNER (VÔ HIỆU HÓA HOÀN TOÀN)
+   *    Lý do: Không bao giờ hiển thị banner cảnh báo làm gián đoạn
+   *    trải nghiệm độc giả trên blog tĩnh. Mọi phát hiện chỉ log nội bộ.
    * ════════════════════════════════════════════════════════ */
   function showSecurityBanner(reason) {
-    if (document.getElementById('sg-alert-banner')) return;
-    var banner = document.createElement('div');
-    banner.id = 'sg-alert-banner';
-    banner.setAttribute('style', [
-      'position:fixed','top:0','left:0','right:0','z-index:2147483647',
-      'background:#b91c1c','color:#fff','font-family:monospace',
-      'font-size:13px','padding:10px 16px','text-align:center',
-      'border-bottom:2px solid #7f1d1d','letter-spacing:0.05em'
-    ].join(';'));
-    banner.innerHTML =
-      '<strong>[SECURITY ALERT]</strong> Phát hiện hành vi bất thường trên trang này (' +
-      reason + '). Hãy xóa cache và tải lại trang. ' +
-      '<button onclick="this.parentElement.remove()" style="margin-left:12px;background:#7f1d1d;' +
-      'color:#fff;border:1px solid #fff;padding:2px 8px;cursor:pointer;font-family:monospace">[Đóng]</button>';
-    document.body
-      ? document.body.prepend(banner)
-      : document.addEventListener('DOMContentLoaded', function() {
-          document.body && document.body.prepend(banner);
-        });
+    return;
   }
 
   /* ══════════════════════════════════════════════════════════
