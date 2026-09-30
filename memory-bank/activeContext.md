@@ -9,14 +9,13 @@
   - Giọng văn kỹ thuật dí dỏm, thực chiến, không lý thuyết suông, đầy đủ Mermaid diagrams và code mẫu Kotlin.
   - Build: **63 trang VI + 62 trang EN (Tổng 125 pages), 0 warnings, 0 errors** ✅
 
-1. **Điều hướng UX: Di chuyển Discussion & Reaction Callout lên phía trên bên trái:**
+1. **Nâng cấp toàn diện tương tác cho các tag REACTION, COMMENTS, SHARES:**
+   - **REACTION (Like):** Chuyển đổi thành nút tương tác thời gian thực, lưu trạng thái thích vào `localStorage` (`glory_user_likes_v1`), kích hoạt hiệu ứng tim đập neon (`heartPop`) và cập nhật số lượng tức thì không cần đăng nhập.
+   - **COMMENTS:** Nhấn để cuộn mượt mà trực tiếp xuống `#comments` và kích hoạt hiệu ứng chớp sáng viền (`highlight-flash`) định vị rõ ràng khung bình luận; trên trang danh sách sẽ dẫn thẳng đến bài viết với anchor `#comments`.
+   - **SHARES:** Nhấn để kích hoạt Popup/Modal chia sẻ chuyên nghiệp (`#share-modal`): hỗ trợ Facebook, X (Twitter), LinkedIn, Telegram, Sao chép link 1-click có phản hồi toast và Web Share API trên thiết bị di động. Tự động cộng dồn lượt chia sẻ vào bộ đếm thống kê.
+   - Đồng bộ hóa các tag trên cả trang danh sách (`layouts/list.html`) lẫn đầu bài viết (`layouts/partials/post_meta.html`).
+2. **Điều hướng UX: Di chuyển Discussion & Reaction Callout lên phía trên bên trái:**
    - Tạo `layouts/_default/single.html` ghi đè template single của PaperMod.
-   - Di chuyển khối thông báo `// DISCUSSIONS & REACTION [GITHUB-POWERED]` lên phía trên bên trái của bài viết (bên trong `header.post-header`, ngay dưới metadata).
-   - Thêm nút cuộn mượt `[XUỐNG PHẦN BÌNH LUẬN ↓]` / `[JUMP TO COMMENTS ↓]` trỏ tới `#comments`.
-   - Nâng cấp `stat-likes` và `stat-comments` trong `layouts/partials/post_meta.html` thành liên kết nhảy nhanh xuống Giscus container.
-   - Thêm styling `post-discussion-callout` trong `custom.css` bám phong cách terminal cyberpunk.
-   - Tối ưu hóa Giscus data-lang (`en` cho EN, `vi` cho VI).
-2. **Bài viết kỹ thuật mới `skills-kmp`:**
-   - Tạo `content/posts/skills-kmp-architecture-design-patterns.md` (Bản Tiếng Việt).
-   - Tạo `content/posts/skills-kmp-architecture-design-patterns.en.md` (Bản Tiếng Anh tương thích 1:1).
-   - Build 125 pages song ngữ, 0 warnings, 0 errors.
+   - Di chuyển khối thông báo `// DISCUSSIONS & REACTION [GITHUB-POWERED]` lên phía trên bên trái của bài viết.
+3. **Bài viết kỹ thuật mới `skills-kmp`:**
+   - Hoàn thành bài viết song ngữ KMP Design Patterns & Refactoring (125 pages).

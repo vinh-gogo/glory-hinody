@@ -11,6 +11,7 @@
 - [x] Dark/light mode toggle
 - [x] KaTeX math rendering (SRI protected)
 - [x] Mermaid diagrams (securityLevel: antiscript, SRI protected)
+- [x] Tương tác Stat Tags: Click Like (thả tim real-time, animation), Click Comments (cuộn mượt + highlight), Click Shares (mở popup chia sẻ đa nền tảng + copy link)
 - [x] Giscus comments & reactions (callout thông báo đưa lên phía trên bên trái bài viết + quick jump link)
 - [x] RSS feed (fixed deprecated LanguageCode)
 - [x] OpenGraph (fixed deprecated LanguageCode)

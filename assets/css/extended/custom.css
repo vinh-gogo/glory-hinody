@@ -1062,15 +1062,307 @@ code, pre, kbd, samp {
   color: var(--text-bright);
 }
 
-.post-stats-pill a.stat-badge {
-  text-decoration: none;
+/* ── Interactive Stat Badges & Actions ──────────────────────────────── */
+.post-stats-pill {
+  position: relative;
+  z-index: 2;
+}
+
+button.stat-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
   color: inherit;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: inherit;
+  transition: color 0.15s ease, transform 0.1s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button.stat-btn:hover {
+  color: var(--accent);
+}
+
+button.stat-btn:active {
+  transform: scale(0.92);
+}
+
+/* Liked state for heart button */
+button.stat-likes.is-liked {
+  color: #ef4444 !important;
+}
+
+button.stat-likes.is-liked svg {
+  fill: #ef4444;
+  stroke: #ef4444;
+  animation: heartPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.45); }
+  100% { transform: scale(1); }
+}
+
+/* Comments Highlight Flash on scroll */
+@keyframes commentsPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(200, 240, 73, 0.4);
+    border-top-color: var(--accent);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(200, 240, 73, 0.2);
+    border-top-color: var(--accent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.editorial-comments-container.highlight-flash {
+  animation: commentsPulse 1.6s ease-out;
+  border-top-color: var(--accent) !important;
+}
+
+/* ─── Share Modal Popup ──────────────────────────────────────────────── */
+.share-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.share-modal.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.share-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(9, 11, 14, 0.78);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.share-modal-dialog {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 460px;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-left: 3px solid var(--accent);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  transform: translateY(12px) scale(0.98);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.share-modal.is-open .share-modal-dialog {
+  transform: translateY(0) scale(1);
+}
+
+.share-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-mono);
+}
+
+.share-modal-tagline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.share-modal-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-bright);
+}
+
+.share-modal-badge {
+  font-size: 0.68rem;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 1px 5px;
+  letter-spacing: 0.04em;
+}
+
+.share-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
   transition: color 0.15s ease;
 }
 
-.post-stats-pill a.stat-badge:hover {
+.share-modal-close:hover {
   color: var(--accent);
+}
+
+.share-modal-body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.share-target-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-bright);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.share-copy-row {
+  display: flex;
+  gap: 8px;
+}
+
+.share-link-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 8px 12px;
+  outline: none;
+  border-radius: 2px;
+}
+
+.share-link-input:focus {
+  border-color: var(--accent);
+  color: var(--text-bright);
+}
+
+.share-link-copy-btn {
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  border-radius: 2px;
+}
+
+.share-link-copy-btn:hover {
+  background: var(--accent);
+  color: #000;
+}
+
+.share-channels-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.share-channel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--text-bright);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.share-channel-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--panel);
+}
+
+.share-channel-btn .share-icon {
+  flex-shrink: 0;
+}
+
+.share-btn-fb:hover { color: #1877f2; border-color: #1877f2; }
+.share-btn-x:hover { color: #fff; border-color: #fff; }
+.share-btn-in:hover { color: #0a66c2; border-color: #0a66c2; }
+.share-btn-tg:hover { color: #229ed9; border-color: #229ed9; }
+
+.share-native-wrap {
+  margin-top: 4px;
+}
+
+.share-native-btn {
+  width: 100%;
+  padding: 10px;
+  background: var(--panel);
+  border: 1px dashed var(--accent);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.share-native-btn:hover {
+  background: var(--accent);
+  color: #000;
+}
+
+/* ─── Micro Toast Notification ───────────────────────────────────────── */
+.glory-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  color: var(--text-bright);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  padding: 10px 16px;
+  border-radius: 2px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.glory-toast.is-show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ── Search Page ───────────────────────────────────────────────────────── */
