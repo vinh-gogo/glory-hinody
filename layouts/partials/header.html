@@ -58,10 +58,25 @@
                 </button>
                 {{- end }}
                 
-                <div class="lang-switcher notranslate" translate="no" title="Chuyển ngôn ngữ / Switch Language">
-                    <button type="button" class="lang-btn active" id="btn-lang-vi" onclick="window.switchLanguage('vi')" aria-label="Tiếng Việt">VI</button>
-                    <span class="lang-slash">/</span>
-                    <button type="button" class="lang-btn" id="btn-lang-en" onclick="window.switchLanguage('en')" aria-label="English">EN</button>
+                <div class="lang-switcher" title="Chuyển ngôn ngữ / Switch Language">
+                    {{- $currentLang := .Lang -}}
+                    {{- if eq $currentLang "en" -}}
+                        {{- $viURL := "/" -}}
+                        {{- range .Translations -}}
+                            {{- if eq .Lang "vi" -}}{{- $viURL = .RelPermalink -}}{{- end -}}
+                        {{- end -}}
+                        <a class="lang-btn" href="{{ $viURL }}" aria-label="Chuyển sang Tiếng Việt">VI</a>
+                        <span class="lang-slash">/</span>
+                        <span class="lang-btn active" aria-current="page">EN</span>
+                    {{- else -}}
+                        <span class="lang-btn active" aria-current="page">VI</span>
+                        <span class="lang-slash">/</span>
+                        {{- $enURL := "/en/" -}}
+                        {{- range .Translations -}}
+                            {{- if eq .Lang "en" -}}{{- $enURL = .RelPermalink -}}{{- end -}}
+                        {{- end -}}
+                        <a class="lang-btn" href="{{ $enURL }}" aria-label="Switch to English">EN</a>
+                    {{- end -}}
                 </div>
             </div>
         </div>

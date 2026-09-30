@@ -6,7 +6,7 @@
 /*
   # ── Content-Security-Policy (CSP) ─────────────────────────
   # Cho phép tối thiểu cần thiết, block tất cả còn lại
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://translate.google.com https://translate.googleapis.com https://www.gstatic.com https://giscus.app https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://translate.googleapis.com https://www.gstatic.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; frame-src https://giscus.app https://translate.google.com https://translate.googleapis.com; connect-src 'self' https://giscus.app https://translate.googleapis.com https://translate.google.com https://fonts.googleapis.com https://fonts.gstatic.com; media-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://giscus.app https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; frame-src https://giscus.app; connect-src 'self' https://giscus.app https://fonts.googleapis.com https://fonts.gstatic.com; media-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
 
   # ── Anti-Clickjacking ─────────────────────────────────────
   X-Frame-Options: DENY
