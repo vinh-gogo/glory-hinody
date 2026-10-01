@@ -87,12 +87,12 @@
 \section{DỰ ÁN TIÊU BIỂU}
 
 \textbf{Hệ Thống Multi-Agent CSKH \& Đặt Hàng Tự Động} \hfill Freelance | \textbf{06/2025 -- 10/2025}\\
-\textit{Kỹ sư AI chính (Nhóm 3 thành viên) \quad\textbar\quad \href{https://youtu.be/R_IvnHsHmTw}{\faYoutube\ Video Demo} \quad\textbar\quad \href{https://glory-hinody.pages.dev/posts/multi-agent-workflow-langraph/}{\faGlobe\ Báo cáo kỹ thuật}}
+\textit{Kỹ sư AI chính (Nhóm 3 thành viên) \quad\textbar\quad \href{https://www.youtube.com/watch?v=RHZPNONKj3Q}{\faYoutube\ Demo LangGraph} \quad\textbar\quad \href{https://www.youtube.com/watch?v=fmhQLR4_IHE}{\faYoutube\ Demo FB Msg} \quad\textbar\quad \href{https://glory-hinody.pages.dev/posts/multi-agent-workflow-langraph/}{\faGlobe\ Báo cáo kỹ thuật}}
 \begin{itemize}
-  \item Thiết kế kiến trúc Multi-Agent trên LangGraph tự động hóa quy trình CSKH: nhận diện ý định, tra cứu menu, đối soát tồn kho và xuất hóa đơn tự động cho đối tác chuỗi F\&B và bán lẻ.
-  \item Xây dựng pipeline tìm kiếm lai (Hybrid Search: Semantic + BM25) với bộ tiền xử lý tiếng Việt chuyên sâu; đạt 95\% Hit@1 và 99\% Hit@5 trên tập 3.200 truy vấn kiểm thử do nhóm gán nhãn từ log hội thoại người dùng thực tế.
-  \item Cấu hình phục vụ suy luận LLM song song qua vLLM trên GPU A100; chuẩn hóa giao thức công cụ bằng FastMCP (Model Context Protocol).
-  \item \textbf{Công nghệ cốt lõi:} FastMCP, LangGraph, vLLM (Serving A100), Hybrid Search (Neo4j, BM25), FastAPI.
+  \item Kết hợp kiến trúc multi-agent (Semantic Router) tự động hóa CSKH và đặt hàng: nhận diện ý định, tra menu, đối soát tồn kho, xuất hóa đơn cho chuỗi F\&B; mở rộng sang tư vấn bất động sản.
+  \item Cải thiện RAG bằng Hybrid Search (Semantic + BM25): 95\% Hit@1, 99\% Hit@5 trên 3.200 truy vấn gán nhãn từ log hội thoại.
+  \item Chuyển đổi số hóa từ dữ liệu xlsx để phục vụ cho hệ thống (Ảnh, văn bản, chuẩn hóa cấu trúc).
+  \item \textbf{Công nghệ cốt lõi:} FastMCP, LangGraph, vLLM (Serving A100), Hybrid Search (Neo4j, BM25), FastAPI, Messenger Webhook.
 \end{itemize}
 
 \vspace{2pt}

@@ -48,13 +48,15 @@ AI Engineer (B.S. in Computer Science, IUH) specializing in RAG, Agentic AI, and
 
 ### 1. Multi-Agent Customer Support & Automated Invoicing *(Freelance, 06/2025 – 10/2025)*
 - **Role:** Lead AI Engineer (3-member team)
-- **Demo Video (YouTube):** [`youtu.be/R_IvnHsHmTw`](https://youtu.be/R_IvnHsHmTw)
+- **Demo Videos (YouTube):**
+  - 📺 [LangGraph Core AI Agent & State Machine](https://www.youtube.com/watch?v=RHZPNONKj3Q)
+  - 💬 [Live Facebook Messenger Integration](https://www.youtube.com/watch?v=fmhQLR4_IHE)
 - **Technical Report:** [Multi-Agent Workflow Architecture with LangGraph](/posts/multi-agent-workflow-langraph/)
 - **Engineering & Contributions:**
-  - Designed a Multi-Agent architecture on **LangGraph** automating customer service workflows: intent classification, menu querying, inventory reconciliation, and auto-invoicing for F&B and retail partners.
-  - Built a hybrid search pipeline (**Hybrid Search: Semantic + BM25**) with specialized Vietnamese text preprocessing; achieved **95% Hit@1** and **99% Hit@5** on 3,200 test queries labeled by the team from real customer conversation logs.
-  - Configured concurrent LLM serving via **vLLM** on A100 GPUs; standardized tool integrations with **FastMCP** (Model Context Protocol).
-- **Core Tech Stack:** FastMCP, LangGraph, vLLM (Serving A100), Hybrid Search (Neo4j, BM25), FastAPI.
+  - Integrated a multi-agent architecture with **Semantic Router** automating customer service and ordering: intent classification, menu querying, real-time inventory reconciliation, and auto-invoicing for F&B chains; extended to real estate consulting.
+  - Supercharged RAG using **Hybrid Search (Semantic + BM25)**: achieved **95% Hit@1** and **99% Hit@5** across 3,200 labeled queries from real customer dialogue logs.
+  - Designed an end-to-end digitization pipeline from raw `.xlsx` enterprise data (embedded images, unmerging text structures, and multi-sink synchronization).
+- **Core Tech Stack:** FastMCP, LangGraph, vLLM (Serving A100), Hybrid Search (Neo4j, BM25), FastAPI, Facebook Messenger Webhook.
 
 ### 2. Open Video Lab — Multimodal AI Video Generation *(2026)*
 - **Repository:** [`github.com/vinh-gogo/open-video-lab`](https://github.com/vinh-gogo/open-video-lab)

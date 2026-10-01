@@ -34,48 +34,48 @@
                 {{- end }}
             </div>
 
-            <div class="header-switches">
+            <div class="header-controls-group" role="region" aria-label="Theme and Language Controls">
                 {{- if (not site.Params.disableThemeToggle) }}
-                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="Chuyển chế độ sáng / tối (Alt + T)" aria-label="Chuyển chế độ sáng / tối">
-                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 3a6 6 0 0 0 9 9 9 0 1 1-9-9Z"></path>
-                    </svg>
-                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="4"></circle>
-                        <line x1="12" y1="2" x2="12" y2="4"></line>
-                        <line x1="12" y1="20" x2="12" y2="22"></line>
-                        <line x1="4.93" y1="4.93" x2="6.34" y2="6.34"></line>
-                        <line x1="17.66" y1="17.66" x2="19.07" y2="19.07"></line>
-                        <line x1="2" y1="12" x2="4" y2="12"></line>
-                        <line x1="20" y1="12" x2="22" y2="12"></line>
-                        <line x1="4.93" y1="19.07" x2="6.34" y2="17.66"></line>
-                        <line x1="17.66" y1="6.34" x2="19.07" y2="4.93"></line>
-                    </svg>
+                <button id="theme-toggle" class="theme-toggle-btn" accesskey="t" title="{{ if eq .Lang "en" }}Switch Theme (Alt + T){{ else }}Chuyển chế độ sáng / tối (Alt + T){{ end }}" aria-label="Chuyển chế độ sáng / tối">
+                    <span class="theme-icon-box">
+                        <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 0 1 1-9-9Z"></path>
+                        </svg>
+                        <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="4"></circle>
+                            <line x1="12" y1="2" x2="12" y2="4"></line>
+                            <line x1="12" y1="20" x2="12" y2="22"></line>
+                            <line x1="4.93" y1="4.93" x2="6.34" y2="6.34"></line>
+                            <line x1="17.66" y1="17.66" x2="19.07" y2="19.07"></line>
+                            <line x1="2" y1="12" x2="4" y2="12"></line>
+                            <line x1="20" y1="12" x2="22" y2="12"></line>
+                            <line x1="4.93" y1="19.07" x2="6.34" y2="17.66"></line>
+                            <line x1="17.66" y1="6.34" x2="19.07" y2="4.93"></line>
+                        </svg>
+                    </span>
                 </button>
                 {{- end }}
-                
-                <div class="lang-switcher" title="Chuyển ngôn ngữ / Switch Language">
+
+                <span class="controls-divider" aria-hidden="true"></span>
+
+                <div class="lang-segmented-control" role="group" aria-label="Language Selector">
                     {{- $currentLang := .Lang -}}
+                    {{- $viURL := "/" -}}
+                    {{- $enURL := "/en/" -}}
+                    {{- range .Translations -}}
+                        {{- if eq .Lang "vi" -}}{{- $viURL = .RelPermalink -}}{{- end -}}
+                        {{- if eq .Lang "en" -}}{{- $enURL = .RelPermalink -}}{{- end -}}
+                    {{- end -}}
                     {{- if eq $currentLang "en" -}}
-                        {{- $viURL := "/" -}}
-                        {{- range .Translations -}}
-                            {{- if eq .Lang "vi" -}}{{- $viURL = .RelPermalink -}}{{- end -}}
-                        {{- end -}}
-                        <a class="lang-btn" href="{{ $viURL }}" aria-label="Chuyển sang Tiếng Việt">VI</a>
-                        <span class="lang-slash">/</span>
-                        <span class="lang-btn active" aria-current="page">EN</span>
+                        <a class="lang-pill" href="{{ $viURL }}" title="Chuyển sang Tiếng Việt" aria-label="Tiếng Việt">VI</a>
+                        <span class="lang-pill active" aria-current="page" title="Currently viewing English">EN</span>
                     {{- else -}}
-                        <span class="lang-btn active" aria-current="page">VI</span>
-                        <span class="lang-slash">/</span>
-                        {{- $enURL := "/en/" -}}
-                        {{- range .Translations -}}
-                            {{- if eq .Lang "en" -}}{{- $enURL = .RelPermalink -}}{{- end -}}
-                        {{- end -}}
-                        <a class="lang-btn" href="{{ $enURL }}" aria-label="Switch to English">EN</a>
+                        <span class="lang-pill active" aria-current="page" title="Đang xem Tiếng Việt">VI</span>
+                        <a class="lang-pill" href="{{ $enURL }}" title="Switch to English" aria-label="English">EN</a>
                     {{- end -}}
                 </div>
             </div>
