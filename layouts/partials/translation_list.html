@@ -1,0 +1,30 @@
+{{- if .IsTranslated -}}
+<div class="post-translation-bar notranslate" translate="no">
+  <div class="translation-bar-pill">
+    <svg class="translation-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="2" y1="12" x2="22" y2="12"></line>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+    </svg>
+    {{- if eq .Lang "vi" -}}
+      <span class="translation-hint">Bản dịch có sẵn:</span>
+      {{- range .Translations -}}
+        <a href="{{ .RelPermalink }}" class="translation-link" title="Đọc bản English">
+          <span class="translation-lang-code">EN</span>
+          <span class="translation-lang-name">Read in English</span>
+          <span class="translation-arrow">&rarr;</span>
+        </a>
+      {{- end -}}
+    {{- else -}}
+      <span class="translation-hint">Available in:</span>
+      {{- range .Translations -}}
+        <a href="{{ .RelPermalink }}" class="translation-link" title="Đọc bản Tiếng Việt">
+          <span class="translation-lang-code">VI</span>
+          <span class="translation-lang-name">Đọc bản Tiếng Việt</span>
+          <span class="translation-arrow">&rarr;</span>
+        </a>
+      {{- end -}}
+    {{- end -}}
+  </div>
+</div>
+{{- end -}}

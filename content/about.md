@@ -48,13 +48,15 @@ Kỹ sư AI (Cử nhân KHMT, IUH) chuyên sâu về RAG, AI Agent và tối ưu
 
 ### 1. Hệ Thống Multi-Agent CSKH & Đặt Hàng Tự Động *(Freelance, 06/2025 – 10/2025)*
 - **Vai trò:** Kỹ sư AI chính (Nhóm 3 thành viên)
-- **Video Demo YouTube:** [`youtu.be/R_IvnHsHmTw`](https://youtu.be/R_IvnHsHmTw)
+- **Video Demo YouTube:**
+  - 📺 [Demo AI Agent LangGraph (Core & State Machine)](https://www.youtube.com/watch?v=RHZPNONKj3Q)
+  - 💬 [Demo Trực Tiếp Facebook Messenger](https://www.youtube.com/watch?v=fmhQLR4_IHE)
 - **Báo cáo kỹ thuật:** [Kiến trúc Multi-Agent Workflow với LangGraph](/posts/multi-agent-workflow-langraph/)
 - **Kỹ thuật & Đóng góp:**
-  - Thiết kế kiến trúc Multi-Agent trên **LangGraph** tự động hóa quy trình CSKH: nhận diện ý định, tra cứu menu, đối soát tồn kho và xuất hóa đơn tự động cho đối tác chuỗi F&B và bán lẻ.
-  - Xây dựng pipeline tìm kiếm lai (**Hybrid Search: Semantic + BM25**) với bộ tiền xử lý tiếng Việt chuyên sâu; đạt **95% Hit@1** và **99% Hit@5** trên tập 3.200 truy vấn kiểm thử do nhóm gán nhãn từ log hội thoại người dùng thực tế.
-  - Cấu hình phục vụ suy luận LLM song song qua **vLLM** trên GPU A100; chuẩn hóa giao thức công cụ bằng **FastMCP** (Model Context Protocol).
-- **Công nghệ cốt lõi:** FastMCP, LangGraph, vLLM (Serving A100), Hybrid Search (Neo4j, BM25), FastAPI.
+  - Kết hợp kiến trúc multi-agent (Semantic Router) tự động hóa CSKH và đặt hàng: nhận diện ý định, tra menu, đối soát tồn kho, xuất hóa đơn cho chuỗi F&B; mở rộng sang tư vấn bất động sản.
+  - Cải thiện RAG bằng Hybrid Search (Semantic + BM25): **95% Hit@1**, **99% Hit@5** trên 3.200 truy vấn gán nhãn từ log hội thoại.
+  - Chuyển đổi số hóa từ dữ liệu xlsx để phục vụ cho hệ thống (Ảnh, văn bản, chuẩn hóa cấu trúc).
+- **Công nghệ cốt lõi:** FastMCP, LangGraph, vLLM (Serving A100), Hybrid Search (Neo4j, BM25), FastAPI, Facebook Messenger Webhook.
 
 ### 2. Open Video Lab — Pipeline Tạo Sinh Video AI Đa Phương Thức *(2026)*
 - **Mã nguồn:** [`github.com/vinh-gogo/open-video-lab`](https://github.com/vinh-gogo/open-video-lab)

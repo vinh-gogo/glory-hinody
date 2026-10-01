@@ -21,7 +21,7 @@
 {{- else }}
 <body class="single{{ if and (eq .Kind "page") (.Param "comments") }} has-comments-sidebar{{ end }}" id="top">
 {{- end }}
-    {{ partialCached "header.html" . .Page -}}
+    {{ partial "header.html" . -}}
     <main class="main">
         {{- block "main" . }}{{ end }}
     </main>
