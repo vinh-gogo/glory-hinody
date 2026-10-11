@@ -19,7 +19,6 @@ comments: false
 - **GitHub:** [github.com/Vinh-Gogo](https://github.com/Vinh-Gogo)
 - **LinkedIn:** [linkedin.com/in/quangvinh2302](https://linkedin.com/in/quangvinh2302)
 - **Website:** [glory-hinody.pages.dev](https://glory-hinody.pages.dev)
-- **Bản in CV (LaTeX):** [cv.latex](/cv.latex)
 - **Học vấn:** Cử nhân Khoa học Máy tính — Đại học Công nghiệp TP.HCM (IUH, 2021–2025)
 - **Ngoại ngữ:** Đọc hiểu tài liệu kỹ thuật chuyên sâu (B1 / CEFR)
 

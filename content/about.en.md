@@ -19,7 +19,6 @@ comments: false
 - **GitHub:** [github.com/Vinh-Gogo](https://github.com/Vinh-Gogo)
 - **LinkedIn:** [linkedin.com/in/quangvinh2302](https://linkedin.com/in/quangvinh2302)
 - **Website:** [glory-hinody.pages.dev](https://glory-hinody.pages.dev)
-- **Printable CV (LaTeX):** [cv.latex](/cv.latex)
 - **Education:** B.S. in Computer Science — Industrial University of Ho Chi Minh City (IUH, 2021–2025)
 - **Languages:** Technical Reading Proficiency (B1 / CEFR), Vietnamese (Native)
 
