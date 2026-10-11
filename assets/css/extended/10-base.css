@@ -1,0 +1,106 @@
+/* ==========================================================================
+   Glory Hinody — Base Typography & Blueprint Canvas
+   ========================================================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  letter-spacing: -0.01em;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  overflow-x: hidden;
+}
+
+[data-theme="dark"] body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(rgba(165, 180, 252, 0.02) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(165, 180, 252, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px;
+  content: "";
+  pointer-events: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text-bright);
+  text-transform: none; /* No forced uppercase */
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+code, pre, kbd, samp {
+  font-family: var(--font-mono) !important;
+}
+
+/* Main Container with Safe Bottom Space for Tab Bar on Mobile */
+.main {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 16px 16px calc(var(--tabbar-h) + var(--safe-b) + 24px) 16px;
+  min-height: calc(100vh - var(--header-height) - 120px);
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding: 28px 24px 80px 24px;
+  }
+}
+
+/* Back to Top button positioned above bottom tab bar */
+.top-link {
+  position: fixed;
+  bottom: calc(var(--tabbar-h) + var(--safe-b) + 12px);
+  right: 16px;
+  z-index: 80;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.2s ease, transform 0.2s ease, border-color 0.15s ease, visibility 0.2s ease;
+}
+
+.top-link.hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.top-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+@media (min-width: 768px) {
+  .top-link {
+    bottom: 24px;
+    right: 24px;
+  }
+}

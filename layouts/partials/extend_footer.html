@@ -1,6 +1,10 @@
 <!-- ── Security Guard: phải load trước tất cả script khác ──────── -->
 <script src="/js/security-guard.v4.js"></script>
 <script src="/js/blog-stats.js" defer></script>
+<script src="/js/reading-progress.js" defer></script>
+<script src="/js/toc-spy.js" defer></script>
+<script src="/js/search-prefill.js" defer></script>
+
 {{- if or (.Store.Get "hasMermaid") (strings.Contains .Content "class=\"mermaid\"") (strings.Contains .RawContent "```mermaid") }}
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"
   integrity="sha384-EOXBFmc3gx5mb+vn0vPvvGqACToJD24hhacX5Yx+8NUUQrHIle/Qi5Bg9o3zKwW2"
@@ -38,8 +42,8 @@
           fontSize: '12px',
           primaryColor: '#161a22',
           primaryTextColor: '#f0f3f6',
-          primaryBorderColor: '#c8f049',
-          lineColor: '#c8f049',
+          primaryBorderColor: '#a5b4fc',
+          lineColor: '#a5b4fc',
           secondaryColor: '#11141a',
           tertiaryColor: '#090b0e',
           background: '#090b0e',
@@ -52,12 +56,12 @@
           fontSize: '12px',
           primaryColor: '#ffffff',
           primaryTextColor: '#14171a',
-          primaryBorderColor: '#15803d',
-          lineColor: '#15803d',
+          primaryBorderColor: '#4f46e5',
+          lineColor: '#4f46e5',
           background: '#fafaf8',
           mainBkg: '#ffffff',
-          nodeBorder: '#c8ccc0',
-          clusterBkg: '#f2f3ee',
+          nodeBorder: '#cbd5e1',
+          clusterBkg: '#f1f5f9',
           clusterBorder: '#e2e4dc'
         }
       });
@@ -139,11 +143,9 @@
 <div id="share-modal" class="share-modal" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="share-modal-backdrop" id="share-modal-backdrop"></div>
   <div class="share-modal-dialog">
+    <div class="share-sheet-handle" aria-hidden="true"></div>
     <div class="share-modal-header">
-      <div class="share-modal-tagline">
-        <span class="share-modal-title">// SHARE // CHIA SẺ</span>
-        <span class="share-modal-badge">[DISTRIBUTE]</span>
-      </div>
+      <div class="share-modal-title">{{ if eq .Lang "en" }}Share article{{ else }}Chia sẻ bài viết{{ end }}</div>
       <button type="button" class="share-modal-close" id="share-modal-close-btn" aria-label="Close modal">&times;</button>
     </div>
 
@@ -152,7 +154,7 @@
       
       <div class="share-copy-row">
         <input type="text" id="share-link-input" class="share-link-input" readonly spellcheck="false" />
-        <button type="button" id="share-link-copy-btn" class="share-link-copy-btn">[COPY LINK]</button>
+        <button type="button" id="share-link-copy-btn" class="share-link-copy-btn">{{ if eq .Lang "en" }}Copy{{ else }}Sao chép{{ end }}</button>
       </div>
 
       <div class="share-channels-grid">
@@ -176,7 +178,7 @@
 
       <div id="share-native-wrap" class="share-native-wrap" style="display: none;">
         <button type="button" id="share-native-btn" class="share-native-btn">
-          <span>📲 MỞ BẢNG CHIA SẺ HỆ THỐNG</span>
+          <span>{{ if eq .Lang "en" }}Share via system dialog{{ else }}Mở menu chia sẻ hệ thống{{ end }}</span>
         </button>
       </div>
     </div>
@@ -185,4 +187,3 @@
 
 <!-- ── Micro Toast Notification ─────────────────────────────── -->
 <div id="glory-toast" class="glory-toast" aria-live="polite"></div>
-

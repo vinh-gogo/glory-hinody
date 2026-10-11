@@ -1,22 +1,50 @@
-<div class="single-post-meta">
-  <div class="single-meta-row">
-    <span class="meta-tag">// LOG</span>
-    <span class="meta-slash">/</span>
+<div class="post-meta-container">
+  <div class="post-meta-row">
     {{- if not .Date.IsZero }}
-    <time class="meta-date">{{ .Date.Format "2006.01.02" }}</time>
-    <span class="meta-slash">/</span>
+    <time class="meta-date">{{ .Date.Format "02/01/2006" }}</time>
+    <span class="meta-dot">·</span>
     {{- end }}
     {{- if (.Param "ShowReadingTime") }}
-    <span class="meta-readtime">{{ printf "%02d" .ReadingTime }} MIN READ</span>
+    <span class="meta-readtime">{{ i18n "read_time" (dict "Count" .ReadingTime) | default (printf "%d phút đọc" .ReadingTime) }}</span>
     {{- end }}
   </div>
 
   {{- with (.Param "tags") }}
-  <div class="single-tags-row notranslate" translate="no">
-    <span class="tags-label">TAGS //</span>
+  <div class="post-tag-pills notranslate" translate="no">
     {{- range . }}
-    <a href="{{ printf "/tags/%s/" (. | urlize) | absLangURL }}" class="tag-bracket">[{{ . }}]</a>
+    <a href="{{ printf "/tags/%s/" (. | urlize) | absLangURL }}" class="post-tag-pill">{{ . }}</a>
     {{- end }}
   </div>
   {{- end }}
+
+  {{/* ── Clean Action Bar directly in Post Header (Like, Comment Jump, Share) ── */}}
+  <div class="post-action-bar">
+    <button type="button" class="post-action-btn stat-btn stat-likes" title="{{ i18n "reactions" | default "Thích" }}" aria-label="{{ i18n "reactions" | default "Thích" }}" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
+      <svg class="stat-icon heart-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+      </svg>
+      <span>{{ i18n "reactions" | default "Thích" }}</span>
+      <span class="stat-count">0</span>
+    </button>
+
+    <a href="#comments" class="post-action-btn stat-btn stat-comments" title="{{ i18n "comments" | default "Bình luận" }}" aria-label="{{ i18n "comments" | default "Bình luận" }}" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
+      <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <span>{{ i18n "comments" | default "Bình luận" }}</span>
+      <span class="stat-count">0</span>
+    </a>
+
+    <button type="button" class="post-action-btn stat-btn stat-shares" title="{{ i18n "share" | default "Chia sẻ" }}" aria-label="{{ i18n "share" | default "Chia sẻ" }}" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
+      <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="18" cy="5" r="3"></circle>
+        <circle cx="6" cy="12" r="3"></circle>
+        <circle cx="18" cy="19" r="3"></circle>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+      </svg>
+      <span>{{ i18n "share" | default "Chia sẻ" }}</span>
+      <span class="stat-count">0</span>
+    </button>
+  </div>
 </div>

@@ -1,0 +1,78 @@
+- id: home
+  translation: "Home"
+
+- id: posts
+  translation: "Articles"
+
+- id: tags
+  translation: "Topics"
+
+- id: search
+  translation: "Search"
+
+- id: about
+  translation: "About"
+
+- id: all_topics
+  translation: "All"
+
+- id: view_all_topics
+  translation: "All topics →"
+
+- id: topic_label
+  translation: "Topics"
+
+- id: read_more
+  translation: "Read article"
+
+- id: read_time
+  translation:
+    one: "{{ .Count }} min read"
+    other: "{{ .Count }} min read"
+
+- id: words
+  translation:
+    one: "{{ .Count }} word"
+    other: "{{ .Count }} words"
+
+- id: toc
+  translation: "Table of Contents"
+
+- id: reactions
+  translation: "Like"
+
+- id: comments
+  translation: "Comments"
+
+- id: share
+  translation: "Share"
+
+- id: search_placeholder
+  translation: "Search articles, topics..."
+
+- id: search_btn
+  translation: "Search"
+
+- id: back_to_top
+  translation: "Top ↑"
+
+- id: error_report
+  translation: "Feedback / Issue"
+
+- id: prev_post
+  translation: "Previous"
+
+- id: next_post
+  translation: "Next"
+
+- id: navigation
+  translation: "Navigation"
+
+- id: connect
+  translation: "Connect"
+
+- id: community
+  translation: "Community"
+
+- id: logbook_subtitle
+  translation: "Technical logbook of Le Quang Vinh (AI Engineer)."

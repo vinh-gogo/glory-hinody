@@ -1,18 +1,24 @@
-<div class="editorial-author-box">
-  <div class="author-badge">[AUT-01]</div>
+<div class="post-author-card">
+  <div class="author-avatar" aria-hidden="true">
+    <span>VH</span>
+  </div>
   <div class="author-details">
     <div class="author-header">
-      <span class="author-name notranslate" translate="no">LÊ QUANG VINH</span>
-      <span class="author-title">// AI RESEARCH &amp; SOFTWARE ENGINEERING</span>
+      <span class="author-name notranslate" translate="no">Lê Quang Vinh</span>
+      <span class="author-role">AI Engineer &amp; Researcher</span>
     </div>
     <p class="author-bio">
-      Kỹ sư AI tại TP. Hồ Chí Minh. Tốt nghiệp Khoa học Máy tính (IUH, 4.0/4.0), công bố nghiên cứu Depth Estimation tại hội nghị SSRC. Tập trung tối ưu hóa suy luận mô hình trên tài nguyên giới hạn (Low-VRAM, quantization int8/fp4), Multi-Agent RAG và On-Device Neural Networks.
+      {{- if eq .Language.Lang "en" -}}
+      AI Engineer based in Ho Chi Minh City. Graduated in Computer Science (IUH, 4.0/4.0), published depth estimation research at SSRC. Focused on low-resource inference optimization (quantization int8/fp4), Multi-Agent workflows, and On-Device Neural Networks.
+      {{- else -}}
+      Kỹ sư AI tại TP. Hồ Chí Minh. Tốt nghiệp Thủ khoa ngành Khoa học Máy tính (IUH, 4.0/4.0), công bố nghiên cứu Depth Estimation tại hội nghị SSRC. Tập trung tối ưu hóa suy luận mô hình trên tài nguyên giới hạn (quantization int8/fp4), Multi-Agent RAG và On-Device Neural Networks.
+      {{- end -}}
     </p>
-    <div class="author-nav-links">
-      <a href="https://github.com/vinh-gogo" target="_blank" rel="noopener">[GITHUB ↗]</a>
-      <a href="https://linkedin.com/in/quangvinh2302" target="_blank" rel="noopener">[LINKEDIN ↗]</a>
-      <a href="mailto:lea26462@gmail.com" rel="noopener noreferrer">[EMAIL ↗]</a>
-      <a href="/about/">[HỒ SƠ CHI TIẾT →]</a>
+    <div class="author-links">
+      <a href="https://github.com/vinh-gogo" target="_blank" rel="noopener noreferrer" class="author-link">GitHub ↗</a>
+      <a href="https://linkedin.com/in/quangvinh2302" target="_blank" rel="noopener noreferrer" class="author-link">LinkedIn ↗</a>
+      <a href="mailto:lea26462@gmail.com" class="author-link">Email ↗</a>
+      <a href="{{ "/about/" | relLangURL }}" class="author-link author-link-profile">{{ if eq .Language.Lang "en" }}About author →{{ else }}Hồ sơ tác giả →{{ end }}</a>
     </div>
   </div>
 </div>

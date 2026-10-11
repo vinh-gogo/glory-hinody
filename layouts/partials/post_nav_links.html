@@ -1,0 +1,18 @@
+{{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
+{{- if and (gt (len $pages) 1) (in $pages . ) }}
+<nav class="post-nav-container" aria-label="{{ if eq .Lang "en" }}Post navigation{{ else }}Điều hướng bài viết{{ end }}">
+  {{- with $pages.Next . }}
+  <a class="post-nav-card prev" href="{{ .Permalink }}" rel="prev">
+    <span class="post-nav-label">← {{ i18n "prev_post" | default "Bài trước" }}</span>
+    <span class="post-nav-title">{{ .Title }}</span>
+  </a>
+  {{- end }}
+
+  {{- with $pages.Prev . }}
+  <a class="post-nav-card next" href="{{ .Permalink }}" rel="next">
+    <span class="post-nav-label">{{ i18n "next_post" | default "Bài sau" }} →</span>
+    <span class="post-nav-title">{{ .Title }}</span>
+  </a>
+  {{- end }}
+</nav>
+{{- end }}

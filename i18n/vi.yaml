@@ -1,9 +1,78 @@
+- id: home
+  translation: "Trang chủ"
+
+- id: posts
+  translation: "Bài viết"
+
+- id: tags
+  translation: "Chủ đề"
+
+- id: search
+  translation: "Tìm kiếm"
+
+- id: about
+  translation: "Tác giả"
+
+- id: all_topics
+  translation: "Tất cả"
+
+- id: view_all_topics
+  translation: "Tất cả chủ đề →"
+
+- id: topic_label
+  translation: "Chủ đề"
+
+- id: read_more
+  translation: "Đọc bài"
+
 - id: read_time
   translation:
-    one: "dành {{ . }} phút để đọc"
-    other: "dành {{ . }} phút để đọc"
+    one: "{{ .Count }} phút đọc"
+    other: "{{ .Count }} phút đọc"
 
 - id: words
   translation:
-    one: "{{ . }} từ"
-    other: "{{ . }} từ"
+    one: "{{ .Count }} từ"
+    other: "{{ .Count }} từ"
+
+- id: toc
+  translation: "Mục lục"
+
+- id: reactions
+  translation: "Thích"
+
+- id: comments
+  translation: "Bình luận"
+
+- id: share
+  translation: "Chia sẻ"
+
+- id: search_placeholder
+  translation: "Tìm bài viết, chủ đề..."
+
+- id: search_btn
+  translation: "Tìm"
+
+- id: back_to_top
+  translation: "Lên đầu trang ↑"
+
+- id: error_report
+  translation: "Báo lỗi / Góp ý"
+
+- id: prev_post
+  translation: "Bài trước"
+
+- id: next_post
+  translation: "Bài sau"
+
+- id: navigation
+  translation: "Điều hướng"
+
+- id: connect
+  translation: "Kết nối"
+
+- id: community
+  translation: "Cộng đồng"
+
+- id: logbook_subtitle
+  translation: "Technical logbook của Lê Quang Vinh (AI Engineer)."

@@ -1,0 +1,523 @@
+/* ==========================================================================
+   Glory Hinody — Single Post Layout & Reading Experience
+   Optimal 740px reading column, sticky right TOC rail (desktop), progress bar
+   ========================================================================== */
+
+/* ── Reading Progress Bar ─────────────────────────────────────────────── */
+.reading-progress-bar {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  height: 3px;
+  background: var(--accent);
+  z-index: 98;
+  width: 0%;
+  pointer-events: none;
+  transition: width 0.08s linear;
+}
+
+/* ── Post Page 2-Column Wrapper (Desktop >= 1100px) ───────────────────── */
+.post-layout-wrapper {
+  width: 100%;
+  margin: 0 auto;
+}
+
+@media (min-width: 1100px) {
+  .post-layout-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 48px;
+  }
+
+  .post-main-content {
+    flex: 1 1 0%;
+    min-width: 0;
+    max-width: var(--reading);
+  }
+
+  .post-toc-rail {
+    flex: 0 0 260px;
+    width: 260px;
+    position: sticky;
+    top: calc(var(--header-height) + 24px);
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 1099px) {
+  .post-main-content {
+    width: 100%;
+    max-width: var(--reading);
+    margin: 0 auto;
+  }
+
+  .post-toc-rail {
+    display: none;
+  }
+}
+
+/* ── Post Header & Meta ───────────────────────────────────────────────── */
+.post-header {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 32px;
+}
+
+.post-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: var(--text-bright);
+  margin: 12px 0 16px 0;
+  text-transform: none;
+}
+
+.post-description {
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+.post-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.84rem;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.post-tag-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.post-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 3px 12px;
+  border-radius: var(--r-pill);
+  background: var(--accent-dim);
+  color: var(--accent);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.post-tag-pill:hover {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+/* Post Action Bar (Like, Comment, Share) */
+.post-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+}
+
+.post-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.post-action-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.post-action-btn:active {
+  transform: scale(0.96);
+}
+
+.post-action-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
+/* ── Mobile In-content Foldable TOC (< 1100px) ────────────────────────── */
+.mobile-fold-toc {
+  margin: 24px 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--panel);
+  padding: 0 16px;
+}
+
+.mobile-fold-toc summary {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--accent);
+  cursor: pointer;
+  user-select: none;
+}
+
+.mobile-fold-toc .toc-content {
+  padding-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+/* ── Right Rail Sticky TOC Styling ────────────────────────────────────── */
+.post-toc-rail .toc-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-toc-rail ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.post-toc-rail ul ul {
+  padding-left: 12px;
+  margin-top: 6px;
+  border-left: 1px solid var(--line);
+}
+
+.post-toc-rail li a {
+  display: block;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.post-toc-rail li a:hover {
+  color: var(--accent);
+  transform: translateX(2px);
+}
+
+.post-toc-rail li a.is-active {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ── Post Content Typography (Reading Focused) ────────────────────────── */
+.post-content {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: var(--text);
+  word-break: break-word;
+}
+
+@media (min-width: 768px) {
+  .post-content {
+    font-size: 1.125rem;
+  }
+}
+
+.post-content h2 {
+  font-size: 1.65rem;
+  margin-top: 44px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: calc(var(--header-height) + 16px);
+}
+
+.post-content h3 {
+  font-size: 1.3rem;
+  margin-top: 32px;
+  margin-bottom: 12px;
+  scroll-margin-top: calc(var(--header-height) + 16px);
+}
+
+.post-content p {
+  margin-bottom: 22px;
+}
+
+.post-content strong {
+  color: var(--text-bright);
+  font-weight: 700;
+}
+
+.post-content a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.post-content a:hover {
+  color: var(--accent-hover);
+}
+
+.post-content blockquote {
+  border-left: 3px solid var(--accent);
+  background: var(--panel);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  padding: 14px 20px;
+  margin: 24px 0;
+  color: var(--muted);
+  font-style: normal;
+}
+
+.post-content img {
+  border-radius: var(--r);
+  max-width: 100%;
+  height: auto;
+  margin: 20px 0;
+}
+
+/* ── Code Blocks & Tables ─────────────────────────────────────────────── */
+.post-content pre {
+  background: var(--code-block) !important;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  padding: 16px;
+  margin: 24px 0;
+  overflow-x: auto;
+  position: relative;
+}
+
+.copy-code {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  min-height: 36px;
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  color: var(--muted);
+  font-size: 0.76rem;
+  cursor: pointer;
+  padding: 0 8px;
+  transition: all 0.15s ease;
+  z-index: 2;
+}
+
+.copy-code:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Responsive Table Wrapper */
+.post-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 28px 0;
+  font-size: 0.94rem;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.post-content th {
+  border-bottom: 2px solid var(--line-strong);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-align: left;
+  padding: 10px 14px;
+  background: var(--panel);
+  color: var(--accent);
+}
+
+.post-content td {
+  border-bottom: 1px solid var(--line);
+  padding: 10px 14px;
+}
+
+/* ── Previous & Next Post Navigation ──────────────────────────────────── */
+.post-nav-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 40px 0 32px 0;
+}
+
+@media (min-width: 640px) {
+  .post-nav-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+}
+
+.post-nav-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  text-decoration: none;
+  transition: all 0.18s ease;
+}
+
+.post-nav-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.post-nav-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.post-nav-title {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.post-nav-card:hover .post-nav-title {
+  color: var(--accent);
+}
+
+.post-nav-card.next {
+  text-align: right;
+}
+
+/* ── Post Author Card ─────────────────────────────────────────────────── */
+.post-author-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 20px;
+  margin: 32px 0 24px 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  transition: border-color 0.15s ease;
+}
+
+.post-author-card:hover {
+  border-color: var(--line-strong);
+}
+
+.author-avatar {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-sm);
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.author-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.author-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.author-name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.author-role {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.author-bio {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.6;
+  margin: 0 0 14px 0;
+}
+
+.author-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.author-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 4px 10px;
+  background: var(--panel-hover);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  transition: all 0.15s ease;
+}
+
+.author-link:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.author-link-profile {
+  color: var(--accent);
+  border-color: var(--accent);
+}

@@ -1,0 +1,244 @@
+/* ==========================================================================
+   Glory Hinody — Homepage Hero, Search Bar & Quick Access Pillars
+   ========================================================================== */
+
+.home-hero-card {
+  padding: 24px 0 28px 0;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 28px;
+}
+
+@media (min-width: 768px) {
+  .home-hero-card {
+    padding: 36px 0 36px 0;
+    margin-bottom: 36px;
+  }
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  margin-bottom: 14px;
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-bright);
+  margin: 0 0 10px 0;
+  line-height: 1.15;
+}
+
+.hero-tagline {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 14px 0;
+  line-height: 1.45;
+}
+
+.hero-bio {
+  font-size: 0.98rem;
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 640px;
+  margin: 0 0 20px 0;
+}
+
+/* ── Inline Homepage Search Bar ──────────────────────────────────────── */
+.home-search-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 580px;
+  margin: 0 0 22px 0;
+}
+
+.home-search-input-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.home-search-icon {
+  position: absolute;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.home-search-input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 16px 0 42px;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  color: var(--text-bright);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.home-search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.home-search-btn {
+  min-height: 46px;
+  padding: 0 20px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border: none;
+  border-radius: var(--r-pill);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.home-search-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.home-search-btn:active {
+  transform: scale(0.97);
+}
+
+/* ── Clean Tech Chips ─────────────────────────────────────────────────── */
+.hero-tech-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.tech-chip {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  color: var(--muted);
+  background: var(--panel);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.tech-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.hero-footer-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 8px 18px;
+  min-height: 38px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--accent);
+  transition: all 0.15s var(--ease);
+}
+
+.hero-cta:hover {
+  background: var(--accent);
+  color: var(--accent-contrast) !important;
+  transform: translateY(-1px);
+}
+
+/* ── Pillars: Quick Access Navigation Cards ───────────────────────────── */
+.pillars {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 20px 0 32px 0;
+}
+
+@media (min-width: 768px) {
+  .pillars {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 24px 0 40px 0;
+  }
+}
+
+.pillar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  text-decoration: none;
+  transition: border-color 0.2s ease, transform 0.2s var(--ease), box-shadow 0.2s ease;
+}
+
+.pillar:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.pillar-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+
+.pillar-ico svg {
+  width: 24px;
+  height: 24px;
+}
+
+.pillar strong {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.pillar-sub {
+  font-size: 0.82rem;
+  color: var(--muted);
+}

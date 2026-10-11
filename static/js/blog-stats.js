@@ -138,7 +138,7 @@
 
     if (titleEl) titleEl.textContent = activeShareTitle;
     if (inputEl) inputEl.value = activeShareUrl;
-    if (copyBtn) copyBtn.textContent = isEn ? '[COPY LINK]' : '[SAO CHÉP LIÊN KẾT]';
+    if (copyBtn) copyBtn.textContent = isEn ? 'Copy' : 'Sao chép';
 
     if (nativeWrap) {
       if (navigator.share && /mobile|android|iphone|ipad/i.test(navigator.userAgent)) {
@@ -194,11 +194,11 @@
         if (!activeShareUrl) return;
         if (navigator.clipboard) {
           navigator.clipboard.writeText(activeShareUrl).then(function () {
-            copyBtn.textContent = isEn ? '[COPIED! ✓]' : '[ĐÃ SAO CHÉP! ✓]';
+            copyBtn.textContent = isEn ? 'Copied! ✓' : 'Đã sao chép! ✓';
             recordShare(activeShareUrl);
             showToast(isEn ? '✅ Link copied to clipboard!' : '✅ Đã sao chép liên kết vào bộ nhớ tạm!');
             setTimeout(function () {
-              copyBtn.textContent = isEn ? '[COPY LINK]' : '[SAO CHÉP LIÊN KẾT]';
+              copyBtn.textContent = isEn ? 'Copy' : 'Sao chép';
             }, 2000);
           });
         }
@@ -337,7 +337,7 @@
       } else if (navigator.clipboard) {
         navigator.clipboard.writeText(window.location.href).then(function () {
           var oldText = bottomCopyBtn.textContent;
-          bottomCopyBtn.textContent = isEn ? '[LINK COPIED!]' : '[ĐÃ SAO CHÉP!]';
+          bottomCopyBtn.textContent = isEn ? 'Link copied!' : 'Đã sao chép liên kết!';
           showToast(isEn ? '✅ Link copied to clipboard!' : '✅ Đã sao chép liên kết!');
           setTimeout(function () { bottomCopyBtn.textContent = oldText; }, 2000);
         });

@@ -2,12 +2,12 @@
 {{- $title := .Title }}
 
 <div class="editorial-share-bar">
-  <span class="share-label">SHARE //</span>
+  <span class="share-label">{{ i18n "share" | default "Chia sẻ" }}</span>
   <div class="share-actions">
-    <a target="_blank" rel="noopener noreferrer" class="share-action-link" href="https://facebook.com/sharer/sharer.php?u={{ $pageurl }}">[FACEBOOK]</a>
-    <a target="_blank" rel="noopener noreferrer" class="share-action-link" href="https://www.linkedin.com/shareArticle?mini=true&amp;url={{ $pageurl }}&amp;title={{ $title }}">[LINKEDIN]</a>
-    <a target="_blank" rel="noopener noreferrer" class="share-action-link" href="https://telegram.me/share/url?text={{ $title }}&amp;url={{ $pageurl }}">[TELEGRAM]</a>
-    <a target="_blank" rel="noopener noreferrer" class="share-action-link" href="https://x.com/intent/tweet/?text={{ $title }}&amp;url={{ $pageurl }}">[X]</a>
-    <button type="button" class="share-action-btn" id="btn-copy-share-url">[COPY LINK]</button>
+    <a target="_blank" rel="noopener noreferrer" class="share-action-link" href="https://facebook.com/sharer/sharer.php?u={{ $pageurl }}">Facebook</a>
+    <a target="_blank" rel="noopener noreferrer" class="share-action-link" href="https://www.linkedin.com/shareArticle?mini=true&amp;url={{ $pageurl }}&amp;title={{ $title }}">LinkedIn</a>
+    <a target="_blank" rel="noopener noreferrer" class="share-action-link" href="https://telegram.me/share/url?text={{ $title }}&amp;url={{ $pageurl }}">Telegram</a>
+    <a target="_blank" rel="noopener noreferrer" class="share-action-link" href="https://x.com/intent/tweet/?text={{ $title }}&amp;url={{ $pageurl }}">X</a>
+    <button type="button" class="share-action-btn" id="btn-copy-share-url">{{ if eq .Lang "en" }}Copy link{{ else }}Sao chép{{ end }}</button>
   </div>
 </div>
