@@ -64,10 +64,10 @@ languages:
         Content: "Technical logbook của Lê Quang Vinh (AI Engineer)."
     menu:
       main:
-        - { name: "BÀI VIẾT", url: "/posts/", weight: 1 }
-        - { name: "CHỦ ĐỀ", url: "/tags/", weight: 2 }
-        - { name: "TÌM KIẾM", url: "/search/", weight: 3 }
-        - { name: "TÁC GIẢ", url: "/about/", weight: 4 }
+        - { name: "Bài viết", url: "/posts/", weight: 1 }
+        - { name: "Chủ đề", url: "/tags/", weight: 2 }
+        - { name: "Tìm kiếm", url: "/search/", weight: 3 }
+        - { name: "Tác giả", url: "/about/", weight: 4 }
   en:
     locale: "en"
     label: "EN"
@@ -80,10 +80,10 @@ languages:
         Content: "Technical logbook of Le Quang Vinh (AI Engineer)."
     menu:
       main:
-        - { name: "POSTS", url: "/en/posts/", weight: 1 }
-        - { name: "TAGS", url: "/en/tags/", weight: 2 }
-        - { name: "SEARCH", url: "/en/search/", weight: 3 }
-        - { name: "ABOUT", url: "/en/about/", weight: 4 }
+        - { name: "Articles", url: "/en/posts/", weight: 1 }
+        - { name: "Topics", url: "/en/tags/", weight: 2 }
+        - { name: "Search", url: "/en/search/", weight: 3 }
+        - { name: "About", url: "/en/about/", weight: 4 }
 
 markup:
   goldmark:

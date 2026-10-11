@@ -1,12 +1,17 @@
 {{- define "main" }}
 <div class="error-page">
   <div class="error-code">404</div>
-  <div class="error-slash">//</div>
-  <h1 class="error-title">PAGE NOT FOUND</h1>
-  <p class="error-msg">Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển.</p>
+  <h1 class="error-title">{{ if eq .Lang "en" }}Page Not Found{{ else }}Không tìm thấy trang{{ end }}</h1>
+  <p class="error-msg">
+    {{ if eq .Lang "en" }}
+    The page you are looking for does not exist or has been moved.
+    {{ else }}
+    Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển.
+    {{ end }}
+  </p>
   <div class="error-actions">
-    <a href="/" class="error-btn-primary">← TRANG CHỦ</a>
-    <a href="/posts/" class="error-btn-secondary">[BÀI VIẾT]</a>
+    <a href="{{ "" | absLangURL }}" class="error-btn-primary">← {{ i18n "home" | default "Trang chủ" }}</a>
+    <a href="{{ "/posts/" | absLangURL }}" class="error-btn-secondary">{{ i18n "posts" | default "Bài viết" }}</a>
   </div>
 </div>
 {{- end }}

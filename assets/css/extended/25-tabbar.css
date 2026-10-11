@@ -1,0 +1,83 @@
+/* ==========================================================================
+   Glory Hinody — Mobile Bottom Tab Bar (4 Tabs)
+   Fixed navigation optimized for single-hand mobile interactions
+   ========================================================================== */
+
+.tabbar {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: calc(var(--tabbar-h) + var(--safe-b));
+  padding-bottom: var(--safe-b);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  border-top: 1px solid var(--line);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .tabbar {
+    display: none !important;
+  }
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  height: 100%;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.1;
+  transition: color 0.15s ease, transform 0.1s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab:active {
+  transform: scale(0.94);
+}
+
+.tab-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.tab-ico svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tab-txt {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.tab[aria-current="page"] {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.tab[aria-current="page"] .tab-ico svg {
+  stroke-width: 2.3;
+}

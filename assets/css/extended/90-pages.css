@@ -1,0 +1,185 @@
+/* ==========================================================================
+   Glory Hinody — Specialized Pages & Components (About, 404, Mermaid, Math)
+   ========================================================================== */
+
+/* ── About Page Layout ────────────────────────────────────────────────── */
+.about-page {
+  max-width: var(--reading);
+  margin: 0 auto;
+  padding: 0 0 60px 0;
+}
+
+.about-header {
+  padding: 24px 0 28px 0;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 32px;
+}
+
+.about-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 800;
+  color: var(--text-bright);
+  margin: 0 0 8px 0;
+}
+
+.about-description {
+  font-size: 1.05rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.about-content {
+  padding-top: 0;
+}
+
+.about-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.about-social-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.about-social-links a {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.about-social-links a:hover {
+  text-decoration: underline;
+}
+
+/* ── 404 Error Page ───────────────────────────────────────────────────── */
+.error-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 60px 16px;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+.error-code {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 14vw, 7rem);
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.error-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+  font-weight: 700;
+  color: var(--text-bright);
+  margin: 0 0 14px 0;
+}
+
+.error-msg {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.error-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.error-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent-contrast) !important;
+  background: var(--accent);
+  padding: 10px 22px;
+  min-height: 44px;
+  border-radius: var(--r-pill);
+  text-decoration: none !important;
+  transition: opacity 0.15s ease;
+}
+
+.error-btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* ── In-Post Translation Callout Bar ──────────────────────────────────── */
+.post-translation-bar {
+  margin: 16px 0 20px 0;
+  display: flex;
+  align-items: center;
+}
+
+.translation-bar-pill {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 8px 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.translation-icon {
+  color: var(--accent);
+}
+
+.translation-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none !important;
+  color: var(--accent);
+  font-weight: 600;
+  padding: 4px 12px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  border-radius: var(--r-pill);
+  transition: all 0.15s ease;
+}
+
+.translation-link:hover {
+  background: var(--accent);
+  color: var(--accent-contrast) !important;
+}
+
+/* ── Mermaid Diagrams ─────────────────────────────────────────────────── */
+.mermaid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 28px auto;
+  padding: 20px 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow-x: auto;
+  text-align: center;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.mermaid svg {
+  display: block;
+  margin: 0 auto;
+  height: auto !important;
+  max-width: 100%;
+}

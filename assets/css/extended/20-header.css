@@ -1,0 +1,262 @@
+/* ==========================================================================
+   Glory Hinody — Header & Navigation Bar
+   Clean single-row header on mobile, pill menu on desktop
+   ========================================================================== */
+
+.header {
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  height: var(--header-height);
+  box-sizing: border-box;
+}
+
+.header-nav {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.header-brand-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .header-nav {
+    padding: 0 24px;
+  }
+  .header-brand-wrap {
+    width: auto;
+    gap: 20px;
+  }
+}
+
+/* ── Logo & Monogram ─────────────────────────────────────────────────── */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-bright);
+}
+
+.logo a::before {
+  content: "VH";
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  background: var(--accent-dim);
+}
+
+/* ── Controls Capsule (Theme Toggle + Lang Switcher) ─────────────────── */
+.header-controls-group {
+  display: inline-flex;
+  align-items: center;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 3px 6px;
+  gap: 4px;
+  height: 38px;
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.header-controls-group:hover {
+  border-color: var(--line-strong);
+}
+
+.theme-toggle-btn,
+.theme-toggle {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  border-radius: 50% !important;
+  border: none !important;
+  background: transparent !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  color: var(--muted);
+  transition: all 0.2s var(--ease);
+}
+
+.theme-toggle-btn:hover {
+  background: var(--panel-hover) !important;
+  color: var(--text) !important;
+  transform: scale(1.08);
+}
+
+.theme-icon-box {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-icon-box svg {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+  transition: transform 0.3s var(--ease), opacity 0.2s ease, color 0.2s ease;
+}
+
+/* Theme icon switching */
+[data-theme="dark"] .theme-icon-box .sun {
+  opacity: 1;
+  color: #fbbf24;
+  transform: rotate(0deg) scale(1);
+}
+
+[data-theme="dark"] .theme-icon-box .moon {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.3);
+  pointer-events: none;
+}
+
+[data-theme="light"] .theme-icon-box .moon {
+  opacity: 1;
+  color: var(--accent);
+  transform: rotate(0deg) scale(1);
+}
+
+[data-theme="light"] .theme-icon-box .sun {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.3);
+  pointer-events: none;
+}
+
+.controls-divider {
+  display: inline-block;
+  width: 1px;
+  height: 14px;
+  background: var(--line);
+  margin: 0 2px;
+  opacity: 0.8;
+}
+
+/* ── Segmented Language Capsule ─────────────────────────────────────── */
+.lang-segmented-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: transparent;
+  border-radius: var(--r-pill);
+}
+
+.lang-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  min-width: 30px;
+  padding: 0 8px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none !important;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.18s var(--ease);
+}
+
+.lang-pill:hover:not(.active) {
+  color: var(--text);
+  background: var(--panel-hover);
+}
+
+.lang-pill.active {
+  background: var(--accent) !important;
+  color: var(--accent-contrast) !important;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ── Desktop Navigation Menu (Hidden on mobile < 768px) ──────────────── */
+.menu {
+  display: none;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .menu li a {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--muted);
+    padding: 6px 14px;
+    min-height: 38px;
+    border-radius: var(--r-pill);
+    text-transform: none; /* No UPPERCASE */
+    transition: all 0.15s var(--ease);
+  }
+
+  .menu li a:hover {
+    color: var(--text-bright);
+    background: var(--panel);
+  }
+
+  .menu li a .active,
+  .menu li a.active {
+    color: var(--accent) !important;
+    background: var(--accent-dim) !important;
+    font-weight: 700;
+    text-decoration: none !important;
+  }
+}

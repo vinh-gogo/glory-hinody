@@ -5,7 +5,7 @@
 {{- else }}
 
 {{- if and (not .IsHome) .Title }}
-<header class="page-header editorial-header">
+<header class="page-header">
   <div class="header-breadcrumbs">
     {{- partial "breadcrumbs.html" . }}
   </div>
@@ -53,64 +53,96 @@
 {{- partial "home_info.html" . }}
 {{- end }}
 
-{{- $term := .Data.Term }}
+{{- $currentTerm := .Data.Term }}
+{{- $isPostsList := or .IsHome (eq .Section "posts") (eq .Kind "term") }}
 
-{{- /* Thanh lọc chủ đề phong cách Logbook / Editorial */ -}}
-{{- if or .IsHome (eq .Section "posts") (eq .Kind "term") }}
-<nav class="editorial-filter-bar" aria-label="Lọc chuyên mục">
-  <span class="filter-label">TOPIC //</span>
-  <div class="filter-tabs-wrapper">
-    <a href="/posts/" class="filter-tab {{ if and (eq .RelPermalink "/posts/") (not $term) }}active{{ end }}">[ALL]</a>
-    <a href="/tags/generative-ai/" class="filter-tab {{ if eq $term "generative-ai" }}active{{ end }}">[GENERATIVE-AI]</a>
-    <a href="/tags/agentic-rag/" class="filter-tab {{ if eq $term "agentic-rag" }}active{{ end }}">[AGENTIC-RAG]</a>
-    <a href="/tags/on-device-ai/" class="filter-tab {{ if eq $term "on-device-ai" }}active{{ end }}">[ON-DEVICE-AI]</a>
-    <a href="/tags/du-an/" class="filter-tab {{ if eq $term "du-an" }}active{{ end }}">[DỰ ÁN]</a>
-    <a href="/tags/" class="filter-tab {{ if eq .RelPermalink "/tags/" }}active{{ end }}">[TẤT CẢ THẺ →]</a>
+{{/* ── Clean Dynamic Topic Filter Chips Bar ── */}}
+{{- if $isPostsList }}
+<nav class="topic-filter-bar" aria-label="{{ i18n "topic_label" | default "Chủ đề" }}">
+  <div class="topic-chips-wrapper">
+    {{- $allPostsURL := "/posts/" | relLangURL }}
+    <a href="{{ $allPostsURL }}" class="topic-chip {{ if and (eq .RelPermalink $allPostsURL) (not $currentTerm) }}active{{ end }}">
+      {{ i18n "all_topics" | default "Tất cả" }}
+    </a>
+
+    {{/* Dynamically show top tags */}}
+    {{- range first 7 site.Taxonomies.tags.ByCount }}
+    {{- $termURL := .Page.RelPermalink }}
+    <a href="{{ $termURL }}" class="topic-chip {{ if eq $currentTerm .Name }}active{{ end }}">
+      <span>{{ .Page.Title }}</span>
+      <span class="chip-count">{{ .Count }}</span>
+    </a>
+    {{- end }}
+
+    <a href="{{ "/tags/" | relLangURL }}" class="topic-chip">
+      {{ i18n "view_all_topics" | default "Tất cả chủ đề →" }}
+    </a>
   </div>
 </nav>
 {{- end }}
 
+{{/* ── Article Cards Grid ── */}}
 <div class="log-entries-list">
 {{- range $index, $page := $paginator.Pages }}
 <article class="log-entry post-entry">
-  <div class="log-entry-meta">
-    <span class="log-index">#{{ printf "%02d" (add $index 1) }}</span>
-    <span class="meta-slash">//</span>
-    <time class="log-date">{{ .Date.Format "2006.01.02" }}</time>
-    <span class="meta-slash">//</span>
-    <span class="log-readtime">{{ printf "%02d" .ReadingTime }} MIN READ</span>
+  <div>
+    <div class="log-entry-meta">
+      <time class="log-date">{{ .Date.Format "02/01/2006" }}</time>
+      <span class="meta-dot">·</span>
+      <span class="log-readtime">{{ i18n "read_time" (dict "Count" .ReadingTime) | default (printf "%d phút đọc" .ReadingTime) }}</span>
+    </div>
+
+    <h2 class="log-title">
+      {{ .Title }}
+    </h2>
+
+    {{- if (ne (.Param "hideSummary") true) }}
+    {{- $intro := or .Description .Params.summary (.Summary | plainify | htmlUnescape | truncate 180) }}
+    {{- with $intro }}
+    <p class="log-excerpt">
+      {{ . | plainify | htmlUnescape }}
+    </p>
+    {{- end }}
+    {{- end }}
+
     {{- with .Params.tags }}
-    <span class="meta-slash">//</span>
-    <span class="log-tags">
-      {{- range . }}
-      <span class="tag-bracket">[{{ . }}]</span>
+    <div class="card-tags">
+      {{- range first 3 . }}
+      <span class="card-tag">{{ . }}</span>
       {{- end }}
-    </span>
+    </div>
     {{- end }}
   </div>
 
-  <h2 class="log-title">
-    {{ .Title }}
-  </h2>
-
-  {{- if (ne (.Param "hideSummary") true) }}
-  {{- $intro := or .Description .Params.summary (.Summary | plainify | htmlUnescape | truncate 180) }}
-  {{- with $intro }}
-  <p class="log-excerpt">
-    {{ . | plainify | htmlUnescape }}
-  </p>
-  {{- end }}
-  {{- end }}
-
   <div class="log-card-footer">
     <div class="post-stats-pill" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
-      <button type="button" class="stat-badge stat-btn stat-likes" title="Thích bài viết (Like)" aria-label="Thích bài viết" data-url="{{ .Permalink }}" data-title="{{ .Title }}"><svg class="stat-icon heart-icon" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span class="stat-label">REACTION:</span><span class="stat-count">0</span></button>
-      <span class="stat-sep">/</span>
-      <button type="button" class="stat-badge stat-btn stat-comments" title="Xem &amp; bình luận bài viết" aria-label="Xem bình luận" data-url="{{ .Permalink }}" data-title="{{ .Title }}"><svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="stat-label">COMMENTS:</span><span class="stat-count">0</span></button>
-      <span class="stat-sep">/</span>
-      <button type="button" class="stat-badge stat-btn stat-shares" title="Chia sẻ bài viết" aria-label="Chia sẻ bài viết" data-url="{{ .Permalink }}" data-title="{{ .Title }}"><svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg><span class="stat-label">SHARES:</span><span class="stat-count">0</span></button>
+      <button type="button" class="stat-badge stat-btn stat-likes" title="{{ i18n "reactions" | default "Thích" }}" aria-label="{{ i18n "reactions" | default "Thích" }}" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
+        <svg class="stat-icon heart-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+        <span class="stat-count">0</span>
+      </button>
+
+      <button type="button" class="stat-badge stat-btn stat-comments" title="{{ i18n "comments" | default "Bình luận" }}" aria-label="{{ i18n "comments" | default "Bình luận" }}" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
+        <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span class="stat-count">0</span>
+      </button>
+
+      <button type="button" class="stat-badge stat-btn stat-shares" title="{{ i18n "share" | default "Chia sẻ" }}" aria-label="{{ i18n "share" | default "Chia sẻ" }}" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
+        <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+        <span class="stat-count">0</span>
+      </button>
     </div>
-    <span class="log-readmore">ĐỌC BÀI VIẾT <span class="readmore-arrow">→</span></span>
+
+    <span class="log-readmore">{{ i18n "read_more" | default "Đọc bài" }} →</span>
   </div>
 
   <a class="entry-link" aria-label="{{ .Title }}" href="{{ .Permalink }}"></a>
@@ -118,23 +150,18 @@
 {{- end }}
 </div>
 
+{{/* ── Clean Pagination ── */}}
 {{- if gt $paginator.TotalPages 1 }}
 <footer class="page-footer">
   <nav class="pagination">
     {{- if $paginator.HasPrev }}
     <a class="prev" href="{{ $paginator.Prev.URL | absURL }}">
-      «&nbsp;{{ i18n "prev_page" }}&nbsp;
-      {{- if (.Param "ShowPageNums") }}
-      {{- sub $paginator.PageNumber 1 }}/{{ $paginator.TotalPages }}
-      {{- end }}
+      «&nbsp;{{ i18n "prev_page" | default "Trang trước" }}
     </a>
     {{- end }}
     {{- if $paginator.HasNext }}
     <a class="next" href="{{ $paginator.Next.URL | absURL }}">
-      {{- i18n "next_page" }}&nbsp;
-      {{- if (.Param "ShowPageNums") }}
-      {{- add 1 $paginator.PageNumber }}/{{ $paginator.TotalPages }}
-      {{- end }}&nbsp;»
+      {{ i18n "next_page" | default "Trang tiếp theo" }}&nbsp;»
     </a>
     {{- end }}
   </nav>

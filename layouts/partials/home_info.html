@@ -1,26 +1,93 @@
 {{- with site.Params.homeInfoParams }}
-<article class="first-entry home-info">
-  <header class="entry-header">
-    <div class="hero-eyebrow">~/logbook</div>
-    <h1 class="hero-name">LÊ QUANG VINH</h1>
-    <div class="hero-role">[RESEARCH &amp; DEV]</div>
-    <p class="hero-tagline">On-Device AI · Diffusion Transformers · Agentic Systems</p>
-  </header>
-  <div class="entry-content md-content">
-    <p class="hero-bio">Kỹ sư AI tại TP. Hồ Chí Minh. Tốt nghiệp Khoa học Máy tính (IUH, 4.0/4.0), công bố khoa học tại SSRC. Tập trung tối ưu hóa suy luận mô hình trên phần cứng tài nguyên giới hạn.</p>
-    <div class="hero-tech-stack">
-      <span class="tech-chip">int8 / fp4</span>
-      <span class="tech-chip">LangGraph</span>
-      <span class="tech-chip">ONNX</span>
-      <span class="tech-chip">DiT</span>
-      <span class="tech-chip">KMP</span>
+<article class="home-hero-card">
+  <div class="hero-eyebrow">{{ if eq site.Language.Lang "en" }}Technical Logbook{{ else }}Nhật ký kỹ thuật{{ end }}</div>
+  <h1 class="hero-name">Lê Quang Vinh</h1>
+  <p class="hero-tagline">On-Device AI · Diffusion Transformers · Agentic Systems</p>
+  
+  <p class="hero-bio">
+    {{- if eq site.Language.Lang "en" -}}
+    AI Engineer based in Ho Chi Minh City. Computer Science valedictorian (IUH, GPA 4.0/4.0), published at SSRC. Focusing on efficient on-device neural network inference and generative models.
+    {{- else -}}
+    Kỹ sư AI tại TP. Hồ Chí Minh. Thủ khoa Khoa học Máy tính (IUH, GPA 4.0/4.0), công bố khoa học tại SSRC. Tập trung tối ưu hóa suy luận mô hình trên phần cứng tài nguyên giới hạn.
+    {{- end -}}
+  </p>
+
+  {{/* ── Search Bar Pill directly on Home ── */}}
+  <form class="home-search-form" action="{{ "/search/" | relLangURL }}" method="get" role="search">
+    <div class="home-search-input-wrap">
+      <svg class="home-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="search" name="q" class="home-search-input" placeholder="{{ i18n "search_placeholder" | default "Tìm bài viết, chủ đề..." }}" aria-label="{{ i18n "search" | default "Tìm kiếm" }}" autocomplete="off" enterkeyhint="search">
     </div>
+    <button type="submit" class="home-search-btn">{{ i18n "search_btn" | default "Tìm" }}</button>
+  </form>
+
+  {{/* ── 4 Quick Access Pillars (Mobile-friendly, Thumb-friendly) ── */}}
+  {{- $postCount := len (where site.RegularPages "Type" "posts") -}}
+  {{- $tagCount := len site.Taxonomies.tags -}}
+  <nav class="pillars" aria-label="{{ if eq site.Language.Lang "en" }}Featured sections{{ else }}Mục nổi bật{{ end }}">
+    <a class="pillar" href="{{ "/posts/" | relLangURL }}">
+      <span class="pillar-ico" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+      </span>
+      <strong>{{ i18n "posts" | default "Bài viết" }}</strong>
+      <span class="pillar-sub">{{ $postCount }} {{ if eq site.Language.Lang "en" }}articles{{ else }}bài viết{{ end }}</span>
+    </a>
+
+    <a class="pillar" href="{{ "/tags/" | relLangURL }}">
+      <span class="pillar-ico" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+          <line x1="7" y1="7" x2="7.01" y2="7"></line>
+        </svg>
+      </span>
+      <strong>{{ i18n "tags" | default "Chủ đề" }}</strong>
+      <span class="pillar-sub">{{ $tagCount }} {{ if eq site.Language.Lang "en" }}topics{{ else }}chủ đề{{ end }}</span>
+    </a>
+
+    <a class="pillar" href="{{ "/search/" | relLangURL }}">
+      <span class="pillar-ico" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </span>
+      <strong>{{ i18n "search" | default "Tìm kiếm" }}</strong>
+      <span class="pillar-sub">{{ if eq site.Language.Lang "en" }}Fast lookup{{ else }}Tra cứu nhanh{{ end }}</span>
+    </a>
+
+    <a class="pillar" href="{{ "/about/" | relLangURL }}">
+      <span class="pillar-ico" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </span>
+      <strong>{{ i18n "about" | default "Tác giả" }}</strong>
+      <span class="pillar-sub">Lê Quang Vinh</span>
+    </a>
+  </nav>
+
+  <div class="hero-tech-stack">
+    <span class="tech-chip">int8 / fp4</span>
+    <span class="tech-chip">LangGraph</span>
+    <span class="tech-chip">ONNX</span>
+    <span class="tech-chip">DiT</span>
+    <span class="tech-chip">KMP</span>
   </div>
-  <footer class="entry-footer">
-    <div class="hero-footer-row">
-      {{ partial "social_icons.html" (dict "align" "left") }}
-      <a class="hero-cta" href="/about/">HỒ SƠ NĂNG LỰC →</a>
-    </div>
+
+  <footer class="hero-footer-row">
+    {{ partial "social_icons.html" (dict "align" "left") }}
+    <a class="hero-cta" href="{{ "/about/" | relLangURL }}">
+      {{ if eq site.Language.Lang "en" }}About Author →{{ else }}Hồ sơ năng lực →{{ end }}
+    </a>
   </footer>
 </article>
 {{- end -}}
