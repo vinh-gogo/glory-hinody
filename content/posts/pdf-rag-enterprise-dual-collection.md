@@ -271,18 +271,18 @@ Mở trình duyệt tại `http://localhost:3000`. Bạn sẽ có một giao di�
 
 ---
 
-## 5. Bảng Đo Đạc Hiệu Quả: Từ "Ngáo Ngơ" Thành Trợ Lý Xuất Sắc
+## 5. Bảng Đo Đạc Hiệu Quả Thực Nghiệm (`tests/data/` Trên 168 Trang Báo Cáo BIWASE)
 
-Sau khi áp dụng toàn bộ kiến trúc Dual-Collection trên tập dữ liệu kỹ thuật phức tạp gần 200 trang, đây là bảng so sánh hiệu năng thực tế mà chúng tôi ghi nhận được:
+Trong thư mục [`tests/data/`](https://github.com/vinh-gogo/pdf-rag/tree/main/tests/data) của repo, chúng tôi thực hiện đo đạc định lượng bằng kịch bản `src/utils/measure_retrieval_accuracy.py` trên tập **168 trang báo cáo sản xuất kinh doanh & ESG của BIWASE** (được tách thành **1.132 phân đoạn `esg_sequences`** và **168 trang `esg_pages`**), đối chiếu giữa bộ **660 truy vấn** (`halong_evaluation_results.json`) và **315 truy vấn** (`qwen_evaluation_results.json`):
 
-| Chỉ số vận hành | RAG Truyền Thống (Cắt 500 token) | PDF-RAG (Dual-Collection + Qdrant) | Mức độ cải thiện |
+| Chỉ số vận hành & Đánh giá | Baseline Đơn Tầng (`BKAI HaLong` - 660 queries) | Nâng Cấp `Qwen3-Embedding-0.6B` + Dual-Collection (315 queries) | Phân tích kỹ thuật & Ý nghĩa thực tế |
 |---|---|---|---|
-| **Thời gian bóc tách 200 trang** | ~45 giây (PyPDF / PDFMiner) | **< 3 giây** (PyMuPDF CUDA) | **Nhanh gấp 15 lần** ⚡ |
-| **Độ chính xác Hit@1** | 74.5% | **95.2%** | **Tăng 20.7%** 🎯 |
-| **Độ chính xác Hit@5** | 86.0% | **99.1%** | **Gần như tuyệt đối** ✨ |
-| **Tỷ lệ "bịa" số liệu (Hallucination)** | Thường xuyên (cắt gãy câu) | **< 1.5%** (nhờ gom trọn trang) | **Giảm 90% lỗi** 🛡️ |
-| **Chi phí API Embedding** | Tốn tiền (OpenAI Ada/Text-3) | **0 VNĐ** (Chạy model cục bộ) | **Tiết kiệm 100%** 💰 |
-| **Độ trễ phản hồi người dùng** | Chờ 4-5s load cả cục | **< 1.5s** (SSE Stream chữ chạy mượt) | **Trải nghiệm tức thì** 🚀 |
+| **Thời gian bóc tách 168 trang PDF** | ~45 giây (PyPDF / PDFMiner thuần CPU) | **< 3 giây** (PyMuPDF `fitz`) | Nhanh gấp **15 lần**, bảo toàn cấu trúc dòng bảng biểu. |
+| **Độ tương đồng Cosine sau làm sạch OCR** | `0.9902` (Std `0.0156`, Min `0.9526`) | **`0.9915`** (Std thấp nhất **`0.0118`**, Toàn trang **`0.9966`**) | Bộ lọc RegEx Sanitizer giữ nguyên ngữ nghĩa chuyên ngành nước/ESG. |
+| **Vi mô (`esg_sequences`) — Hit@1** | `29.39%` (`MRR = 0.4177`) | **`38.41%`** *(+9.02%, `MRR = 0.5198`)* | Các bản tin tháng của BIWASE có tiêu đề bảng giống hệt nhau nên đoạn 500 ký tự đơn lẻ dễ trùng điểm Cosine. |
+| **Vi mô (`esg_sequences`) — Hit@5 & Hit@10** | `57.42%` (Hit@5) / `70.00%` (Hit@10) | **`68.25%` (Hit@5)** / **`80.00%` (Hit@10)** | **80% câu hỏi** đã có đoạn văn chứa đáp án nằm trong Top-10 ứng viên. |
+| **Vi mô (`esg_sequences`) — Hit@50 & Hit@100** | `83.33%` (Hit@50) / `88.94%` (Hit@100) | **`90.16%` (Hit@50)** / **`93.33%` (Hit@100)** | Vùng thu hồi ứng viên rộng làm bàn đạp cho bước gom nhóm trang `page_index`. |
+| **Vĩ mô (`esg_pages` Aggregation)** | Trích dẫn nhầm số liệu giữa các tháng | **Khôi phục 100% tiêu đề kỳ báo cáo & chú thích chân trang** | Quy nạp từ `esg_sequences` lên toàn trang `esg_pages` giúp LLM phân biệt chính xác kỳ báo cáo, độ trễ **< 1.5s – 2.0s** (SSE Stream). |
 
 ---
 

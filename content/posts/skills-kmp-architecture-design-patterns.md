@@ -172,11 +172,13 @@ Không còn một dòng `when (platform)` nào tồn tại trong logic nghiệp 
 
 ---
 
-### 3.3 State & Observer Pattern: Kiến Trúc MVI Phản Xạ Một Chiều
-Quản lý trạng thái đa nền tảng bằng **MVI (Model-View-Intent)** là sự kết hợp kinh điển giữa **State Pattern** (mỗi trạng thái màn hình là một Immutable Data Class) và **Observer Pattern** (thông qua `StateFlow`):
+### 3.3 Kiểu Dữ Liệu Đại Số (Algebraic Data Types) & Máy Trạng Thái MVI Đơn Chiều
+Dưới góc độ lý thuyết kiểu (Type Theory), quản lý trạng thái bằng **MVI (Model-View-Intent)** trong Kotlin là sự kết hợp chặt chẽ giữa **Kiểu Tích (Product Types — `data class`)** và **Kiểu Tổng Đóng (Closed Sum Types / Coproducts — `sealed interface`)**.
+
+Nếu dùng nhiều biến cờ rời rạc (`isLoading: Boolean`, `errorMessage: String?`, `data: T?`), không gian trạng thái có $2 \times (\text{String} + 1) \times (T + 1)$ tổ hợp, bao gồm cả các **trạng thái bất hợp lệ (Illegal States)** như vừa `isLoading = true` vừa có `errorMessage != null`. Thay vào đó, việc mô hình hóa bằng Sum Type ép trình biên dịch kiểm tra vét cạn (**Exhaustive Pattern Matching**) tại thời điểm biên dịch:
 
 ```kotlin
-// 1. Immutable State
+// 1. Product Type: Dữ liệu màn hình bất biến (Immutable Domain Snapshot)
 data class WordReviewUiState(
     val isLoading: Boolean = false,
     val currentWord: VocabularyWord? = null,
@@ -184,14 +186,14 @@ data class WordReviewUiState(
     val errorMessage: String? = null
 )
 
-// 2. User Intents
+// 2. Closed Sum Type (Coproduct): Tập đóng các hành vi hợp lệ của người dùng
 sealed interface WordReviewIntent {
     data object RevealAnswer : WordReviewIntent
     data class SubmitRating(val rating: Int) : WordReviewIntent
     data object NextWord : WordReviewIntent
 }
 
-// 3. MVI ViewModel
+// 3. Hàm chuyển trạng thái xác định (Deterministic State Transition) trong MVI ViewModel
 class WordReviewViewModel(
     private val reviewWordUseCase: ReviewWordUseCase,
     private val getNextWordUseCase: GetNextWordUseCase
@@ -201,6 +203,7 @@ class WordReviewViewModel(
     val uiState: StateFlow<WordReviewUiState> = _uiState.asStateFlow()
 
     fun processIntent(intent: WordReviewIntent) {
+        // Trình biên dịch Kotlin bắt buộc nhánh `when` phải vét cạn mọi phần tử của Sum Type
         when (intent) {
             is WordReviewIntent.RevealAnswer -> {
                 _uiState.update { it.copy(isRevealed = true) }
@@ -211,33 +214,54 @@ class WordReviewViewModel(
     }
 }
 ```
-**Điểm mấu chốt:** UI chỉ có 2 nhiệm vụ: (1) Render dữ liệu từ `uiState` và (2) Bắn `Intent` về ViewModel. Dữ liệu chảy một chiều tuần hoàn, loại bỏ 100% nguy cơ race condition giữa các luồng giao diện!
+**Điểm mấu chốt:** Giao diện chỉ là một hàm thuần túy $UI = f(\text{State})$ và mọi tác động đều đi qua hàm chuyển trạng thái $\delta(\text{State}, \text{Intent}) \rightarrow \text{State}'$. Dữ liệu chảy một chiều tuần hoàn, loại bỏ nguy cơ race condition giữa các luồng giao diện.
 
 ---
 
-### 3.4 Value Object Pattern: Triệt Phá Mùi Hôi "Primitive Obsession"
-Thay vì truyền `String` và `Long` khắp nơi:
+### 3.4 Bất Biến Miền Tại Thời Điểm Biên Dịch (`@JvmInline value class`) & Xử Lý Lỗi Hàm (`Arrow Either<L, R>`)
+Để đưa nguyên lý **"Make Illegal States Unrepresentable" (Làm cho các trạng thái sai không thể biểu diễn được)** vào tầng `:shared:domain`, chúng tôi kết hợp hai kỹ thuật trong [`skills-kmp`](https://github.com/vinh-gogo/skills-kmp):
+
+1. **Zero-Cost Domain Invariants với `@JvmInline value class`:** Loại bỏ *Primitive Obsession* mà không tốn chi phí cấp phát bộ nhớ Heap (trình biên dịch JVM/Native tự động tháo vỏ về kiểu nguyên thủy `String`/`Long` lúc chạy):
 ```kotlin
-// ❌ SAI: Dễ truyền nhầm userId sang courseId vì đều là String!
+// ❌ SAI: Dễ truyền nhầm userId sang courseId vì cùng kiểu String!
 fun enrollCourse(userId: String, courseId: String, amount: Long)
 
-// ✅ ĐÚNG (Value Objects với @JvmInline value class trong Kotlin):
+// ✅ ĐÚNG: Ràng buộc kiểu tại Compile-Time + Kiểm tra bất biến tiền điều kiện (Pre-condition)
 @JvmInline
 value class UserId(val value: String) {
-    init { require(value.isNotBlank()) { "UserId cannot be empty" } }
+    init { require(value.isNotBlank()) { "Invariant violated: UserId cannot be empty" } }
 }
 
 @JvmInline
 value class CourseId(val value: String)
 
 data class Money(val amount: Long, val currency: Currency) {
-    init { require(amount >= 0) { "Amount cannot be negative" } }
+    init { require(amount >= 0) { "Invariant violated: Amount must be non-negative" } }
 }
 
-// Trình biên dịch sẽ bắt lỗi ngay nếu bạn truyền lộn tham số!
+// Trình biên dịch báo lỗi ngay lập tức nếu truyền ngược (courseId, userId)!
 fun enrollCourse(userId: UserId, courseId: CourseId, payment: Money)
 ```
-Không tốn thêm bộ nhớ runtime (nhờ `value class`), nhưng code an toàn gấp 10 lần!
+
+2. **Tính Minh Bạch Tham Chiếu (Referential Transparency) với `Arrow Either<AppError, T>`:**
+Thay vì ném ngoại lệ ngầm (`throw Exception`) làm đứt gãy luồng thực thi như lệnh `GOTO`, toàn bộ UseCase và Repository trong tầng Domain trả về kiểu tổng phân biệt `Either<AppError, T>`:
+```kotlin
+sealed interface AppError {
+    data class ValidationError(val reason: String) : AppError
+    data object NetworkTimeout : AppError
+    data object RecordNotFound : AppError
+}
+
+// Chữ ký hàm khai báo tường minh cả miền lỗi (Left) lẫn miền thành công (Right)
+suspend fun enrollStudent(userId: UserId, courseId: CourseId): Either<AppError, EnrollmentReceipt> =
+    either {
+        val user = userRepository.findById(userId).bind()
+        val course = courseRepository.findById(courseId).bind()
+        ensure(course.hasAvailableSeats()) { AppError.ValidationError("Course is full") }
+        enrollmentRepository.commit(user, course).bind()
+    }
+```
+Nhờ `either { ... }` (Monad Comprehension trong Arrow Core), các hàm trong `:shared:domain` đạt tính thuần khiết (Pure Functions), hoàn toàn tất định và kiểm chứng được bằng Unit Test mà không cần giả lập môi trường hệ điều hành.
 
 ---
 

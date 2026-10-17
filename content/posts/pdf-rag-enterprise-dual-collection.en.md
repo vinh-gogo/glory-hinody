@@ -271,18 +271,18 @@ Open `http://localhost:3000` in your browser:
 
 ---
 
-## 5. Performance Scorecard: Before vs. After Dual-Collection
+## 5. Empirical Performance Scorecard (`tests/data/` Across 168 BIWASE Report Pages)
 
-After deploying this architecture across our 200-page enterprise technical corpus, here are the real-world production metrics:
+Inside [`tests/data/`](https://github.com/vinh-gogo/pdf-rag/tree/main/tests/data), we benchmarked the pipeline using `src/utils/measure_retrieval_accuracy.py` across **168 pages of BIWASE operational & ESG reports** (indexed into **1,132 `esg_sequences` micro-chunks** and **168 `esg_pages` macro-pages**), comparing the **660-query suite** (`halong_evaluation_results.json`) and **315-query suite** (`qwen_evaluation_results.json`):
 
-| Metric | Vanilla RAG (500-token chunks) | PDF-RAG (Dual-Collection + Qdrant) | Improvement |
+| Operational & Evaluation Metric | Single-Stage Baseline (`BKAI HaLong` - 660 queries) | Upgraded `Qwen3-Embedding-0.6B` + Dual-Collection (315 queries) | Engineering Analysis & Production Impact |
 |---|---|---|---|
-| **200-page Extraction Time** | ~45 seconds (PyPDF / PDFMiner) | **< 3 seconds** (PyMuPDF CUDA) | **15x Faster** ⚡ |
-| **Hit@1 Retrieval Accuracy** | 74.5% | **95.2%** | **+20.7% Gain** 🎯 |
-| **Hit@5 Retrieval Accuracy** | 86.0% | **99.1%** | **Near Perfect** ✨ |
-| **Numeric Hallucination Rate** | Frequent (due to sliced clauses) | **< 1.5%** (via full page bundling) | **90% Drop in Errors** 🛡️ |
-| **Embedding API Cost** | Paid per token (OpenAI Ada/3) | **$0.00** (Local HuggingFace models) | **100% Free** 💰 |
-| **End-to-End Latency** | 4–5s blocking wait | **< 1.5s** (SSE Token Streaming) | **Instant UX** 🚀 |
+| **168-Page PDF Extraction Time** | ~45 seconds (PyPDF / PDFMiner CPU) | **< 3 seconds** (PyMuPDF `fitz`) | **15x faster** while preserving table row alignment. |
+| **Post-Sanitization Cosine Similarity** | `0.9902` (Std `0.0156`, Min `0.9526`) | **`0.9915`** (Lowest Std **`0.0118`**, Full-page **`0.9966`**) | RegEx sanitizer removes OCR noise without degrading domain semantics. |
+| **Micro Tier (`esg_sequences`) — Hit@1** | `29.39%` (`MRR = 0.4177`) | **`38.41%`** *(+9.02%, `MRR = 0.5198`)* | Monthly BIWASE bulletins share identical table headers, causing isolated 500-char chunks across months to tie in Cosine scores. |
+| **Micro Tier (`esg_sequences`) — Hit@5 & Hit@10** | `57.42%` (Hit@5) / `70.00%` (Hit@10) | **`68.25%` (Hit@5)** / **`80.00%` (Hit@10)** | **80% of queries** surface the true target sequence within the Top-10 candidate pool. |
+| **Micro Tier (`esg_sequences`) — Hit@50 & Hit@100** | `83.33%` (Hit@50) / `88.94%` (Hit@100) | **`90.16%` (Hit@50)** / **`93.33%` (Hit@100)** | High-recall candidate pool feeds hierarchical `page_index` aggregation. |
+| **Macro Tier (`esg_pages` Aggregation)** | Frequent cross-month figure misattribution | **100% restoration of page headers, reporting periods & footnotes** | Aggregating `esg_sequences` hits into full `esg_pages` context resolves period ambiguity at **< 1.5s – 2.0s** SSE latency. |
 
 ---
 

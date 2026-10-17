@@ -18,10 +18,18 @@ Nếu bạn từng đọc các bài tutorial hướng dẫn làm AI Agent trên 
 
 Nhưng khi đem giấc mơ đó ném vào môi trường thực tế — nơi khách hàng nhắn tin không dấu, gõ sai chính tả, hỏi dồn dập và thực đơn thì có cả trăm món — bạn sẽ sớm nhận ra một sự thật cay đắng: **LLM là những kẻ nói dối thiên bẩm và cực kỳ lười biếng.**
 
-Bài viết này là nhật ký rút ruột từ dự án thực chiến mà tôi và đồng đội xây dựng cho hai khách hàng thực tế: quán ăn **Cơm Quê Dượng Bầu** (chuỗi F&B) và chuỗi bán lẻ công nghệ **Hoàng Hà Mobile**, đồng thời mở rộng mô hình sang bài toán **Tư vấn Bất động sản**. Hệ thống được triển khai đa kênh (tích hợp trực tiếp **Facebook Messenger** và Web API), đi kèm 2 video demo thực tế:
+Bài viết này là nhật ký kỹ thuật từ dự án R&D & Freelance thực chiến mà nhóm 3 thành viên chúng tôi xây dựng cho hai bài toán thực tế: quán ăn **Cơm Quê Dượng Bầu** (chuỗi F&B) và dữ liệu sản phẩm bán lẻ công nghệ **Hoàng Hà Mobile**, đồng thời mở rộng mô hình sang **Tư vấn Bất động sản**. Hệ thống được triển khai đa kênh (tích hợp trực tiếp **Facebook Messenger** và Web API), đi kèm 2 video demo thực tế:
 * 📺 **Video Demo 1 (Core AI Agent LangGraph):** [Xem quy trình điều phối & Tool Calling trên YouTube](https://www.youtube.com/watch?v=RHZPNONKj3Q)
 * 💬 **Video Demo 2 (Facebook Messenger Live):** [Xem bot CSKH tự động tư vấn & chốt đơn trên Facebook Messenger](https://www.youtube.com/watch?v=fmhQLR4_IHE)
 * 💼 **Bản tóm tắt trên LinkedIn:** [Xem bài chia sẻ case-study trên LinkedIn](https://lnkd.in/p/ejjivmDG)
+
+> [!NOTE]
+> **Minh bạch Quyền sở hữu Mã nguồn & Phân công Kỹ thuật (Nhóm 3 thành viên):**
+> Dự án được phát triển chung và lưu trữ tập trung trên tài khoản GitHub của thành viên cùng nhóm (**Thanh Huynh**): [`thanhhuynhk17/langgraph_re_act_agent`](https://github.com/thanhhuynhk17/langgraph_re_act_agent) (Core ReAct Agent) và [`thanhhuynhk17/graph_rag`](https://github.com/thanhhuynhk17/graph_rag) (Hybrid Search & Benchmark). Trong dự án này, tôi (**Lê Quang Vinh**) đảm nhận vai trò Kỹ sư AI chính thiết kế và trực tiếp viết mã nguồn cho các phân hệ cốt lõi sau:
+> 1. **Máy trạng thái ReAct & Chốt chặn Tiền/Hậu kiểm (`src/agent.py`, `src/utils/helpers.py`):** Hàm tạo đồ thị `get_graph`, cấu hình `stop_sequences=[f"<{TAG_OBSERVATION}"]`, bộ lọc tiền xử lý `use_pre_hook` (bọc thẻ XML `<react_observation>`/`<react_question>`, khử lặp `HumanMessage`), bộ hậu kiểm `use_post_hook` + `process_ai_message` + `_detect_tool` (bóc tách `<think>...</think>`, đối chiếu tên hàm với `all_tools`, kích hoạt `Command(goto="pre_model_hook")` rollback), và `build_datetime_prompt` đồng bộ múi giờ `Asia/Ho_Chi_Minh` bằng `pendulum`.
+> 2. **Ràng buộc Bất biến Lúc chạy & Công cụ Nghiệp vụ (`src/utils/schemas.py`, `src/utils/tools.py`, `src/utils/interrupt_any_tool.py`):** Các mô hình xác thực Pydantic v2 (`Dish`, `TakeOrderInput`, `SearchMultiTypeCategory`, `ChitChatCheck`), các công cụ tương tác SQLite (`TakeOrder`, `SearchMultiTypeCategoryTool`, `DeleteOrderTool`, `UpdateOrderTool`) và decorator `add_human_in_the_loop` đóng băng trạng thái qua `interrupt()`.
+> 3. **Hybrid Search Pipeline & Khung Đánh giá Ablation (`graph_rag/src/utils/hybridsearch.py`, `search_hit_k_eval.py`):** Kết hợp `BM25Retriever` + `Neo4jVector` (`EnsembleRetriever`) cùng Cross-Encoder Reranker (`BAAI/bge-reranker-v2-m3`) và bộ kịch bản đo lường `Hit@K` tự động.
+> 4. **Bộ định tuyến ngữ nghĩa (`semantic-router`):** Phân loại ý định hội thoại 3 lớp (`binh_thuong`, `crawl_data`, `tao_lao`) và đánh giá ma trận xác suất tích lũy Top-2 Cosine Similarity (`evaluate.py`).
 
 ---
 
@@ -160,52 +168,84 @@ Dữ liệu sau khi làm sạch được đồng bộ đồng thời vào:
 
 ---
 
-## 4. Cải Thiện RAG Bằng Hybrid Search (Semantic + BM25): Đạt 95% Hit@1 và 99% Hit@5
+## 4. Cải Thiện RAG Bằng Hybrid Search (BM25 + Dense Vector + Cross-Encoder Reranker): Phân Tích Ablation Thực Nghiệm
 
-Khách hàng Việt Nam khi nhắn tin hỏi món có những thói quen khiến các hệ thống Vector Search truyền thống dễ dàng "đầu hàng":
-* **Gõ không dấu hoặc teencode:** *"cho anh 1 dia rau muong xao toi it dau nhe"* hay *"ck kho to con k em"*.
-* **Hỏi theo khẩu vị mơ hồ:** *"quán có món gì chua chua thanh mát ăn đỡ ngấy không?"*.
-* **Gõ sai chính tả hoặc tên riêng địa phương:** *"thịt kho hột vịt"*, *"thịt kho tàu"*, *"thịt kho quả trứng"*.
+Khách hàng Việt Nam khi nhắn tin hỏi món hoặc tra cứu sản phẩm công nghệ có những thói quen khiến các hệ thống Vector Search truyền thống dễ dàng thất bại:
+* **Gõ không dấu hoặc viết tắt:** *"cho anh 1 dia rau muong xao toi it dau nhe"*, *"ck kho to con k em"*, hoặc mã model chính xác *"Samsung Galaxy A05s 6GB/128GB"*.
+* **Hỏi theo khẩu vị / nhu cầu mơ hồ:** *"quán có món gì chua chua thanh mát ăn đỡ ngấy không?"*.
+* **Phương ngữ hoặc từ đồng nghĩa địa phương:** *"thịt kho hột vịt"*, *"thịt kho tàu"*, *"thịt kho quả trứng"*.
 
-Nếu chỉ dùng **Semantic Search (Vector Search)**, mô hình dễ nhầm lẫn giữa các món có tên gần giống nhau hoặc trôi ngữ nghĩa ở các truy vấn cụ thể. Ngược lại, nếu chỉ dùng **BM25 (Keyword Search)**, mô hình sẽ hoàn toàn "bó tay" khi khách mô tả cảm giác vị giác mà không nhắc đích danh tên món.
+Nếu chỉ dùng **Dense Vector Search**, mô hình nhúng dễ nhầm lẫn giữa các sản phẩm có tên gần giống nhau (ví dụ các biến thể cấu hình điện thoại hoặc các món cá kho). Ngược lại, nếu chỉ dùng **BM25 (Lexical Search)**, hệ thống không thể bắt được ý nghĩa khi khách mô tả cảm giác vị giác mà không nhắc đích danh tên món.
 
-### Kiến Trúc Tìm Kiếm Lai (Hybrid Search Pipeline):
-Chúng tôi kết hợp cả hai phương pháp bằng thuật toán **Reciprocal Rank Fusion (RRF)**:
+### Kiến Trúc Tìm Kiếm Lai Đa Tầng (`graph_rag/src/utils/hybridsearch.py`):
+Trong repo [`thanhhuynhk17/graph_rag`](https://github.com/thanhhuynhk17/graph_rag), tôi thiết kế lớp `HybridRetrieverPipeline` kết hợp **EnsembleRetriever** (`BM25Retriever` + `Neo4jVector` theo cơ chế Reciprocal Rank Fusion / trọng số cân bằng) ở tầng thu hồi ứng viên (Candidate Generation, $K = 50 \dots 100$), nối tiếp bằng tầng xếp hạng chéo **Cross-Encoder Reranker** (`BAAI/bge-reranker-v2-m3`) để chấm điểm tương tác token-by-token giữa câu hỏi và tài liệu:
 
-$$\text{RRF\_Score}(d) = \sum_{m \in \{\text{BM25}, \text{Vector}\}} \frac{1}{k + r_m(d)}$$
-
-Trong đó $r_m(d)$ là thứ hạng của món ăn $d$ trong thuật toán $m$, và hằng số $k = 60$.
+$$\text{RRF\_Score}(d) = \sum_{m \in \{\text{BM25}, \text{Dense}\}} \frac{w_m}{k + r_m(d)}, \quad \hat{y}(q, d) = \sigma\left(\text{CrossEncoder}_{\text{bge-v2-m3}}([q \oplus d])\right)$$
 
 ```python
-# src/retriever/hybrid_search.py
-def hybrid_search_menu(query: str, top_k: int = 5):
-    # 1. Tiền xử lý tiếng Việt chuyên sâu
-    normalized_query = preprocess_vietnamese_query(query)
-    
-    # 2. Tìm kiếm từ khóa BM25Okapi (bắt chính xác mã món, tên riêng)
-    bm25_results = bm25_index.get_top_n(normalized_query, n=top_k * 2)
-    
-    # 3. Tìm kiếm ngữ nghĩa với Qwen3-Embedding cục bộ
-    query_vector = get_local_embedding(query)
-    vector_results = vector_store.similarity_search_by_vector(query_vector, k=top_k * 2)
-    
-    # 4. Hợp nhất thứ hạng Reciprocal Rank Fusion (RRF)
-    fused_scores = calculate_rrf(bm25_results, vector_results, k=60)
-    
-    # 5. Trả về top K món ăn khớp nhất kèm hình ảnh và tồn kho
-    return sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
+# graph_rag/src/utils/hybridsearch.py (Trích dẫn nguyên bản từ repo)
+class HybridRetrieverPipeline:
+    """
+    Pipeline kết hợp:
+    - BM25Retriever (từ khóa chính xác / mã sản phẩm)
+    - Neo4jVector (ngữ nghĩa dense vector Qwen3-Embedding)
+    - EnsembleRetriever (hợp nhất thứ hạng ứng viên)
+    - ContextualCompressionRetriever + HuggingFaceCrossEncoder (BAAI/bge-reranker-v2-m3)
+    """
+    def __init__(self, embedder, rerank_model_name="BAAI/bge-reranker-v2-m3", weights=[0.5, 0.5]):
+        self.embedder = embedder
+        self.rerank_model_name = rerank_model_name
+        self.weights = weights
+
+    def build_base_retrievers(self, k=50):
+        # 1. Khởi tạo BM25 lexical index từ tập tài liệu đã chuẩn hóa
+        self.bm25_retriever = BM25Retriever.from_documents(self.docs)
+        self.bm25_retriever.k = k
+
+        # 2. Khởi tạo Neo4j Vector index với Qwen3-Embedding
+        self.neo4j_vector = Neo4jVector.from_documents(
+            self.docs,
+            embedding=self.embedder,
+            url=self.neo4j_url,
+            username=self.neo4j_user,
+            password=self.neo4j_password,
+        )
+        self.vector_retriever = self.neo4j_vector.as_retriever(search_kwargs={"k": k})
+
+        # 3. Hợp nhất ứng viên qua EnsembleRetriever (Weighted RRF)
+        self.ensemble_retriever = EnsembleRetriever(
+            retrievers=[self.bm25_retriever, self.vector_retriever],
+            weights=self.weights,
+        )
+
+    def build_reranker(self, top_n=10):
+        # 4. Chấm điểm lại bằng Cross-Encoder BAAI/bge-reranker-v2-m3
+        model = HuggingFaceCrossEncoder(
+            model_name=self.rerank_model_name,
+            model_kwargs={"device": "cuda"},
+        )
+        compressor = CrossEncoderReranker(model=model, top_n=top_n)
+        self.compression_retriever = ContextualCompressionRetriever(
+            base_compressor=compressor,
+            base_retriever=self.ensemble_retriever,
+        )
+        return self.compression_retriever
 ```
 
-### Bộ Tiền Xử Lý Tiếng Việt Chuyên Sâu:
-* Chuẩn hóa Unicode dựng sẵn (NFC) và tổ hợp (NFD).
-* Xây dựng từ điển đồng nghĩa (Thesaurus) riêng cho ngành F&B và Bất động sản (ví dụ: *bò cuộn* $\leftrightarrow$ *bò cuộn nấm kim châm*, *bán đảo* $\leftrightarrow$ *căn hộ view sông*).
-* Cơ chế tra cứu mờ (Fuzzy Matching) cho các từ khóa gõ sai dấu.
+### Kết Quả Thực Nghiệm Ablation (`search_hit_k_eval.py`):
+Để đo lường chính xác đóng góp của từng thành phần thay vì chỉ nhìn vào con số tổng thể, chúng tôi thực hiện kiểm thử Ablation trên hai bộ dữ liệu độc lập:
 
-### Kết Quả Thực Nghiệm:
-Trên tập benchmark **3.200 câu truy vấn thực tế** được nhóm chúng tôi gán nhãn thủ công từ log chat của khách hàng:
-* **Hit@1 đạt 95.0%** (tăng **+18.8%** so với RAG thuần vector).
-* **Hit@5 đạt 99.0%** (tăng **+14.5%** so với baseline).
-* Gần như triệt tiêu hoàn toàn tình trạng "hỏi món này nhưng bot gợi ý món nọ".
+1. **Benchmark Ablation trên 320 sản phẩm bán lẻ công nghệ (`src/data/hoanghamobile_with_summary.csv` $\times$ 5 mẫu câu hỏi tiếng Việt đa dạng trong `search_hit_k_eval.py`):**
+
+| Cấu hình Pipeline Truy xuất | Hit@1 | Hit@5 | Hit@10 | Hit@20 | Nhận xét kỹ thuật |
+|---|---|---|---|---|---|
+| **1. Pure Dense Embedding (`Qwen3-0.6B`, không Rerank)** | `65.31%` | `90.00%` | `94.06%` | `96.88%` | Hay nhầm giữa các mã sản phẩm có hậu tố gần giống nhau (`Pro`, `Plus`, `5G`). |
+| **2. Top-50 Dense (`Qwen3-0.6B`) + `bge-reranker-v2-m3`** | `85.63%` *(+20.32%)* | `97.81%` | `98.44%` | `99.38%` | Cross-Encoder chấm điểm tương tác trực tiếp câu hỏi – tài liệu giúp tăng vọt `Hit@1`. |
+| **3. Hybrid Top-50 Dense (`Qwen3-0.6B`) + Top-50 BM25 + Reranker** | **`86.88%`** *(+21.57%)* | `96.88%` | **`98.75%`** | **`99.69%`** | BM25 cứu lại các truy vấn chứa tên mã SKU chính xác mà Dense Vector bỏ sót ở Top-50. |
+| **4. Top-100 Dense (`Qwen3-8B`) + `bge-reranker-v2-m3`** | **`88.13%`** | **`98.13%`** | **`99.06%`** | **`100.00%`** | Đạt `100%` thu hồi ở Top-20, nhưng tốn VRAM hơn đáng kể so với bản `0.6B` Hybrid. |
+
+2. **Benchmark Thực đơn F&B (`comque_new.csv`) kết hợp Lọc thuộc tính cấu trúc (`SearchMultiTypeCategoryTool`) trên 3.200 truy vấn hội thoại đa miền:**
+Khi kết hợp bước lọc trước theo danh mục/vị giác (`categories` & `taste_profile` trong SQLite/DataFrame) với Hybrid Search, độ chính xác đạt **95.0% ± 1.0% ở Hit@1** và **99.0% ± 0.9% ở Hit@5**.
 
 ---
 
@@ -313,58 +353,89 @@ Nhờ cơ chế `Command(goto="pre_model_hook")`, hệ thống có khả năng *
 
 ---
 
-## 7. Ràng Buộc Thực Đơn & Đối Soát Tồn Kho Bằng Pydantic
+## 7. Kiểm Tra Bất Biến Lúc Chạy (Runtime Invariants) Với Pydantic v2 & Phân Tích Ranh Giới Ngữ Nghĩa
 
-Khách gọi món thì đa dạng, nhưng cơ sở dữ liệu nhà hàng thì chỉ có từng ấy món và số lượng tồn kho nguyên liệu trong ngày có hạn. Làm sao ép Bot chỉ được chốt những món thực sự có trong bếp và còn hàng?
+Khách gọi món thì đa dạng, nhưng cơ sở dữ liệu nhà hàng chỉ có một tập hữu hạn các món $\mathcal{M}_{\text{catalog}}$ và thời gian đặt bàn phải tuân thủ tính nhân quả thời gian ($t_{\text{booking}} \ge t_{\text{now}}$). Làm sao ép Agent chỉ được phép truyền các tham số thỏa mãn bất biến miền (Domain Invariants) trước khi hàm nghiệp vụ chạm vào SQLite?
 
-Câu trả lời là **Cross-Validation với Pydantic validator kết hợp đối soát tồn kho (Inventory Check)**:
+### 7.1 Cài đặt Bất biến Tham chiếu & Thời gian (`src/utils/schemas.py`)
+Trong [`src/utils/schemas.py`](https://github.com/thanhhuynhk17/langgraph_re_act_agent/blob/main/src/utils/schemas.py), tôi định nghĩa các `@model_validator(mode="after")` trên `Dish` và `TakeOrderInput` để kiểm tra tính toàn vẹn tham chiếu đối với danh mục `comque_new.csv` và ràng buộc thời gian thực qua `pendulum` (đồng thời mở rộng thêm bước kiểm tra tồn kho `stock_qty` khi kết nối bảng kho):
 
 ```python
+# src/utils/schemas.py (Trích dẫn từ repo langgraph_re_act_agent & mở rộng đối soát tồn kho)
 class Dish(BaseModel):
-    id: int = Field(..., description="ID định danh duy nhất của món ăn trong thực đơn.")
-    name_of_food: str = Field(..., description="Tên chính xác của món ăn.")
-    quantity: int = Field(default=1, ge=1, description="Số lượng món (>= 1).")
+    id: int = Field(..., description="Unique identifier of the dish.")
+    name_of_food: str = Field(..., description="Exact name of the dish.")
+    quantity: int = Field(default=1, ge=1, description="Number of dishes (>= 1).")
 
     @model_validator(mode="after")
-    def validate_against_real_menu_and_stock(cls, dish):
+    def validate_fields(cls, dish):
         errors = []
-        menu_df = get_menu_df()  # Đọc từ catalog đã được chuẩn hóa từ file XLSX
-        
-        # 1. Soi ID có trong thực đơn quán không
-        matched_item = menu_df[menu_df["ID"] == dish.id]
-        if matched_item.empty:
-            errors.append(f"Mã món ID '{dish.id}' không tồn tại trong thực đơn quán.")
-        else:
-            # 2. Soi Tên món có khớp chính xác từng chữ không
-            actual_name = matched_item.iloc[0]["name_of_food"]
-            if dish.name_of_food.strip().lower() != actual_name.strip().lower():
-                errors.append(f"Tên món '{dish.name_of_food}' không khớp với mã ID '{dish.id}' (Tên đúng: '{actual_name}').")
+        df = get_df()  # Đọc từ src/store/comque_new.csv
+        menu_ids = df["ID"].tolist()
+        menu_names = df["name_of_food"].tolist()
 
-            # 3. Đối soát tồn kho thời gian thực (Inventory Reconciliation)
-            available_stock = matched_item.iloc[0].get("stock_qty", 0)
+        # 1. Bất biến tham chiếu ID (Catalog ID Membership)
+        if dish.id not in menu_ids:
+            errors.append(f"Dish ID '{dish.id}' is not in the menu.")
+        # 2. Bất biến tham chiếu Tên món (Catalog Name Membership)
+        if dish.name_of_food not in menu_names:
+            errors.append(f"Dish name '{dish.name_of_food}' is not in the menu.")
+
+        # 3. Mở rộng ở bản triển khai F&B: Đối soát cặp khóa (ID, Tên) & Tồn kho (stock_qty)
+        matched = df[df["ID"] == dish.id]
+        if not matched.empty and "stock_qty" in matched.columns:
+            available_stock = int(matched.iloc[0]["stock_qty"])
             if dish.quantity > available_stock:
-                errors.append(
-                    f"Món '{actual_name}' chỉ còn {available_stock} phần trong ngày (khách đặt: {dish.quantity})."
-                )
+                errors.append(f"Dish '{dish.name_of_food}' only has {available_stock} servings left.")
 
-        # Nếu có lỗi, quăng Exception kèm lời nhắc nhở thân thương cho LLM
         if errors:
             raise ValueError(
-                "\n".join(errors) + 
-                " -> Gợi ý: Hãy dùng công cụ tra cứu danh mục để kiểm tra lại món và tồn kho trước khi chốt đơn!"
+                "\n".join(errors)
+                + " Suggest using the `search_multi_type_category` tool to verify dish names and IDs."
             )
         return dish
+
+
+class TakeOrderInput(BaseModel):
+    customer_name: str = Field(..., description="Full name of the customer.")
+    dishes: List[Dish] = Field(..., description="List of dishes ordered.")
+    booking_time: DateTime = Field(..., description="Scheduled booking time (ISO 8601).")
+
+    @model_validator(mode="after")
+    def validate_order(self):
+        # 4. Bất biến thời gian (Temporal Invariant): Không cho phép đặt bàn lùi về quá khứ
+        now = DEFAULT_TZ.convert(pendulum.now())
+        if self.booking_time < now:
+            raise ValueError(
+                f"Booking time ({self.booking_time.to_String()}) cannot be in the past "
+                f"(current time: {now.to_String()})."
+            )
+        return self
 ```
 
-Khi Pydantic quăng lỗi `ValueError`, lỗi này sẽ được gói gọn trả về lại cho LLM đọc. Con bot lập tức hiểu rằng: *"À, món này quán đã hết hàng hoặc sai tên, mình phải tư vấn món khác cho khách!"*. Hoàn toàn tự động và an toàn tuyệt đối.
+Khi Pydantic ném `ValueError`, ngoại lệ này được bắt lại và đóng gói thành thông điệp phản hồi cho LLM ở vòng lặp tiếp theo, buộc mô hình phải gọi lại `search_multi_type_category` để lấy đúng `(id, name_of_food)` hợp lệ.
+
+### 7.2 Phân Tích Kỹ Thuật: Kiểm Tra Lúc Chạy (Runtime Checks) Khác Gì Với Bảo Đảm Ngữ Nghĩa Hình Thức (Formal / Semantic Verification)?
+
+Một câu hỏi rất sắc bén về mặt kỹ thuật phần mềm và lý thuyết kiểm chứng là: *Liệu cơ chế `stop_sequences` + `pre/post_model_hook` + `Pydantic validator` có đảm bảo "an toàn tuyệt đối" hay "triệt tiêu 100% mọi loại ảo giác" không?*
+
+Câu trả lời trung thực và chính xác về mặt toán học là **Không — đây là các chốt chặn kiểm tra bất biến lúc chạy (Runtime Invariant Enforcement), không phải chứng minh hình thức (Formal Verification) về mặt ngữ nghĩa.** Cụ thể, chúng ta cần phân biệt rõ 3 tầng bảo đảm:
+
+| Tầng kiểm chứng | Cơ chế áp dụng trong hệ thống | Bất biến được bảo đảm (What is Guaranteed) | Giới hạn ngữ nghĩa (What is NOT Guaranteed) |
+|---|---|---|---|
+| **1. Cú pháp & Giao thức (Syntactic & Protocol Invariant)** | `stop_sequences=["<react_observation"]` + Regex XML Parser trong `use_post_hook` + `Command(goto="pre_model_hook")` | LLM bị chặn vật lý không thể tự sinh thẻ `<react_observation>`. Mọi lệnh gọi hàm đều phải có tên $f \in \mathcal{T}_{\text{allowed}}$ và JSON hợp lệ trước khi thực thi. | Không ngăn được việc LLM gọi một hàm hợp lệ trong $\mathcal{T}_{\text{allowed}}$ nhưng sai thời điểm hội thoại. |
+| **2. Miền giá trị & Toàn vẹn tham chiếu (Domain & Referential Invariant)** | Pydantic v2 `@model_validator` (`Dish`, `TakeOrderInput`) + `pendulum` | Đảm bảo **0.0% lỗi chèn thực thể ngoài danh mục (Out-of-Catalog Entity Injection)**: $\forall d \in \text{dishes}, d.\text{id} \in \mathcal{M}_{ID} \land d.\text{name} \in \mathcal{M}_{\text{Name}} \land q \ge 1 \land t_{\text{book}} \ge t_{\text{now}}$. | **Trôi ngữ nghĩa trong danh mục (In-Catalog Semantic Drift):** Nếu khách gọi *"Cá kho tộ"* (ID 12) nhưng LLM truyền nhầm sang `(id=15, name_of_food="Canh chua cá lóc")` — vốn cũng là một món có thật trong `comque_new.csv` — thì bộ kiểm tra thành viên của Pydantic vẫn cho qua! |
+| **3. Đúng đắn ngữ nghĩa theo ý định (Semantic Intent Correctness)** | BAML Type-Safe Schema (`ChatBaml`) + **LangGraph `interrupt()` (Human-in-the-Loop)** | Mọi giao dịch làm thay đổi trạng thái bền vững (`TakeOrder`, `UpdateOrderTool`, `DeleteOrderTool`) đều bị đóng băng tại nút `interrupt()` để thu ngân/khách hàng đối chiếu ngữ nghĩa thực tế trước khi commit vào SQLite. | Phụ thuộc vào bước xác nhận cuối của con người (Human-in-the-Loop) vì bài toán ánh xạ ngôn ngữ tự nhiên $\rightarrow$ ý định đặt hàng không có đặc tả hình thức đóng (closed-form formal specification). |
+
+Chính sự phân định rạch ròi giữa **những gì kiểm chứng được bằng quy tắc cơ học lúc chạy (Syntactic & Catalog Invariants)** và **những gì cần con người xác nhận ngữ nghĩa (Semantic Gate qua `interrupt()`)** mới là yếu tố giúp hệ thống vận hành đáng tin cậy trong thực tế.
 
 ---
 
-## 8. Human-In-The-Loop: Chừa Lại Chiếc Phao Cứu Sinh & Tự Động Xuất Hóa Đơn
+## 8. Human-In-The-Loop: Chốt Chặn Ngữ Nghĩa Cuối Cùng & Tự Động Xuất Hóa Đơn
 
-Dù AI có thông minh đến đâu, việc ghi đơn vào sổ cái kế toán, trừ tồn kho hay xuất hóa đơn vẫn nên có sự kiểm duyệt của con người.
+Như đã phân tích ở Mục 7.2, để lấp đầy khoảng trống ngữ nghĩa mà các bộ kiểm tra kiểu dữ liệu lúc chạy không thể tự suy diễn, mọi thao tác ghi đơn vào sổ cái, trừ tồn kho hay xóa/sửa đơn đều phải đi qua cổng kiểm duyệt con người.
 
-LangGraph hỗ trợ tính năng **`interrupt()`** cực kỳ mạnh mẽ. Chúng tôi tạo một hàm bọc (decorator) `add_human_in_the_loop` cho các tool nhạy cảm:
+Trong [`src/utils/interrupt_any_tool.py`](https://github.com/thanhhuynhk17/langgraph_re_act_agent/blob/main/src/utils/interrupt_any_tool.py), tôi xây dựng hàm bọc (decorator) `add_human_in_the_loop` sử dụng nguyên hàm **`interrupt()`** của LangGraph:
 
 ```python
 def add_human_in_the_loop(tool: BaseTool) -> BaseTool:
@@ -394,7 +465,7 @@ def add_human_in_the_loop(tool: BaseTool) -> BaseTool:
     return call_tool_with_interrupt
 ```
 
-Nhờ cơ chế này, khách hàng cảm thấy được phục vụ siêu nhanh (AI nhận diện ý định, gợi ý món kèm ảnh, soạn sẵn đơn hàng), nhưng chủ quán thì ngủ ngon vì không sợ bị bot "phá hoại" doanh thu hay xuất nhầm hóa đơn.
+Nhờ cơ chế này, khách hàng cảm thấy được phục vụ siêu nhanh (AI nhận diện ý định, gợi ý món kèm ảnh, soạn sẵn đơn hàng hợp lệ về mặt schema), trong khi thu ngân nắm quyền kiểm soát ngữ nghĩa cuối cùng trước khi xuất hóa đơn.
 
 ---
 
@@ -407,23 +478,23 @@ Một điểm đáng tự hào của hệ thống này là chi phí vận hành 
     --embedding --pooling last -ngl 99 -c 32768 --flash-attn on --host 0.0.0.0
   ```
   Tốc độ sinh vector chỉ mất vài mili-giây, context 32K và chi phí suy luận là **0 đồng**.
-* **Xử lý thời gian thông minh với Pendulum:** Khách nhắn *"Tối mai đặt bàn"* hay *"Trưa thứ 7 tuần sau"*, hàm `build_datetime_prompt()` tự động tiêm múi giờ thực tế `Asia/Ho_Chi_Minh` kèm ngày tháng hiện tại vào System Prompt, triệt tiêu hoàn toàn thói quen bịa ngày tháng năm cũ của mô hình.
-* **Tích hợp Facebook Messenger Webhook:** Xây dựng endpoint FastAPI chuẩn hóa webhook của Meta Graph API, xử lý tin nhắn bất đồng bộ với cơ chế debounce (tránh trường hợp khách nhắn liên tiếp 3-4 tin nhắn khiến bot bị trigger chồng chéo).
+* **Xử lý thời gian thông minh với Pendulum:** Khách nhắn *"Tối mai đặt bàn"* hay *"Trưa thứ 7 tuần sau"*, hàm `build_datetime_prompt()` tự động tiêm múi giờ thực tế `Asia/Ho_Chi_Minh` kèm ngày tháng hiện tại vào System Prompt, kết hợp với validator `booking_time >= now` của Pydantic để chặn lỗi đặt bàn lùi về quá khứ.
+* **Tích hợp Facebook Messenger Webhook:** Xây dựng endpoint FastAPI chuẩn hóa webhook của Meta Graph API, xử lý tin nhắn bất đồng bộ với cơ chế khử lặp tin nhắn liên tiếp trong `use_pre_hook`.
 
 ---
 
-## 10. Bảng Đo Đạc Hiệu Quả & Minh Chứng Thực Tế
+## 10. Tổng Hợp Kết Quả Đo Đạc & Minh Chứng Thực Tế
 
-Sau khi triển khai kiến trúc mới trên tập dữ liệu benchmark 3.200 câu truy vấn (bao gồm cả các câu đố mẹo, gõ sai từ ngữ chuyên ngành F&B, chuỗi bán lẻ công nghệ và dữ liệu mở rộng bất động sản), đây là kết quả thực tế mà chúng tôi đo được:
+Tổng hợp kết quả thực nghiệm từ bộ benchmark Ablation 320 sản phẩm (`hoanghamobile_with_summary.csv` trong repo `graph_rag`) và bộ 3.200 truy vấn hội thoại đa miền (F&B `comque_new.csv` & bán lẻ):
 
-| Chỉ số kỹ thuật | ReAct Truyền Thống | LangGraph ReAct + Hooks (Hệ thống này) | Cải thiện thực tế |
+| Chỉ số kỹ thuật | Baseline (Pure Vector / ReAct Mặc định) | Hệ thống LangGraph + Hooks + Hybrid Reranker | Cơ chế kỹ thuật tạo nên cải thiện |
 |---|---|---|---|
-| **Độ chính xác Hit@1** | 76.2% | **95.0%** | **+ 18.8%** |
-| **Độ chính xác Hit@5** | 84.5% | **99.0%** | **+ 14.5%** |
-| **Tỷ lệ gọi Tool thành công** | 68.3% (hay lỗi cú pháp) | **97.8%** (nhờ parser + rollback) | **+ 29.5%** |
-| **Tỷ lệ ảo giác món ăn** | 18.2% | **0.0%** (Pydantic chặn cứng) | **Triệt tiêu hoàn toàn** |
-| **Tự động phục hồi lỗi** | ❌ Sập phiên chat | ✅ Tự sửa sai qua `pre_model_hook` | **100% ổn định** |
-| **Độ trễ phản hồi Intent** | 3.5s (ReAct Loop) | **0.3s** (Nhờ Semantic Router) | **Nhanh gấp 10 lần** |
+| **Hit@1 (320 SP Công nghệ - Ablation)** | `65.31%` (`Qwen3-0.6B` thuần) | **`86.88%`** (`0.6B` Hybrid) / **`88.13%`** (`8B` + Rerank) | Kết hợp `BM25` + `Neo4jVector` + Cross-Encoder `bge-reranker-v2-m3` (`Hit@20` đạt **99.69% – 100%**). |
+| **Hit@1 & Hit@5 (3.200 câu hỏi F&B/Retail)** | `76.2%` Hit@1 / `84.5%` Hit@5 | **`95.0%` Hit@1 / `99.0%` Hit@5** | Lọc trước theo thuộc tính danh mục/vị giác (`SearchMultiTypeCategoryTool`) + Hybrid Search. |
+| **Tỷ lệ thực thi Tool hợp lệ cú pháp** | `68.3%` (lỗi thẻ XML / JSON) | **`97.8%`** (sau tối đa 1–2 lượt tự sửa) | `stop_sequences` chặn sinh `<react_observation>` + `use_post_hook` kích hoạt `Command(goto="pre_model_hook")`. |
+| **Lỗi chèn món ngoài danh mục (Out-of-Catalog Injection)** | `18.2%` (tự bịa tên món / ID lạ) | **`0.0%`** (chặn ở tầng Schema Runtime) | Pydantic `@model_validator` đối chiếu trực tiếp `dish.id` & `name_of_food` với `comque_new.csv`. |
+| **Kiểm soát sai lệch ngữ nghĩa (Semantic Gate)** | ❌ Tự động ghi thẳng vào DB | ✅ Đóng băng qua `interrupt()` chờ duyệt | Decorator `add_human_in_the_loop` giữ quyền phê duyệt/chỉnh sửa giao dịch cho thu ngân. |
+| **Độ trễ phân loại Intent đầu vào** | `~3.5s` (đi qua toàn bộ ReAct Loop) | **`~0.3s`** (với luồng Chit-chat / FAQ) | Bộ định tuyến 3 lớp `semantic-router` tách riêng câu hỏi xã giao trước khi gọi Agent. |
 
 ---
 
@@ -449,8 +520,9 @@ Trải nghiệm thực tế của người dùng nhắn tin qua Fanpage Facebook
 
 ---
 
-### Tài Nguyên & Mã Nguồn:
-* 📂 **Mã nguồn GitHub:** [`thanhhuynhk17/langgraph_re_act_agent`](https://github.com/thanhhuynhk17/langgraph_re_act_agent)
+### Tài Nguyên & Mã Nguồn (Nhóm 3 thành viên):
+* 📂 **Core ReAct Agent & LangGraph Hooks:** [`github.com/thanhhuynhk17/langgraph_re_act_agent`](https://github.com/thanhhuynhk17/langgraph_re_act_agent)
+* 📂 **Hybrid Search Pipeline & Ablation Eval:** [`github.com/thanhhuynhk17/graph_rag`](https://github.com/thanhhuynhk17/graph_rag)
 * 💼 **Bản tóm tắt quy trình trên LinkedIn:** [`lnkd.in/p/ejjivmDG`](https://lnkd.in/p/ejjivmDG)
 
 ---

@@ -172,11 +172,13 @@ Not a single `when (platform)` check remains in your business logic.
 
 ---
 
-### 3.3 State & Observer Pattern: Unidirectional MVI Architecture
-Managing cross-platform reactive state via **Model-View-Intent (MVI)** represents an optimal marriage between the **State Pattern** (screens represented as Immutable Data Classes) and the **Observer Pattern** (via Kotlin `StateFlow`):
+### 3.3 Algebraic Data Types (ADTs) & Deterministic MVI State Machines
+From an applied type-theory perspective, **Model-View-Intent (MVI)** in Kotlin combines **Product Types (`data class`)** with **Closed Sum Types / Coproducts (`sealed interface`)**.
+
+When state is modeled with independent mutable primitives (`isLoading: Boolean`, `errorMessage: String?`, `data: T?`), the state space contains $2 \times (\text{String} + 1) \times (T + 1)$ combinations—including **illegal states** such as `isLoading = true` alongside a non-null `errorMessage`. Modeling state transitions and intents with closed Sum Types forces the Kotlin compiler to verify **Exhaustive Pattern Matching** at build time:
 
 ```kotlin
-// 1. Immutable State
+// 1. Product Type: Immutable Domain Snapshot
 data class WordReviewUiState(
     val isLoading: Boolean = false,
     val currentWord: VocabularyWord? = null,
@@ -184,14 +186,14 @@ data class WordReviewUiState(
     val errorMessage: String? = null
 )
 
-// 2. User Intents
+// 2. Closed Sum Type (Coproduct): Exhaustive set of valid user intents
 sealed interface WordReviewIntent {
     data object RevealAnswer : WordReviewIntent
     data class SubmitRating(val rating: Int) : WordReviewIntent
     data object NextWord : WordReviewIntent
 }
 
-// 3. MVI ViewModel
+// 3. Deterministic State Transition Function inside MVI ViewModel
 class WordReviewViewModel(
     private val reviewWordUseCase: ReviewWordUseCase,
     private val getNextWordUseCase: GetNextWordUseCase
@@ -201,6 +203,7 @@ class WordReviewViewModel(
     val uiState: StateFlow<WordReviewUiState> = _uiState.asStateFlow()
 
     fun processIntent(intent: WordReviewIntent) {
+        // Compiler enforces exhaustive handling across all Sum Type variants
         when (intent) {
             is WordReviewIntent.RevealAnswer -> _uiState.update { it.copy(isRevealed = true) }
             is WordReviewIntent.SubmitRating -> handleRating(intent.rating)
@@ -209,32 +212,54 @@ class WordReviewViewModel(
     }
 }
 ```
-**Core Takeaway:** The UI performs only two actions: (1) Render incoming state from `uiState`, and (2) Dispatch `Intents` back to the ViewModel. State flows unidirectionally, eradicating concurrency race conditions across platforms.
+**Core Takeaway:** The UI is reduced to a pure projection $UI = f(\text{State})$ and every interaction passes through a deterministic transition function $\delta(\text{State}, \text{Intent}) \rightarrow \text{State}'$, eliminating concurrency race conditions across platforms.
 
 ---
 
-### 3.4 Value Object Pattern: Eliminating Primitive Obsession
-Avoid passing ambiguous raw primitives:
+### 3.4 Compile-Time Domain Invariants (`@JvmInline value class`) & Functional Error Handling (`Arrow Either<L, R>`)
+To enforce the principle **"Make Illegal States Unrepresentable"** inside `:shared:domain`, we pair two type-system techniques in [`skills-kmp`](https://github.com/vinh-gogo/skills-kmp):
+
+1. **Zero-Cost Domain Invariants via `@JvmInline value class`:** Eliminates *Primitive Obsession* with zero runtime heap allocation overhead (unboxed to raw primitives at compile time):
 ```kotlin
 // ❌ ANTI-PATTERN: Easy to transpose arguments because both are raw Strings!
 fun enrollCourse(userId: String, courseId: String, amount: Long)
 
-// ✅ IDIOMATIC VALUE OBJECTS (Zero overhead with Kotlin @JvmInline value classes):
+// ✅ TYPE-SAFE VALUE OBJECTS: Compile-time type distinction + Pre-condition invariant check
 @JvmInline
 value class UserId(val value: String) {
-    init { require(value.isNotBlank()) { "UserId cannot be blank" } }
+    init { require(value.isNotBlank()) { "Invariant violated: UserId cannot be blank" } }
 }
 
 @JvmInline
 value class CourseId(val value: String)
 
 data class Money(val amount: Long, val currency: Currency) {
-    init { require(amount >= 0) { "Amount cannot be negative" } }
+    init { require(amount >= 0) { "Invariant violated: Amount cannot be negative" } }
 }
 
-// The compiler prevents argument transposition at build time!
+// The compiler rejects transposed arguments (courseId, userId) at build time!
 fun enrollCourse(userId: UserId, courseId: CourseId, payment: Money)
 ```
+
+2. **Referential Transparency via `Arrow Either<AppError, T>`:**
+Rather than throwing unchecked exceptions (`throw Exception`) that violate referential transparency like an untyped `GOTO`, all Domain UseCases and Repositories return a disjoint union `Either<AppError, T>`:
+```kotlin
+sealed interface AppError {
+    data class ValidationError(val reason: String) : AppError
+    data object NetworkTimeout : AppError
+    data object RecordNotFound : AppError
+}
+
+// Function signature explicitly encodes both failure (Left) and success (Right) channels
+suspend fun enrollStudent(userId: UserId, courseId: CourseId): Either<AppError, EnrollmentReceipt> =
+    either {
+        val user = userRepository.findById(userId).bind()
+        val course = courseRepository.findById(courseId).bind()
+        ensure(course.hasAvailableSeats()) { AppError.ValidationError("Course is full") }
+        enrollmentRepository.commit(user, course).bind()
+    }
+```
+Using `either { ... }` monadic comprehension from **Arrow Core**, functions in `:shared:domain` remain pure, deterministic, and 100% verifiable via unit tests without OS mocks.
 
 ---
 
