@@ -1,128 +1,85 @@
 ---
 date: '2026-09-29T18:39:42+07:00'
 draft: false
-title: 'Tác Giả // Hồ Sơ Năng Lực'
-description: 'Lê Quang Vinh — AI Engineer & Software Engineer. Chuyên sâu về Generative AI, AI Agentic, On-Device AI và Kiến trúc phần mềm.'
+title: 'Tác Giả // Giới Thiệu'
+description: 'Lê Quang Vinh — AI & Software Engineer. Chuyên sâu về AI Agentic, Hybrid GraphRAG, Generative Video/Audio và Kiến trúc đa nền tảng.'
 layout: about
 ShowToc: true
-TocOpen: true
+TocOpen: false
 hideMeta: true
 comments: false
 ---
 
 # LÊ QUANG VINH
-**AI & Software Engineer — Deterministic Agentic Systems · Hybrid RAG · Cross-Platform Architecture**
+**AI Engineer | Software Engineer**
 
 - **Địa điểm:** TP. Hồ Chí Minh, Việt Nam
-- **Email:** [lea26462@gmail.com](mailto:lea26462@gmail.com)
-- **Điện thoại:** [+84 985 189 541](tel:+84985189541)
-- **GitHub:** [github.com/Vinh-Gogo](https://github.com/Vinh-Gogo)
+- **GitHub:** [github.com/vinh-gogo](https://github.com/vinh-gogo)
 - **LinkedIn:** [linkedin.com/in/quangvinh2302](https://linkedin.com/in/quangvinh2302)
-- **Website:** [glory-hinody.pages.dev](https://glory-hinody.pages.dev)
-- **Học vấn:** Cử nhân Khoa học Máy tính — Đại học Công nghiệp TP.HCM (IUH, 2021–2025) | **Khóa luận tốt nghiệp: 4.0/4.0 (Xuất sắc)**, công bố tại **SSRC 2024**
-- **Ngoại ngữ:** Tiếng Anh chuyên ngành (Đọc hiểu sâu bài báo khoa học/tài liệu đặc tả AI & CS, viết tài liệu kiến trúc hệ thống song ngữ và giao tiếp kỹ thuật); Tiếng Việt (Bản ngữ)
+- **Email:** [lea26462@gmail.com](mailto:lea26462@gmail.com)
+- **Học vấn:** Cử nhân Khoa học Máy tính — Đại học Công nghiệp TP.HCM (IUH, 2021–2025)
 
 ---
 
-## 1. Tóm Tắt Nghề Nghiệp
+## 1. Giới Thiệu
 
-Kỹ sư AI & Phần mềm (Cử nhân Khoa học Máy tính, IUH) tập trung vào **hệ thống LLM có kiểm soát (Deterministic & Verifiable Agentic Systems)**, **Hybrid GraphRAG**, và **kiến trúc phần mềm an toàn kiểu (Type-Safe Software Architecture)**:
+Kỹ sư AI & Phần mềm tốt nghiệp Khoa học Máy tính (IUH, Khóa luận 4.0/4.0, công bố tại hội nghị SSRC). Tập trung phát triển các hệ thống **AI Agent có kiểm soát (LangGraph, Deterministic Saga)**, **Hybrid GraphRAG (Neo4j, Qdrant)**, **Pipeline tạo sinh Video/Audio đa phương thức**, và **ứng dụng đa nền tảng Offline-First (Kotlin Multiplatform, Go, FastAPI)**.
 
-- **Kiểm soát bất biến & Độ tin cậy cho LLM:** Thiết kế máy trạng thái ReAct trên LangGraph tích hợp cơ chế tiền/hậu kiểm (`pre_model_hook` / `post_model_hook`), chặn sinh sớm (`stop_sequences`), xác thực bất biến dữ liệu lúc chạy (Runtime Invariants) bằng **Pydantic v2** / **BAML**, cơ chế tự sửa lỗi có giới hạn (Bounded Rollback), **Human-in-the-Loop (`interrupt`)**, và **Deterministic Saga Engine** viết bằng **Go** (`aidoodle-cli`) cùng **4-Tier Safety Sandbox** (`claw-cli`).
-- **Hệ thống Truy xuất Tri thức (RAG) thực chiến:** Xây dựng kiến trúc **Dual-Collection Qdrant + Neo4j GraphRAG** xử lý báo cáo kỹ thuật & ESG đa bảng biểu (168 trang BIWASE, truy xuất `<2s`), và hệ thống **Hybrid Search (BM25 + Dense Vector + Cross-Encoder Reranker `bge-reranker-v2-m3`)** đạt **86.88%–88.13% Hit@1 (99.69%–100% Hit@20)** trên tập benchmark ablation 320 sản phẩm công nghệ và **95% Hit@1 / 99% Hit@5** trên 3.200 truy vấn thực đơn F&B & bán lẻ.
-- **Kỹ thuật Phần mềm & Lý thuyết Kiểu ứng dụng:** Phát triển ứng dụng đa nền tảng **Kotlin Multiplatform (KMP)** áp dụng **Kiểu dữ liệu đại số (Algebraic Data Types — `sealed interface` / `data class`)**, bất biến miền tại thời điểm biên dịch (`@JvmInline value class`), xử lý lỗi hàm thuần túy (`Arrow Either<AppError, T>`), và cài đặt trực tiếp các cấu trúc dữ liệu/thuật toán (`DictionaryTrie`, `$1 GeometricRecognizer`, mô hình toán học bộ nhớ `FSRS`) tại tầng Pure Domain.
+**Glory Hinody** là sổ tay kỹ thuật ghi lại kiến trúc hệ thống, số liệu thực nghiệm và bài học thực chiến từ các dự án đã triển khai.
 
 ---
 
 ## 2. Kinh Nghiệm Làm Việc
 
-### WETEC — Công ty Cổ phần Công nghệ Năng lượng & Môi trường Nước
-**Thực tập sinh Kỹ sư AI (AI Engineer Intern)** *(10/2025 – 12/2025)*  
-**Mã nguồn:** [`github.com/Vinh-Gogo/pdf-rag`](https://github.com/Vinh-Gogo/pdf-rag) | **Báo cáo kỹ thuật:** [Kiến trúc PDF-RAG Dual-Collection](/posts/pdf-rag-enterprise-dual-collection/) · [Kiến trúc GraphRAG Neo4j & Qdrant](/posts/graph-rag-neo4j-qdrant/)
+### WETEC — Công ty CP Công nghệ Năng lượng & Môi trường Nước
+**AI Engineer Intern** *(10/2025 – 12/2025)* · Repo: [`vinh-gogo/pdf-rag`](https://github.com/Vinh-Gogo/pdf-rag) · Bài viết: [PDF-RAG Dual-Collection](/posts/pdf-rag-enterprise-dual-collection/) · [GraphRAG Neo4j & Qdrant](/posts/graph-rag-neo4j-qdrant/)
 
-- **Thu thập & Làm sạch dữ liệu bảo toàn cấu trúc bảng:** Xây dựng pipeline bóc tách và tiền xử lý **168 trang** báo cáo kỹ thuật xử lý nước, chất thải, ESG và sản xuất kinh doanh của **BIWASE (Mã CK: BWE)** (thuộc bộ hồ sơ >200 trang quy chuẩn ngành nước) bằng **Firecrawl AI** kết hợp bộ lọc RegEx Sanitizer. Thực nghiệm đối sánh 3 mô hình Embedding (`DangVanTuan/vietnamese-embedding`, `Qwen3-Embedding-0.6B`, `BKAI HaLong-Embedding`) trên 159/168 trang báo cáo hợp lệ ghi nhận độ tương đồng Cosine trung bình giữa bản thô và bản làm sạch đạt **0.9966 – 0.9968** (`Qwen3-0.6B` đạt độ lệch chuẩn thấp nhất `0.0069`), chứng minh quá trình khử nhiễu OCR không làm suy suyển ngữ nghĩa chuyên ngành.
-- **Đánh giá định lượng & Giải quyết bài toán nhập nhằng bảng biểu định kỳ:** Xây dựng khung kiểm thử tự động trên **660 truy vấn tiếng Việt thực tế** (`tests/data/halong_evaluation_results.json`) và **315 truy vấn** (`tests/data/qwen_evaluation_results.json`). Phát hiện điểm nghẽn của RAG chia nhỏ đoạn đơn tầng (single-stage chunking): do báo cáo BIWASE các tháng có tiêu đề bảng giống hệt nhau, tìm kiếm vector đơn thuần với `HaLong-Embedding` chỉ đạt `29.39% Hit@1 / 57.42% Hit@5 / MRR 0.4177`, và khi nâng cấp lên `Qwen3-Embedding-0.6B` đạt **38.41% Hit@1 (+9.02%) / 68.25% Hit@5 (+10.83%) / 80.00% Hit@10 / 90.16% Hit@50 (MRR 0.5198)**.
-- **Kiến trúc Dual-Collection Qdrant & Semantic GraphRAG:** Thiết kế cơ chế truy xuất 2 tầng trên **Qdrant** — tìm kiếm vi mô trên `esg_sequences` (1.132 phân đoạn 500 ký tự) rồi quy nạp điểm số để lấy toàn vẹn trang văn bản gốc từ `esg_pages` — kết hợp lọc metadata thời gian và đồ thị thực thể **Neo4j**, loại bỏ hiện tượng ghép nhầm số liệu giữa các kỳ báo cáo và giữ độ trễ truy xuất **<2 giây** qua **FastAPI** và **Docker**.
-- **Công nghệ cốt lõi:** Python, Qdrant (Dual-Collection), Neo4j, `Qwen3-Embedding-0.6B`, `HaLong-Embedding`, Firecrawl AI, FastAPI, Docker.
+- Xây dựng pipeline bóc tách và làm sạch 168 trang báo cáo kỹ thuật & ESG ngành nước (BIWASE) bằng **Firecrawl AI** (độ tương đồng ngữ nghĩa Cosine đạt `0.9968`).
+- Thiết kế kiến trúc **Dual-Collection Qdrant + Neo4j GraphRAG**, giải quyết bài toán nhập nhằng bảng biểu định kỳ và giữ độ trễ truy xuất **<2 giây** qua **FastAPI & Docker**.
 
 ---
 
-## 3. Dự Án Tiêu Biểu & Minh Chứng Thực Tế
+## 3. Dự Án Tiêu Biểu
 
-### 1. Hệ Thống Multi-Agent CSKH & Đặt Hàng Có Kiểm Soát *(Freelance R&D, 06/2025 – 10/2025)*
-- **Vai trò:** Kỹ sư AI chính phụ trách Kiến trúc Agent, Ràng buộc Thực thi & Hybrid RAG (Nhóm 3 thành viên)
-- **Mã nguồn (Repo nhóm lưu trữ trên GitHub của thành viên Thanh Huynh):**
-  - Core ReAct Agent & Hooks: [`github.com/thanhhuynhk17/langgraph_re_act_agent`](https://github.com/thanhhuynhk17/langgraph_re_act_agent)
-  - Hybrid Search & Ablation Eval: [`github.com/thanhhuynhk17/graph_rag`](https://github.com/thanhhuynhk17/graph_rag)
-- **Video Demo YouTube:**
-  - 📺 [Demo AI Agent LangGraph (Core & State Machine)](https://www.youtube.com/watch?v=RHZPNONKj3Q)
-  - 💬 [Demo Trực Tiếp Facebook Messenger](https://www.youtube.com/watch?v=fmhQLR4_IHE)
-- **Báo cáo kỹ thuật:** [Kiến trúc Multi-Agent Workflow & Kiểm soát Bất biến Lúc chạy với LangGraph](/posts/multi-agent-workflow-langraph/)
-- **Đóng góp kỹ thuật trực tiếp của Lê Quang Vinh:**
-  - **Máy trạng thái ReAct & Chốt chặn Tiền/Hậu kiểm (`src/agent.py`, `src/utils/helpers.py`):** Thiết kế đồ thị LangGraph (`get_graph`) với `stop_sequences=["<react_observation"]` chặn vật lý hành vi LLM tự bịa kết quả hàm tại tầng giải mã token; cài đặt `use_pre_hook` chuẩn hóa lịch sử hội thoại XML và `use_post_hook` + `_detect_tool` bóc tách khối `<think>...</think>`, đối chiếu tên tool với tập `all_tools` và tự động rollback về `Command(goto="pre_model_hook")` khi phát hiện sai lệch cú pháp.
-  - **Kiểm tra bất biến lúc chạy (Runtime Invariants) & Human-in-the-Loop (`src/utils/schemas.py`, `src/utils/tools.py`, `src/utils/interrupt_any_tool.py`):** Cài đặt `@model_validator(mode="after")` trên Pydantic v2 cho `Dish` và `TakeOrderInput` nhằm kiểm chứng sự tồn tại của `(id, name_of_food)` trong danh mục thực đơn (`comque_new.csv`) và ràng buộc thời gian đặt bàn `booking_time >= pendulum.now('Asia/Ho_Chi_Minh')`; tích hợp `interrupt()` đóng băng trạng thái đồ thị chờ con người phê duyệt trước khi ghi đơn hàng vào DB.
-  - **Hybrid Search & Thực nghiệm Ablation (`graph_rag/src/utils/hybridsearch.py`, `search_hit_k_eval.py`):** Xây dựng `HybridRetrieverPipeline` kết hợp `BM25Retriever` + `Neo4jVector` (`EnsembleRetriever`) và Cross-Encoder Reranker (`BAAI/bge-reranker-v2-m3`). Thực nghiệm ablation trên 320 bản ghi sản phẩm (`hoanghamobile_with_summary.csv` $\times$ 5 mẫu câu hỏi tiếng Việt) chứng minh bước tiến rõ rệt: Pure Embedding (`Qwen3-0.6B`) đạt `65.31% Hit@1` $\rightarrow$ kết hợp `bge-reranker-v2-m3` tăng lên **85.63% Hit@1 / 97.81% Hit@5** $\rightarrow$ kết hợp **Hybrid BM25 + Embedding + Reranker** đạt **86.88% Hit@1 / 99.69% Hit@20** (và **88.13% Hit@1 / 98.13% Hit@5 / 100% Hit@20** với `Qwen3-8B`). Khi áp dụng lọc thuộc tính có cấu trúc trên tập 3.200 truy vấn thực đơn F&B & bán lẻ, hệ thống đạt **95% Hit@1** và **99% Hit@5**.
-  - **Bộ định tuyến ngữ nghĩa (`semantic-router`):** Xây dựng bộ phân loại ý định hội thoại 3 lớp (`binh_thuong`, `crawl_data`, `tao_lao`) dựa trên ma trận xác suất tích lũy Top-2 Cosine Similarity.
-- **Công nghệ cốt lõi:** Python, LangGraph, FastMCP, Pydantic v2, BAML, vLLM, Neo4j, BM25, `BAAI/bge-reranker-v2-m3`, FastAPI, Facebook Messenger Webhook.
+### 1. Glory Vocab (`gloryvocab.com`) — Nền tảng Từ điển & Ôn tập TOEIC Mobile-First *(2026)*
+- **Live:** [`gloryvocab.com`](https://gloryvocab.com) · **Repo:** [`vinh-gogo/GLORY-TIKTOK`](https://github.com/vinh-gogo/GLORY-TIKTOK) · **Bài viết:** [Kiến trúc Glory Vocab](/posts/glory-vocab-hugo-fsrs-cloudflare-d1/)
+- Biên dịch kho dữ liệu YAML chuẩn hóa (4.090 từ vựng, 379 bộ đồng nghĩa, 30 đoạn đọc ETS) thành **8.406 trang tĩnh song ngữ** bằng Hugo Extended, đạt **100/100 Lighthouse Performance**.
+- Tích hợp thuật toán **FSRS Offline-First** trên IndexedDB v2 + Service Worker v7 và đồng bộ đám mây hai chiều **Zero-PII** qua **Cloudflare Pages Functions & D1**.
 
-### 2. AI-Doodle (`aidoodle-cli`) & Claw-CLI — Máy Trạng Thái Saga Xác Định & Sandbox Thực Thi An Toàn *(2026)*
-- **Mã nguồn:** [`github.com/vinh-gogo/aidoodle-cli`](https://github.com/vinh-gogo/aidoodle-cli) (Go) · [`github.com/vinh-gogo/claw-cli`](https://github.com/vinh-gogo/claw-cli) (Python + ONNX)
-- **Báo cáo kỹ thuật:** [Kiến trúc AI-Doodle CLI, Saga Engine & W3C EPUB 3.3](/posts/aidoodle-cli-deterministic-saga-epub-engine-go/) · [Kiến trúc Claw-CLI, Silero VAD v5 & Sandbox 4 Tầng](/posts/claw-cli-voice-terminal-agent-silero-vad-sandbox/)
-- **Kỹ thuật & Đóng góp:**
-  - **`aidoodle-cli` (Go 1.25+ — 7 Chế độ AI chuyên biệt):** Xây dựng công cụ CLI & Retro Terminal Web UI điều phối sáng tác đa chế độ (`novel-manga`, `suspense` Fair-Play 3:2, `romance` Lie/Ghost/Need, `fantasy` 3 định luật Sanderson, `vietnamese-history` + Tavily Search, `doodle-explainer`, `behavioral-psychology`) và xuất bản sách điện tử chuẩn **W3C EPUB 3.3 / Word DOCX** thuần Go. Thiết kế **Deterministic Saga Engine** (`internal/orchestrator/saga.go`) ghi nhật ký giao dịch nguyên tử từng bước, cho phép khôi phục (resume) chính xác từ bước dừng mà không mất trạng thái.
-  - **Mechanical Output Validators (`internal/orchestrator/validators.go`):** Cài đặt bộ kiểm tra cơ học hậu sinh (chặn 100% ký tự CJK, kiểm tra ngưỡng từ, phát hiện lặp đoạn văn do suy thoái giải mã, lọc từ cấm convert Hán-Việt, kiểm định kịch bản `lintScript`) kèm vòng lặp tự sửa lỗi và đánh giá 7 chiều bởi `Editor` + `Arbiter`.
-  - **`claw-cli` (Voice & Text Terminal Agent):** Tích hợp mô hình **Silero VAD v5 (ONNX Runtime)** phát hiện hoạt động giọng nói thời gian thực trên CPU (tự động chốt câu sau `0.6s` im lặng), cổng suy luận hợp nhất **Unified Colab Gateway (`Gemma 4 26B + E2B STT`)**, và kiến trúc **4-Tier Safety Policy Sandbox** phân loại mọi công cụ tác động hệ thống thành 4 mức độ (`read`, `write`, `exec`, `dangerous`), bắt buộc xác nhận vật lý qua bàn phím (`yes`) đối với các thao tác nguy hiểm và tự động lọc sạch biến môi trường nhạy cảm.
-- **Công nghệ cốt lõi:** Go (Golang), Python, ONNX Runtime (Silero VAD v5), Gemma 4, Saga Pattern, Mechanical Validators, W3C EPUB 3.3.
+### 2. AI-Doodle CLI & Claw-CLI — Động cơ Sáng tác Tất định & Trợ lý Giọng nói Terminal *(2026)*
+- **Repo:** [`vinh-gogo/aidoodle-cli`](https://github.com/vinh-gogo/aidoodle-cli) · [`vinh-gogo/claw-cli`](https://github.com/vinh-gogo/claw-cli) · **Bài viết:** [AI-Doodle CLI (Go)](/posts/aidoodle-cli-deterministic-saga-epub-engine-go/) · [Claw-CLI (Voice Agent)](/posts/claw-cli-voice-terminal-agent-silero-vad-sandbox/)
+- **`aidoodle-cli` (Go 1.25+):** Động cơ sáng tác tự động hóa 7 chế độ AI với **Deterministic Saga Engine**, **Mechanical Output Validators**, Retro Web UI và trình biên dịch **W3C EPUB 3.3 / DOCX** thuần Go.
+- **`claw-cli` (Python + ONNX):** Trợ lý dòng lệnh điều khiển bằng giọng nói tiếng Việt pha thuật ngữ code, tích hợp **Silero VAD v5 ONNX** (`0.6s` tự chốt câu), Unified Colab Gateway (`Gemma 4`) và **Sandbox an toàn 4 tầng**.
 
-### 3. Glory Vocab (`gloryvocab.com`) — Hệ Sinh Thái Từ Điển TOEIC 8.400 Trang Tĩnh, FSRS Offline-First & Cloudflare D1 *(2026)*
-- **Website Production:** [`gloryvocab.com`](https://gloryvocab.com) · **Mã nguồn:** [`github.com/vinh-gogo/GLORY-TIKTOK`](https://github.com/vinh-gogo/GLORY-TIKTOK)
-- **Báo cáo kỹ thuật:** [Kiến trúc Glory Vocab: Hugo, FSRS Offline-First & Đồng bộ Cloudflare D1](/posts/glory-vocab-hugo-fsrs-cloudflare-d1/)
-- **Kỹ thuật & Đóng góp:**
-  - **Single Source of Truth & Static Scale:** Thiết kế kho dữ liệu chuẩn hóa JSON Schema gồm **4.090 mục từ vựng** (16.360 collocations 4 cấp độ), **379 bộ từ đồng nghĩa** (3.774 nhóm) và **30 đoạn đọc công sở ETS-style**, biên dịch thành **8.406 trang tĩnh song ngữ** đạt **100/100 điểm Lighthouse Performance** (được bảo vệ bởi cổng ngân sách hiệu năng CI `check_perf_budget.py` và Service Worker v7).
-  - **Động cơ FSRS Offline-First & Đồng bộ Hai chiều Zero-PII:** Cài đặt thuật toán lặp lại ngắt quãng **FSRS** đa bộ thẻ kết hợp phân loại từ vựng **Triage (`Known/Unsure/Unknown`)**, kiểm tra ngầm **Spot-Check**, **Bản đồ kiến thức 13 chủ đề**, **Web Speech TTS** và **Active Typed Recall** trên **IndexedDB v2**. Thiết kế giao thức đồng bộ Delta `since` và hàm giải quyết xung đột tất định **`mergeCard`** trên **Cloudflare Pages Functions & Cloudflare D1**, xác thực Google ID Token JWT theo nguyên tắc **Zero-PII** (chỉ lưu mã `sub` vô danh).
-- **Công nghệ cốt lõi:** Hugo Extended, JavaScript (ES Modules), IndexedDB, Service Worker v7, FSRS, Cloudflare Pages Functions, Cloudflare D1 (SQLite Edge), Python JSON Schema Validation.
+### 3. Hệ thống Multi-Agent CSKH, Đặt hàng & Cầu nối Chatwoot Real-Time *(2025–2026)*
+- **Repo:** [`langgraph_re_act_agent`](https://github.com/thanhhuynhk17/langgraph_re_act_agent) · [`graph_rag`](https://github.com/thanhhuynhk17/graph_rag) · **Demo:** [YouTube 1](https://www.youtube.com/watch?v=RHZPNONKj3Q) · [YouTube 2](https://www.youtube.com/watch?v=fmhQLR4_IHE) · **Bài viết:** [ReAct Agent & LangGraph Hooks](/posts/multi-agent-workflow-langraph/) · [Chatwoot ActionCable & FastAPI](/posts/chatwoot-realtime-api-channel-websocket-fastapi/)
+- Thiết kế máy trạng thái ReAct trên **LangGraph** (Pre/Post Hooks, Runtime Invariants với Pydantic v2, Human-in-the-Loop) và **Hybrid Search** (BM25 + Vector + Reranker `bge-reranker-v2-m3`) đạt **95% Hit@1 / 99% Hit@5** trên 3.200 truy vấn F&B và bán lẻ.
+- Xây dựng dịch vụ cầu nối thời gian thực **FastAPI + ActionCable WebSocket** (`chatwoot_api_channel`) với State Machine, Heartbeat Watchdog và Circuit Breaker.
 
-### 4. AI Lingua, Mainichi Kanji & Skills-KMP — Kiến Trúc Đa Nền Tảng Đặt Nền Tảng Trên Hệ Thống Kiểu *(2026)*
-- **Mã nguồn:** [`github.com/Vinh-Gogo/ai-english`](https://github.com/Vinh-Gogo/ai-english) · [`github.com/vinh-gogo/skills-kmp`](https://github.com/vinh-gogo/skills-kmp)
-- **Báo cáo kỹ thuật:** [Kiến Trúc Học Ngoại Ngữ Offline-First Với KMP & AI](/posts/on-device-ai-onnx-kotlin/) · [Kiến Trúc Mainichi Kanji Local-First & Harmony Design](/posts/mainichi-kanji-local-first-kmp-harmony-architecture/) · [Kiến Trúc Phần Mềm Hiện Đại Với KMP](/posts/skills-kmp-architecture-design-patterns/)
-- **Kỹ thuật & Đóng góp:**
-  - **Thiết kế hướng kiểu (Type-Driven Architecture) & Algebraic Data Types:** Xây dựng ứng dụng đa nền tảng (Desktop JVM, Android & Web) theo **Clean Architecture 5 lớp** kết hợp **MVI**, chia sẻ **85%** mã nguồn. Mô hình hóa toàn bộ trạng thái (`UiState`), hành vi (`UiIntent`) và lỗi nghiệp vụ (`AppError`) bằng **Kiểu dữ liệu đại số (ADT: `sealed interface` Sum Types & `data class` Product Types)**, ép trình biên dịch Kotlin kiểm tra tính đầy đủ (exhaustiveness) tại thời điểm biên dịch.
-  - **Bất biến miền & Lập trình hàm với Arrow Core:** Sử dụng `@JvmInline value class` (`EmailAddress`, `NoteId`) để kiểm tra bất biến dữ liệu đầu vào mà không phát sinh chi phí cấp phát bộ nhớ heap, kết hợp kiểu `Either<AppError, T>` của **Arrow Core** giúp biểu diễn tường minh luồng lỗi trên chữ ký hàm (Railway-Oriented Programming), giữ tầng `:shared:domain` hoàn toàn thuần khiết (Pure & Referentially Transparent).
-  - **Thuật toán On-Device & Tương tác Hình vị (`TokenizedSentenceChips`):** Cài đặt trực tiếp cây tiền tố **Prefix Tree (`VietnameseDictionaryTrie` / `EnglishDictionaryTrie`)** tìm kiếm trong $O(L)$, bộ nhận diện nét vẽ **$1 Unistroke `GeometricRecognizer`**, thuật toán **FSRS** trên **SQLDelight SQLite chuẩn 3NF**, và thành phần phân tách từ tố tiếng Nhật **`TokenizedSentenceChips`** kèm chuỗi tra cứu dự phòng 3 tầng trên hệ thống thiết kế **Harmony Design System**.
-- **Công nghệ cốt lõi:** Kotlin Multiplatform (KMP), Compose Multiplatform, Arrow Core (`Either`), SQLDelight (3NF), Ktor Client, FSRS, Prefix Trie, Geometric Recognizer, .NET 10 / Avalonia UI.
+### 4. Open Video Lab, Video Factory & Shinobi Studio — Hệ sinh thái Tạo sinh Video AI *(2026)*
+- **Repo:** [`vinh-gogo/open-video-lab`](https://github.com/vinh-gogo/open-video-lab) · **Bài viết:** [OpenVideoLab](/posts/openvideolab-video-diffusion/) · [MiniMax H3 & LTX-2.5](/posts/ai-video-generation-minimax-h3-ltx25/) · [Quantization Int8/FP4](/posts/quantization-int8-fp4-inference/) · [Video Factory](/posts/doodle-explainer-modular-video-factory-pipeline/) · [Shinobi Studio](/posts/shinobi-ai-video-studio-node-graph-kmp/)
+- **Open Video Lab:** Tối ưu các mô hình Diffusion Transformers (LTX-2.5, MiniMax) bằng **Quantization (`int8`/`fp4`)** giảm VRAM xuống **<14GB** (chạy mượt trên GPU 16GB) kèm nội suy **RIFE** 48/96fps.
+- **Video Factory & Shinobi Studio:** Pipeline 6 công đoạn sản xuất hoạt hình người que 2D với **Content-Addressed Cache SHA-256** (tái dựng cục bộ từng cảnh) và trình dựng phim đồ thị nút **Node-Graph** đa nền tảng trên KMP.
 
-### 5. Open Video Lab, Video Factory (`doodle_explainer`) & Shinobi Studio — Pipeline Tạo Sinh Video AI Đa Phương Thức *(2026)*
-- **Mã nguồn:** [`github.com/vinh-gogo/open-video-lab`](https://github.com/vinh-gogo/open-video-lab)
-- **Báo cáo kỹ thuật:** [Làm chủ Video Diffusion với Open Video Lab](/posts/openvideolab-video-diffusion/) · [Kiến trúc Video Factory 6 Công đoạn & Content-Addressed Cache](/posts/doodle-explainer-modular-video-factory-pipeline/) · [Shinobi AI Video Studio: Đồ thị Nút Node-Graph trên KMP](/posts/shinobi-ai-video-studio-node-graph-kmp/) · [Tích hợp Chatwoot Real-Time qua ActionCable WebSocket & FastAPI](/posts/chatwoot-realtime-api-channel-websocket-fastapi/)
-- **Kỹ thuật & Đóng góp:**
-  - **Open Video Lab (DiT & Low-VRAM Quantization):** Xây dựng pipeline điều phối sinh video đa phương thức dựa trên Diffusion Transformers (LTX-2.5, MiniMax, Wan), kỹ thuật **Multi-Subject Reference (MSR)** và lượng tử hóa **int8/fp4** giảm VRAM từ 24GB xuống **<14GB** (<60s/cảnh trên GPU 16GB) kèm nội suy **RIFE** 48/96fps.
-  - **Video Factory (`doodle_explainer` — 6-Stage Modular Pipeline):** Thiết kế nhà máy sản xuất video hoạt hình người que 2D gồm 6 công đoạn độc lập, cấu hình xếp lớp 5 tầng, ghi file nguyên tử (`.tmp` rename) và bộ nhớ đệm băm **SHA-256 (`manifest.json`)** cho phép tái dựng cục bộ 1 phân cảnh (`vf rebuild --scene 47`), kết hợp động cơ ảnh lai **Gemini Image + Colab FLUX NF4** (chuẩn hóa nền giấy kem `#fcf1d6`) và bộ trộn **FFmpeg Ken Burns + Audio Ducking**.
-  - **Shinobi AI Video Studio (`ai-video` — Node-Graph KMP):** Xây dựng trình dựng phim đồ thị nút trên Desktop & Android với Compose Multiplatform, hỗ trợ nối dây nhân vật tham chiếu và sinh Khung hình Đầu/Cuối (`fal-ai/flux-2/edit`).
-- **Công nghệ cốt lõi:** PyTorch, Diffusion Transformers (DiT), FLUX.1 NF4, Quantization (int8/fp4), FFmpeg Filtergraphs, Kotlin Multiplatform, FastAPI.
+### 5. AI Lingua, Mainichi Kanji & Skills-KMP — Ứng dụng Học Ngoại ngữ Đa nền tảng *(2026)*
+- **Repo:** [`Vinh-Gogo/ai-english`](https://github.com/Vinh-Gogo/ai-english) · [`vinh-gogo/skills-kmp`](https://github.com/vinh-gogo/skills-kmp) · **Bài viết:** [AI Lingua](/posts/on-device-ai-onnx-kotlin/) · [Mainichi Kanji](/posts/mainichi-kanji-local-first-kmp-harmony-architecture/) · [Skills-KMP](/posts/skills-kmp-architecture-design-patterns/)
+- Phát triển ứng dụng Desktop & Android bằng **Kotlin Multiplatform + Compose Multiplatform** theo **Clean Architecture 5 lớp & MVI** (chia sẻ 85% code), tích hợp **SQLDelight 3NF**, **FSRS**, nhận diện viết tay offline (`GeometricRecognizer` + `Trie`) và phân tách từ tố **`TokenizedSentenceChips`**.
 
 ---
 
-## 4. Nghiên Cứu Khoa Học & Khóa Luận Tốt Nghiệp
+## 4. Nghiên Cứu Khoa Học
 
-### Ước Lượng Độ Sâu Ảnh Đơn Dựa Trên Mạng Nơ-ron Tích Chập Sâu (Deep CNNs) *(SSRC 2024)*
-- **Công bố:** Hội nghị Khoa học Sinh viên (SSRC 2024) — Khoa Công nghệ Thông tin, Đại học Công nghiệp TP.HCM (IUH)
-- **Mã nguồn:** [`github.com/Vinh-Gogo/depth-estimation`](https://github.com/Vinh-Gogo/depth-estimation)
-- **Toàn văn khóa luận (Tiếng Anh):** [Report_GRADUATION_THESIS.pdf](/posts/depth-estimation-cnn-ssrc/Report_GRADUATION_THESIS.pdf) | **Báo cáo kỹ thuật:** [Phân tích Kiến trúc & Thực nghiệm Khóa luận](/posts/depth-estimation-cnn-ssrc/)
-- **Điểm khóa luận:** **4.0/4.0 (Xuất sắc)**
-- **Kỹ thuật & Đóng góp:**
-  - **Thiết kế kiến trúc lai ghép (Hybrid ResNet–DenseNet U-Net):** Nghiên cứu và thực nghiệm đối chứng 3 kiến trúc mạng học sâu cho bài toán Monocular Depth Estimation trên tập dữ liệu **LineMOD RGB-D Dataset** (~4.800 ảnh huấn luyện và **1.200 ảnh kiểm thử độc lập** độ phân giải $192 \times 256$ thu từ cảm biến PrimeSense Carmine): (1) **CAE ResNet** (64 lớp, 7.09M tham số), (2) **U-Net ResNet** (68 lớp, 7.80M tham số), và (3) **Enhanced U-Net với Hybrid ResNet–DenseNet Backbone** (105 lớp, **7.51M tham số**, nhẹ hơn U-Net chuẩn 3.7% nhờ tái sử dụng đặc trưng Dense Block; mở rộng thêm biến thể nhẹ 3M tham số và biến thể tích hợp **Squeeze-and-Excitation (SE) Attention** 13M tham số).
-  - **Hàm mất mát đa thành phần (Multi-Component Loss):** Kết hợp sai số tuyệt đối mức pixel ($\mathcal{L}_1$), độ tương đồng cấu trúc ($\mathcal{L}_{SSIM}$) và đạo hàm biên không gian ($\mathcal{L}_{grad}$) nhằm triệt tiêu hiện tượng mờ biên vật thể của chuẩn $\mathcal{L}_2$ truyền thống.
-  - **Kết quả định lượng trên 1.200 ảnh Hold-out Test (LineMOD):** Đạt **RMSE `0.0370`** (cải thiện từ `0.0410` của CAE ResNet), **MAE `0.0175`**, **MSE `0.0016`**, **Cosine Similarity `0.974`**, **Pixel Accuracy `0.819`**, giảm **32.4% khoảng cách phân phối Wasserstein** (`14.20` xuống `9.603`), **Hausdorff Distance `10.65`**, và đạt **92.5% (1.123/1.214 ảnh kiểm thử)** thỏa mãn ngưỡng sai lệch độ sâu cực đại nghiêm ngặt $< 0.1$.
+### Ước lượng độ sâu ảnh đơn dựa trên Deep CNNs *(SSRC 2024 — Khóa luận 4.0/4.0)*
+- **Repo:** [`Vinh-Gogo/depth-estimation`](https://github.com/Vinh-Gogo/depth-estimation) · **Bài viết:** [Ước lượng độ sâu ảnh đơn với CNN](/posts/depth-estimation-cnn-ssrc/)
+- Thiết kế kiến trúc **Enhanced U-Net (Hybrid ResNet–DenseNet)** kết hợp hàm mất mát đa thành phần ($\mathcal{L}_1 + \mathcal{L}_{SSIM} + \mathcal{L}_{grad}$), đạt **RMSE `0.0370`** và **Cosine Similarity `0.974`** trên tập kiểm thử 1.200 ảnh LineMOD RGB-D.
 
 ---
 
-## 5. Kỹ Năng Chuyên Môn
+## 5. Kỹ Năng & Công Nghệ
 
-| Lĩnh vực | Kỹ năng & Công nghệ cốt lõi |
+| Lĩnh vực | Công nghệ cốt lõi |
 |---|---|
-| **Độ tin cậy LLM, Lý thuyết Kiểu & Thuật toán** | Runtime Invariants (`pre/post_model_hook`, Stop Sequences, Pydantic v2, BAML AST), Algebraic Data Types (Kotlin `sealed interface`, `@JvmInline value class`), Functional Error Handling (Arrow `Either<L, R>`), Deterministic Saga State Machines, Prefix Tree (`Trie`), `$1` Geometric Recognizer, FSRS Memory Modeling |
-| **AI Agentic & Hệ thống RAG** | LangGraph, FastMCP, Semantic Router, Hybrid Search (BM25 + Dense Vector + Cross-Encoder `bge-reranker-v2-m3`), Dual-Collection Qdrant, GraphRAG (Neo4j), vLLM Serving |
-| **Generative AI & Computer Vision** | Diffusion Transformers (DiT), Multi-Subject Consistency, Quantization (`int8`/`fp4`), LoRA Fine-tuning, Deep CNNs (ResNet, DenseNet, U-Net, SE-Attention), ONNX Runtime (Silero VAD v5) |
-| **Kỹ thuật Phần mềm & Đa nền tảng** | Kotlin Multiplatform (KMP), Compose Multiplatform, Clean Architecture (5-Tier + Vertical Slicing), MVI, SQLDelight (3NF), RESTful API (FastAPI, Ktor), W3C EPUB 3.3 Engine |
-| **Ngôn ngữ & Hạ tầng** | **Python**, **Kotlin**, **Go (Golang)**, **SQL** (PostgreSQL, SQLite), C# (.NET), TypeScript, PyTorch, Docker, Git/GitHub, Linux |
-
+| **AI Agentic & RAG** | LangGraph, FastMCP, Semantic Router, Hybrid Search (BM25 + Dense Vector + `bge-reranker-v2-m3`), Dual-Collection Qdrant, Neo4j GraphRAG, vLLM |
+| **Generative AI & Vision** | Diffusion Transformers (LTX-2.5, MiniMax, FLUX.1), Quantization (`int8`/`fp4`), Deep CNNs (ResNet, DenseNet, U-Net), ONNX Runtime (Silero VAD v5), FFmpeg |
+| **Kỹ thuật Phần mềm & Web/App** | Kotlin Multiplatform (KMP), Compose Multiplatform, Clean Architecture, MVI, Hugo Extended, Cloudflare Pages & D1, FastAPI, ActionCable WebSocket, W3C EPUB 3.3 |
+| **Ngôn ngữ & Hạ tầng** | **Python**, **Kotlin**, **Go (Golang)**, **SQL** (PostgreSQL, SQLite/SQLDelight), C# (.NET), JavaScript/TypeScript, PyTorch, Docker, Git, Linux |

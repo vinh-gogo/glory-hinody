@@ -24,6 +24,9 @@
 /Thumbs.db                  /404/   301
 /server-status              /404/   301
 /server-info                /404/   301
+/cv.latex                   /404/   301
+/cv                         /404/   301
+/cv/*                       /404/   301
 
 # ── Trailing slash chuẩn hoá ──────────────────────────────────
 /posts              /posts/     301
