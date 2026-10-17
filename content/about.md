@@ -61,9 +61,10 @@ Kỹ sư AI & Phần mềm tốt nghiệp Khoa học Máy tính (IUH, Khóa lu�
 - **Open Video Lab:** Tối ưu các mô hình Diffusion Transformers (LTX-2.5, MiniMax) bằng **Quantization (`int8`/`fp4`)** giảm VRAM xuống **<14GB** (chạy mượt trên GPU 16GB) kèm nội suy **RIFE** 48/96fps.
 - **Video Factory & Shinobi Studio:** Pipeline 6 công đoạn sản xuất hoạt hình người que 2D với **Content-Addressed Cache SHA-256** (tái dựng cục bộ từng cảnh) và trình dựng phim đồ thị nút **Node-Graph** đa nền tảng trên KMP.
 
-### 5. AI Lingua, Mainichi Kanji & Skills-KMP — Ứng dụng Học Ngoại ngữ Đa nền tảng *(2026)*
-- **Repo:** [`Vinh-Gogo/ai-english`](https://github.com/Vinh-Gogo/ai-english) · [`vinh-gogo/skills-kmp`](https://github.com/vinh-gogo/skills-kmp) · **Bài viết:** [AI Lingua](/posts/on-device-ai-onnx-kotlin/) · [Mainichi Kanji](/posts/mainichi-kanji-local-first-kmp-harmony-architecture/) · [Skills-KMP](/posts/skills-kmp-architecture-design-patterns/)
-- Phát triển ứng dụng Desktop & Android bằng **Kotlin Multiplatform + Compose Multiplatform** theo **Clean Architecture 5 lớp & MVI** (chia sẻ 85% code), tích hợp **SQLDelight 3NF**, **FSRS**, nhận diện viết tay offline (`GeometricRecognizer` + `Trie`) và phân tách từ tố **`TokenizedSentenceChips`**.
+### 5. AI Lingua & Skills-KMP — Ứng dụng Học Ngoại ngữ Đa nền tảng với Kotlin Multiplatform *(2026)*
+- **Repo:** [`Vinh-Gogo/ai-english`](https://github.com/Vinh-Gogo/ai-english) · [`vinh-gogo/skills-kmp`](https://github.com/vinh-gogo/skills-kmp) · **Demo:** [YouTube](https://youtu.be/R_IvnHsHmTw) · **Bài viết:** [Kiến trúc AI Lingua](/posts/on-device-ai-onnx-kotlin/) · [Skills-KMP & Design Patterns](/posts/skills-kmp-architecture-design-patterns/)
+- Phát triển ứng dụng Desktop (Windows, macOS, Linux) & Android bằng **Kotlin Multiplatform + Compose Multiplatform** theo **Clean Architecture 5 lớp, Vertical Slicing & MVI** (chia sẻ 85% code chung) cùng cơ sở dữ liệu cục bộ **SQLDelight chuẩn hóa 3NF**.
+- Tích hợp luyện dịch tương tác Việt–Anh theo **200+ chủ đề (CEFR A1–C2 / TOEIC 300–900)**, chấm điểm ngữ pháp qua **LLM Fallback Chain (Gemini + Novita AI)**, bảng vẽ nhận diện chữ viết tay offline **Handwriting Pad (`GeometricRecognizer` + `Dictionary Trie`, `<15ms`)** và thuật toán lặp lại ngắt quãng **FSRS**.
 
 ---
 

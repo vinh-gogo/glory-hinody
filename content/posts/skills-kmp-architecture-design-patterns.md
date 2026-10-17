@@ -3,8 +3,8 @@ title: "Skills KMP: Đưa Design Patterns Và Nghệ Thuật Refactoring Vào Ch
 date: 2026-09-30T09:30:00+07:00
 draft: false
 tags: ["kotlin-multiplatform", "design-patterns", "refactoring", "clean-architecture", "du-an"]
-description: "Hành trình thuần hóa quái vật KMP từ dự án Mainichi App. Bí kíp áp dụng 22 Design Patterns kinh điển và chiến dịch 'trừ tà' 15+ Code Smells để tạo nên bộ khung kiến trúc chuẩn mực tại github.com/vinh-gogo/skills-kmp."
-summary: "Hành trình thuần hóa quái vật KMP từ dự án Mainichi App. Bí kíp áp dụng 22 Design Patterns kinh điển và chiến dịch 'trừ tà' 15+ Code Smells để tạo nên bộ khung kiến trúc chuẩn mực tại github.com/vinh-gogo/skills-kmp."
+description: "Hành trình thuần hóa quái vật KMP từ dự án AI Lingua. Bí kíp áp dụng 22 Design Patterns kinh điển và chiến dịch 'trừ tà' 15+ Code Smells để tạo nên bộ khung kiến trúc chuẩn mực tại github.com/vinh-gogo/skills-kmp."
+summary: "Hành trình thuần hóa quái vật KMP từ dự án AI Lingua. Bí kíp áp dụng 22 Design Patterns kinh điển và chiến dịch 'trừ tà' 15+ Code Smells để tạo nên bộ khung kiến trúc chuẩn mực tại github.com/vinh-gogo/skills-kmp."
 ShowToc: true
 TocOpen: true
 ---
@@ -19,7 +19,7 @@ Thế nhưng, sau 2 đến 3 tuần hăm hở nhảy vào dự án, giấc mơ m
 * Một rừng từ khóa `expect / actual` bị lạm dụng vô tội vạ, khiến mỗi lần sửa một hàm nhỏ là phải mở 5 tab để vá lỗi cho từng hệ điều hành.
 * Ứng dụng chạy mượt trên Android nhưng cứ bật trên Desktop là văng lỗi giật lag (race condition) do xung đột quản lý luồng!
 
-Từ những ngày "vật lộn" đập đi xây lại kiến trúc cho dự án ứng dụng học tập đa nền tảng **Mainichi App** (`mainichi-app-v2`), tôi nhận ra rằng: **KMP không hề có lỗi, lỗi là chúng ta mang tư duy code app đơn lẻ vào một hệ thống phân tán đa nền tảng.** 
+Từ những ngày "vật lộn" đập đi xây lại kiến trúc cho dự án ứng dụng học ngoại ngữ đa nền tảng **AI Lingua** (`ai-english`), tôi nhận ra rằng: **KMP không hề có lỗi, lỗi là chúng ta mang tư duy code app đơn lẻ vào một hệ thống phân tán đa nền tảng.** 
 
 Để giải quyết dứt điểm vấn đề này, tôi đã hệ thống hóa toàn bộ kinh nghiệm chiến trường, kết hợp tinh hoa của **22 Design Patterns kinh điển** và bộ cẩm nang **Refactoring Code Smells** để tạo nên kho tri thức mở: [`github.com/vinh-gogo/skills-kmp`](https://github.com/vinh-gogo/skills-kmp). 
 
@@ -114,7 +114,7 @@ interface VocabularyRepository {
 
 // 2. INFRASTRUCTURE LAYER (:shared:infrastructure) — Đóng vai trò Adapter
 class SqlDelightVocabularyRepository(
-    private val database: MainichiDatabase,
+    private val database: AppDatabase,
     private val wordMapper: DatabaseWordMapper // Map từ bảng SQL sang Domain Entity
 ) : VocabularyRepository {
     
@@ -267,7 +267,7 @@ Nhờ `either { ... }` (Monad Comprehension trong Arrow Core), các hàm trong `
 
 ## 4. Refactoring Thực Chiến: Giải Phẫu Một Ca "Phẫu Thuật" Thành Công
 
-Trong dự án Mainichi App, màn hình Flashcard học từ vựng ban đầu là một file `FlashcardScreen.kt` dài **1.400 dòng** (Code Smell: *God Class + Long Method*). 
+Trong dự án AI Lingua, màn hình Flashcard học từ vựng ban đầu là một file `FlashcardScreen.kt` dài **1.400 dòng** (Code Smell: *God Class + Long Method*). 
 
 Chúng tôi đã thực hiện quy trình Refactoring chuẩn mực theo 3 bước:
 

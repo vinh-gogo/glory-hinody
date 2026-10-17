@@ -3,8 +3,8 @@ title: "Skills KMP: Deploying Design Patterns and the Art of Refactoring in Kotl
 date: 2026-09-30T09:30:00+07:00
 draft: false
 tags: ["kotlin-multiplatform", "design-patterns", "refactoring", "clean-architecture", "projects"]
-description: "Taming the cross-platform KMP monster from our Mainichi App production journey. How applying 22 classic Design Patterns and banishing 15+ Code Smells culminated in the architecture framework at github.com/vinh-gogo/skills-kmp."
-summary: "Taming the cross-platform KMP monster from our Mainichi App production journey. How applying 22 classic Design Patterns and banishing 15+ Code Smells culminated in the architecture framework at github.com/vinh-gogo/skills-kmp."
+description: "Taming the cross-platform KMP monster from our AI Lingua production journey. How applying 22 classic Design Patterns and banishing 15+ Code Smells culminated in the architecture framework at github.com/vinh-gogo/skills-kmp."
+summary: "Taming the cross-platform KMP monster from our AI Lingua production journey. How applying 22 classic Design Patterns and banishing 15+ Code Smells culminated in the architecture framework at github.com/vinh-gogo/skills-kmp."
 ShowToc: true
 TocOpen: true
 ---
@@ -19,7 +19,7 @@ Yet, after two or three weeks of enthusiastic feature development, that idyllic 
 * A sprawling thicket of `expect / actual` declarations abused as quick-and-dirty duct tape, requiring engineers to patch five distinct platform targets every time a single function signature changes.
 * Flawless runtime performance on Android, paired with catastrophic concurrency locks and race conditions the moment the app compiles to Desktop!
 
-From the trenches of rebuilding the cross-platform Japanese language learning application **Mainichi App** (`mainichi-app-v2`), I arrived at a fundamental realization: **KMP is not the culprit; the fault lies in approaching a distributed cross-platform ecosystem with the mindset of building a single mobile app.**
+From the trenches of rebuilding the cross-platform language learning application **AI Lingua** (`ai-english`), I arrived at a fundamental realization: **KMP is not the culprit; the fault lies in approaching a distributed cross-platform ecosystem with the mindset of building a single mobile app.**
 
 To resolve this structurally, I synthesized our hard-won production lessons, fusing **22 classic Gang of Four (GoF) Design Patterns** with the **Refactoring Code Smells** catalog to create an open architectural blueprint: [`github.com/vinh-gogo/skills-kmp`](https://github.com/vinh-gogo/skills-kmp).
 
@@ -114,7 +114,7 @@ interface VocabularyRepository {
 
 // 2. INFRASTRUCTURE LAYER (:shared:infrastructure) — Concrete Adapter
 class SqlDelightVocabularyRepository(
-    private val database: MainichiDatabase,
+    private val database: AppDatabase,
     private val wordMapper: DatabaseWordMapper // Maps SQL tables to Domain Entities
 ) : VocabularyRepository {
     
@@ -265,7 +265,7 @@ Using `either { ... }` monadic comprehension from **Arrow Core**, functions in `
 
 ## 4. Practical Refactoring: Anatomy of a Code Surgery
 
-In the Mainichi App codebase, the vocabulary flashcard screen originally resided in a monolithic `FlashcardScreen.kt` file spanning **1,400 lines** (Smell: *God Class + Long Method*).
+In the AI Lingua codebase, the vocabulary flashcard screen originally resided in a monolithic `FlashcardScreen.kt` file spanning **1,400 lines** (Smell: *God Class + Long Method*).
 
 We executed a disciplined 3-step refactoring procedure:
 

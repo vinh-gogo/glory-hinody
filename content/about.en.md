@@ -61,9 +61,10 @@ AI & Software Engineer with a B.S. in Computer Science (IUH, 4.0/4.0 Graduation 
 - **Open Video Lab:** Optimizes Diffusion Transformers (LTX-2.5, MiniMax) with **int8/fp4 quantization**, reducing VRAM below **14GB** for 16GB GPUs with **RIFE** 48/96fps interpolation.
 - **Video Factory & Shinobi Studio:** A 6-stage 2D stick-figure animation pipeline with **SHA-256 Content-Addressed Caching** (surgical single-scene rebuilds) and a cross-platform **Node-Graph** video editor built with KMP.
 
-### 5. AI Lingua, Mainichi Kanji & Skills-KMP — Cross-Platform Language Learning Apps *(2026)*
-- **Repo:** [`Vinh-Gogo/ai-english`](https://github.com/Vinh-Gogo/ai-english) · [`vinh-gogo/skills-kmp`](https://github.com/vinh-gogo/skills-kmp) · **Articles:** [AI Lingua](/en/posts/on-device-ai-onnx-kotlin/) · [Mainichi Kanji](/en/posts/mainichi-kanji-local-first-kmp-harmony-architecture/) · [Skills-KMP](/en/posts/skills-kmp-architecture-design-patterns/)
-- Built Desktop & Android applications using **Kotlin Multiplatform + Compose Multiplatform** with **5-Tier Clean Architecture & MVI** (85% shared code), **3NF SQLDelight**, **FSRS**, offline handwriting recognition (`GeometricRecognizer` + `Trie`), and interactive **`TokenizedSentenceChips`**.
+### 5. AI Lingua & Skills-KMP — Cross-Platform Language Learning with Kotlin Multiplatform *(2026)*
+- **Repo:** [`Vinh-Gogo/ai-english`](https://github.com/Vinh-Gogo/ai-english) · [`vinh-gogo/skills-kmp`](https://github.com/vinh-gogo/skills-kmp) · **Demo:** [YouTube](https://youtu.be/R_IvnHsHmTw) · **Articles:** [AI Lingua Architecture](/en/posts/on-device-ai-onnx-kotlin/) · [Skills-KMP & Design Patterns](/en/posts/skills-kmp-architecture-design-patterns/)
+- Built for Desktop (Windows, macOS, Linux) & Android using **Kotlin Multiplatform + Compose Multiplatform** with **5-Tier Clean Architecture, Vertical Slicing & MVI** (85% shared code) and **3NF SQLDelight** local persistence.
+- Features interactive Viet–Eng translation across **200+ topics (CEFR A1–C2 / TOEIC 300–900)**, grammar evaluation via an **LLM Fallback Chain (Gemini + Novita AI)**, an offline **Handwriting Pad (`GeometricRecognizer` + `Dictionary Trie`, `<15ms`)**, and **FSRS** spaced repetition.
 
 ---
 

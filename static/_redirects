@@ -33,3 +33,5 @@
 /tags               /tags/      301
 /about              /about/     301
 /search             /search/    301
+/posts/mainichi-kanji-local-first-kmp-harmony-architecture/*     /posts/on-device-ai-onnx-kotlin/    301
+/en/posts/mainichi-kanji-local-first-kmp-harmony-architecture/*  /en/posts/on-device-ai-onnx-kotlin/ 301
