@@ -1,11 +1,11 @@
 # Progress — Glory Hinody
 
-> Last updated: 2026-09-30
+> Last updated: 2026-10-17
 
 ## ✅ What Works
 
 ### Core Site
-- [x] Hugo build: 125 pages (63 VI + 62 EN), 0 warnings, 0 errors
+- [x] Hugo build: 173 pages (87 VI + 86 EN), 0 warnings, 0 errors
 - [x] Cloudflare Pages deployment từ `main`
 - [x] PaperMod theme với local overrides
 - [x] Dark/light mode toggle
@@ -15,7 +15,16 @@
 - [x] Giscus comments & reactions (callout thông báo đưa lên phía trên bên trái bài viết + quick jump link)
 - [x] RSS feed (fixed deprecated LanguageCode)
 - [x] OpenGraph (fixed deprecated LanguageCode)
-- [x] Bài viết mới: `skills-kmp` kiến trúc KMP, 22 Design Patterns & Refactoring (VI + EN)
+- [x] Tổng cộng **16 bài viết kỹ thuật song ngữ (VI + EN)** bao phủ toàn bộ các dự án trong ổ `D:\`:
+  - `glory-vocab-hugo-fsrs-cloudflare-d1` (`GLORY-TIKTOK` / `gloryvocab.com`)
+  - `aidoodle-cli-deterministic-saga-epub-engine-go` (`ainovel-cli` / `aidoodle-cli`)
+  - `claw-cli-voice-terminal-agent-silero-vad-sandbox` (`claw-cli`)
+  - `doodle-explainer-modular-video-factory-pipeline` (`doodle_explainer`)
+  - `mainichi-kanji-local-first-kmp-harmony-architecture` (`mainichi-app-v2` & `mainichi-kanji-app`)
+  - `chatwoot-realtime-api-channel-websocket-fastapi` (`chatwoot_api_channel` & `chatwoot-ws`)
+  - `shinobi-ai-video-studio-node-graph-kmp` (`ai-video`)
+  - cùng 10 bài viết gốc (`skills-kmp`, `ai-video-generation-minimax-h3-ltx25`, `quantization-int8-fp4-inference`, `pdf-rag-enterprise-dual-collection`, `openvideolab-video-diffusion`, `on-device-ai-onnx-kotlin`, `multi-agent-workflow-langraph`, `graph-rag-neo4j-qdrant`, `depth-estimation-cnn-ssrc`, `bai-viet-dau-tien`)
+- [x] Cập nhật đồng bộ trang Hồ sơ năng lực (`content/about.md` & `content/about.en.md`)
 
 ### Security System
 - [x] HTTP security headers via `_headers` (CSP, HSTS, X-Frame-Options, Permissions-Policy)
@@ -31,32 +40,12 @@
 - [x] Hỗ trợ song ngữ 100% tất cả các bài viết và trang hệ thống
 - [x] Cập nhật `<link rel="alternate">` phục vụ SEO tối ưu
 
-## ⏳ Pending (Cần Merge)
-- [ ] Merge branch `dev` vào `main` để kích hoạt Cloudflare Pages build bài viết mới
-
-## 🚧 Known Issues / Limitations
-1. **`unsafe: true` goldmark** — bắt buộc cho KaTeX math formulas.
-2. **Cloudflare _headers chỉ apply trên production** — local `hugo server` không apply security headers.
-
-## 📋 Backlog (Optional Improvements)
-- [ ] Self-host KaTeX fonts (xoá dependency CDN hoàn toàn)
-- [ ] CSP `report-uri` endpoint qua Cloudflare Workers (violation telemetry)
-- [ ] Mozilla Observatory scan (target: 80+/100)
-
 ## 📊 Build Metrics
 ```
-Pages:            125 (63 VI + 62 EN)
-Static files:     34
-Aliases:          23 VI / 22 EN
-Build time:       ~770ms
+Pages:            173 (87 VI + 86 EN)
+Paginator pages:  6 (3 VI + 3 EN)
+Static files:     37 VI / 37 EN
+Aliases:          31 VI / 30 EN
 Warnings:         0
 Errors:           0
 ```
-
-## 🔀 PR History
-| PR | Status | Content |
-|---|---|---|
-| #4 | MERGED | Security layer 1+2: _headers, _redirects, security-guard v1, SRI, Mermaid XSS fix, robots, security.txt |
-| #5 | MERGED | Fix Google Translate CSP conflict + translate banner suppress |
-| #6 | MERGED | security-guard v3: per-page counter, fix false alarm |
-| #7 | OPEN | Language switcher rewrite: cookie+reload, fix infinite reload bug |

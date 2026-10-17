@@ -1,21 +1,14 @@
 # Active Context — Glory Hinody
 
-> Last updated: 2026-09-30
+> Last updated: 2026-10-17
 
 ## Current State
-- **Đã hoàn thành xuất bản bài viết kỹ thuật song ngữ về `skills-kmp`**:
-  - Bài viết: *"Skills KMP: Đưa Design Patterns Và Nghệ Thuật Refactoring Vào Chiến Trường Kotlin Multiplatform"* ([VI](file:///D:/glory-hinody/content/posts/skills-kmp-architecture-design-patterns.md) & [EN](file:///D:/glory-hinody/content/posts/skills-kmp-architecture-design-patterns.en.md)).
-  - Tích hợp 22 Design Patterns và cẩm nang Refactoring Code Smells từ `D:\mainichi-app-v2\docs` vào repository `https://github.com/vinh-gogo/skills-kmp`.
-  - Giọng văn kỹ thuật dí dỏm, thực chiến, không lý thuyết suông, đầy đủ Mermaid diagrams và code mẫu Kotlin.
-  - Build: **63 trang VI + 62 trang EN (Tổng 125 pages), 0 warnings, 0 errors** ✅
-
-1. **Nâng cấp toàn diện tương tác cho các tag REACTION, COMMENTS, SHARES:**
-   - **REACTION (Like):** Chuyển đổi thành nút tương tác thời gian thực, lưu trạng thái thích vào `localStorage` (`glory_user_likes_v1`), kích hoạt hiệu ứng tim đập neon (`heartPop`) và cập nhật số lượng tức thì không cần đăng nhập.
-   - **COMMENTS:** Nhấn để cuộn mượt mà trực tiếp xuống `#comments` và kích hoạt hiệu ứng chớp sáng viền (`highlight-flash`) định vị rõ ràng khung bình luận; trên trang danh sách sẽ dẫn thẳng đến bài viết với anchor `#comments`.
-   - **SHARES:** Nhấn để kích hoạt Popup/Modal chia sẻ chuyên nghiệp (`#share-modal`): hỗ trợ Facebook, X (Twitter), LinkedIn, Telegram, Sao chép link 1-click có phản hồi toast và Web Share API trên thiết bị di động. Tự động cộng dồn lượt chia sẻ vào bộ đếm thống kê.
-   - Đồng bộ hóa các tag trên cả trang danh sách (`layouts/list.html`) lẫn đầu bài viết (`layouts/partials/post_meta.html`).
-2. **Điều hướng UX: Di chuyển Discussion & Reaction Callout lên phía trên bên trái:**
-   - Tạo `layouts/_default/single.html` ghi đè template single của PaperMod.
-   - Di chuyển khối thông báo `// DISCUSSIONS & REACTION [GITHUB-POWERED]` lên phía trên bên trái của bài viết.
-3. **Bài viết kỹ thuật mới `skills-kmp`:**
-   - Hoàn thành bài viết song ngữ KMP Design Patterns & Refactoring (125 pages).
+- **Đã hoàn thành cập nhật 6 dự án mới (12 tệp bài viết kỹ thuật song ngữ VI + EN) lên hệ thống blog `glory-hinody`**, nâng tổng số bài viết từ 10 lên **16 bài viết chuyên sâu** (kèm cập nhật trang Hồ sơ năng lực [`content/about.md`](file:///D:/glory-hinody/content/about.md) & [`content/about.en.md`](file:///D:/glory-hinody/content/about.en.md)):
+  1. **Glory Vocab (`GLORY-TIKTOK` — `gloryvocab.com`)**: *"Glory Vocab: Kiến Trúc Từ Điển TOEIC 8.400 Trang Tĩnh Với Hugo, FSRS Offline-First Và Đồng Bộ Cloudflare D1"* ([VI](file:///D:/glory-hinody/content/posts/glory-vocab-hugo-fsrs-cloudflare-d1.md) & [EN](file:///D:/glory-hinody/content/posts/glory-vocab-hugo-fsrs-cloudflare-d1.en.md)).
+  2. **AI-Doodle CLI (`ainovel-cli` / `aidoodle-cli`)**: *"AI-Doodle CLI: Xây Dựng Động Cơ Sáng Tác Đa Chế Độ Bằng Go, Máy Trạng Thái Saga Và Xuất Bản W3C EPUB 3.3"* ([VI](file:///D:/glory-hinody/content/posts/aidoodle-cli-deterministic-saga-epub-engine-go.md) & [EN](file:///D:/glory-hinody/content/posts/aidoodle-cli-deterministic-saga-epub-engine-go.en.md)).
+  3. **Claw-CLI (`claw-cli`)**: *"Claw-CLI: Trợ Lý Terminal Điều Khiển Bằng Giọng Nói Tiếng Việt Với Silero VAD v5 ONNX Và Sandbox An Toàn 4 Tầng"* ([VI](file:///D:/glory-hinody/content/posts/claw-cli-voice-terminal-agent-silero-vad-sandbox.md) & [EN](file:///D:/glory-hinody/content/posts/claw-cli-voice-terminal-agent-silero-vad-sandbox.en.md)).
+  4. **Video Factory (`doodle_explainer`)**: *"Video Factory (Doodle Explainer): Kiến Trúc Nhà Máy Sản Xuất Video Hoạt Hình 6 Công Đoạn Với Content-Addressed Cache"* ([VI](file:///D:/glory-hinody/content/posts/doodle-explainer-modular-video-factory-pipeline.md) & [EN](file:///D:/glory-hinody/content/posts/doodle-explainer-modular-video-factory-pipeline.en.md)).
+  5. **Mainichi Kanji (`mainichi-app-v2` & `mainichi-kanji-app`)**: *"Mainichi Kanji: Kiến Trúc Ứng Dụng Học Tiếng Nhật Local-First Đa Nền Tảng Với KMP, Harmony Design Và AI Cardset"* ([VI](file:///D:/glory-hinody/content/posts/mainichi-kanji-local-first-kmp-harmony-architecture.md) & [EN](file:///D:/glory-hinody/content/posts/mainichi-kanji-local-first-kmp-harmony-architecture.en.md)).
+  6. **Chatwoot Real-Time Bridge (`chatwoot_api_channel` & `chatwoot-ws`)**: *"Tích Hợp Chatwoot Real-Time: Kiến Trúc Máy Trạng Thái ActionCable WebSocket, Circuit Breaker Và FastAPI"* ([VI](file:///D:/glory-hinody/content/posts/chatwoot-realtime-api-channel-websocket-fastapi.md) & [EN](file:///D:/glory-hinody/content/posts/chatwoot-realtime-api-channel-websocket-fastapi.en.md)).
+  7. **Shinobi AI Video Studio (`ai-video`)**: *"Shinobi AI Video Studio: Xây Dựng Trình Dựng Phim Đồ Thị Nút (Node-Graph) Đa Nền Tảng Với Kotlin Multiplatform"* ([VI](file:///D:/glory-hinody/content/posts/shinobi-ai-video-studio-node-graph-kmp.md) & [EN](file:///D:/glory-hinody/content/posts/shinobi-ai-video-studio-node-graph-kmp.en.md)).
+- **Build Health:** `hugo --gc --minify` đạt **87 trang VI + 86 trang EN (Tổng 173 pages), 0 warnings, 0 errors** ✅
