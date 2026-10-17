@@ -1,5 +1,6 @@
 ---
-date: '2026-09-29T18:39:42+07:00'
+date: '2026-07-05T10:00:00+07:00'
+lastmod: '2026-09-29T18:39:42+07:00'
 draft: false
 title: 'Complete Guide: Building an Engineering Blog with Hugo, PaperMod & Cloudflare Pages'
 description: 'Step-by-step guide to building a zero-cost personal engineering blog using Hugo, PaperMod theme, Cloudflare Pages, and Giscus comments. Estimated setup time: 2–3 hours.'
@@ -9,7 +10,7 @@ ShowToc: true
 TocOpen: true
 ---
 
-> Estimated setup time: **2–3 hours** | Updated: 2026-09
+> Estimated setup time: **2–3 hours** | First published: 2026-07 · Updated: 2026-09
 
 This guide synthesizes the entire workflow for setting up a $0 static engineering blog with automated CI/CD builds on Cloudflare Pages and secure discussions powered by GitHub Discussions.
 

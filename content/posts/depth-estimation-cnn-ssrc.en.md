@@ -60,38 +60,47 @@ The investigation targets the **LineMOD Dataset**, tracking 13 household and ind
 ![Data preprocessing and depth distribution](/posts/depth-estimation-cnn-ssrc/images/image68.png)
 *Figure 2: Depth normalization pipeline: Mapping 16-bit raw millimeter depth streams into bounded floating-point distributions.*
 
-### Mathematical Evaluation Metrics:
-To evaluate dense metric depth accuracy across the field of view, standard academic benchmarks were enforced:
+### Mathematical Loss Function & Evaluation Metrics:
+Rather than relying solely on standard $\mathcal{L}_2$ regression (which blurs object boundaries), the thesis formulates a **Multi-Component Composite Loss**:
 
-$$\text{RMSE} = \sqrt{\frac{1}{|T|} \sum_{y \in T} (y - \hat{y})^2}$$
+$$\mathcal{L}_{\text{total}}(y, \hat{y}) = w_1 \cdot \underbrace{(1 - \text{SSIM}(y, \hat{y}))}_{\mathcal{L}_{\text{SSIM}}} + w_2 \cdot \underbrace{\frac{1}{N}\sum_{i} \left(|\nabla_x y_i - \nabla_x \hat{y}_i| + |\nabla_y y_i - \nabla_y \hat{y}_i|\right)}_{\mathcal{L}_{\text{grad}}} + w_3 \cdot \underbrace{\frac{1}{N}\sum_{i} |y_i - \hat{y}_i|}_{\mathcal{L}_1}$$
 
-$$\text{Threshold Accuracy } (\delta < 1.25) = \frac{1}{|T|} \sum_{y \in T} \left[ \max\left(\frac{y}{\hat{y}}, \frac{\hat{y}}{y}\right) < 1.25 \right]$$
+To evaluate both pixel-level accuracy and global distributional geometry across **1,200 hold-out test images** ($192 \times 256$ resolution), we measure **RMSE**, **MAE**, **1–SSIM**, **Cosine Similarity**, **Wasserstein (Earth Mover's) Distance**, and **Hausdorff Distance**.
 
 ---
 
-## 4. Architectural Evolution & Empirical Findings
+## 4. Architectural Evolution & Empirical Findings (LineMOD 1,200 Test Set)
 
 ```mermaid
 flowchart TD
-    RGB["RGB Input (256x256x3)"] --> ENC["ENCODER: Hybrid ResNet50 + DenseNet Blocks"]
-    ENC --> BOT["Bottleneck: Global Context Aggregation"]
-    BOT --> DEC["DECODER: Transposed Convolutions + Skip Connections"]
-    ENC -.->|"Fine-grained feature fusion"| DEC
-    DEC --> OUT["Predicted Depth Map (256x256x1)"]
+    RGB["RGB Input (192x256x3)"] --> ENC["ENCODER: Hybrid ResNet Residual + DenseNet Blocks (105 Layers)"]
+    ENC --> BOT["Bottleneck: Multi-Scale Feature Reuse (7.51M Params)"]
+    BOT --> DEC["DECODER: UpSampling2D + Multi-Scale Skip Connections"]
+    ENC -.->|"Concatenate High-Res Edge Features"| DEC
+    DEC --> OUT["Predicted Depth Map (192x256x1)"]
     OUT --> PC["3D Point Cloud Back-Projection (Intrinsics K)"]
 ```
 
-### 4.1. Baseline Autoencoder Failure
-Initial experiments with symmetrical convolutional autoencoders demonstrated severe edge blurring. Information bottlenecks in the latent layer destroyed high-frequency geometric gradients, yielding high RMSE errors (>0.28m).
+### 4.1 Comparative Architecture Specifications
+By integrating **Dense Block** feature concatenation alongside **ResNet** residual shortcuts within a U-Net topology, our **Enhanced U-Net (`paper4_dense_unet.py`)** increases network depth to **105 layers** while actually **reducing parameter count by 3.7%** compared to standard U-Net ResNet:
 
-### 4.2. Breakthrough with Dense-ResNet U-Net
-By introducing skip connections (U-Net topology) and incorporating dense residual feature reuse from **DenseNet-121** and **ResNet-50**, gradients propagated cleanly to low-level spatial layers:
+| Model Architecture | Depth (Layers) | Total Parameters | Trainable Params | Peak GPU Memory | Training Time (40 Epochs) |
+|---|---|---|---|---|---|
+| **1. CAE ResNet** (`paper1_cae.py`) | 64 layers | `7,090,625` (~7.09M) | `7,082,561` | 5,902 MB | 18.88 mins |
+| **2. U-Net ResNet** (`paper3_unet.py`) | 68 layers | `7,800,769` (~7.80M) | `7,792,705` | 5,902 MB | 24.49 mins |
+| **3. Enhanced U-Net (ResNet + DenseNet)** | **105 layers** | **`7,510,593` (~7.51M)** | **`7,498,945`** | 5,902 MB | 26.86 mins |
 
-| Architecture | RMSE (meters) | AbsRel | $\delta < 1.25$ | Inference FPS |
-|---|---|---|---|---|
-| **Simple Autoencoder** | 0.284 | 0.218 | 64.2% | **62 fps** |
-| **ResNet-50 U-Net** | 0.142 | 0.098 | 88.4% | 45 fps |
-| **Hybrid Dense-ResNet U-Net (Ours)** | **0.089** | **0.061** | **96.8%** | 38 fps |
+*(Extended in [`github.com/vinh-gogo/depth-estimation`](https://github.com/vinh-gogo/depth-estimation) with a lightweight 3M-parameter variant and a 13M-parameter **Squeeze-and-Excitation (SE) Attention** variant).*
+
+### 4.2 Quantitative Evaluation on 1,200 Hold-out Test Images (LineMOD)
+
+| Architecture | MAE $\downarrow$ | MSE $\downarrow$ | RMSE $\downarrow$ | 1 – SSIM $\downarrow$ | Cosine Sim $\uparrow$ | Pixel Accuracy $\uparrow$ | Wasserstein Dist $\downarrow$ | Hausdorff Dist $\downarrow$ |
+|---|---|---|---|---|---|---|---|---|
+| **1. CAE ResNet** | `0.0209` | `0.0020` | `0.0410` | `0.130` | `0.968` | `0.816` | `14.200` | `11.16` |
+| **2. U-Net ResNet** | `0.0176` | `0.0017` | `0.0381` | `0.111` | `0.973` | `0.818` | `9.805` | `10.67` |
+| **3. Enhanced U-Net (Ours)** | **`0.0175`** | **`0.0016`** | **`0.0370`** | **`0.110`** | **`0.974`** | **`0.819`** | **`9.603`** *(-32.4%)* | **`10.65`** |
+
+On the strict maximum pixel-wise depth deviation threshold ($< 0.1$ across the entire frame), **Enhanced U-Net achieved `92.5%` (`1,123 / 1,214` test images)**, compared to `89.3%` for U-Net ResNet and `71.7%` for CAE ResNet.
 
 ---
 
@@ -101,7 +110,7 @@ Using calibrated intrinsic camera matrices $K$, dense depth predictions are back
 
 $$X = \frac{(u - c_x) \cdot Z}{f_x}, \quad Y = \frac{(v - c_y) \cdot Z}{f_y}$$
 
-The reconstructed point clouds demonstrate sharp boundary preservation around fine geometries, enabling real-time 3D perception from solitary webcams.
+The reconstructed point clouds demonstrate sharp boundary preservation around fine geometries, enabling real-time 3D perception from solitary RGB cameras.
 
 ---
 

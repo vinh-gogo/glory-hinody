@@ -1,5 +1,6 @@
 ---
-date: '2026-09-29T18:39:42+07:00'
+date: '2026-07-05T10:00:00+07:00'
+lastmod: '2026-09-29T18:39:42+07:00'
 draft: false
 title: 'Hướng Dẫn Xây Dựng Blog Với Hugo + PaperMod + Cloudflare Pages'
 description: 'Hướng dẫn chi tiết từng bước xây dựng blog cá nhân miễn phí với Hugo, theme PaperMod, Cloudflare Pages và bình luận Giscus. Thời gian ước tính 2–3 giờ.'
@@ -9,7 +10,7 @@ ShowToc: true
 TocOpen: true
 ---
 
-> Thời gian ước tính lần đầu: **2–3 giờ** | Cập nhật: 2026-09
+> Thời gian ước tính lần đầu: **2–3 giờ** | Đăng lần đầu: 2026-07 · Cập nhật: 2026-09
 
 Bài viết này đúc kết toàn bộ quy trình thiết lập blog tĩnh với chi phí $0, tự động hóa build qua Cloudflare Pages và nhúng bình luận bảo mật qua GitHub Discussions.
 
