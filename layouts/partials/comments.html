@@ -1,9 +1,10 @@
+{{- $isEn := eq .Lang "en" }}
 <div class="comments-content">
   <p class="comments-instructions">
-    {{- if eq .Language.Lang "en" -}}
-    Comments and reactions are synced directly with GitHub Discussions. Sign in with GitHub to participate.
+    {{- if $isEn -}}
+      Comments and reactions are synchronized directly with GitHub Discussions. Sign in with GitHub to join the technical discussion.
     {{- else -}}
-    Bình luận và phản hồi được đồng bộ trực tiếp với GitHub Discussions. Đăng nhập bằng tài khoản GitHub để bình luận hoặc thảo luận bài viết.
+      Bình luận và biểu cảm được đồng bộ trực tiếp với GitHub Discussions. Đăng nhập bằng tài khoản GitHub để tham gia trao đổi chuyên môn.
     {{- end -}}
   </p>
 
@@ -17,8 +18,8 @@
     data-reactions-enabled="1"
     data-emit-metadata="1"
     data-input-position="top"
-    data-theme="preferred_color_scheme"
-    data-lang="{{ if eq .Language.Lang "en" }}en{{ else }}vi{{ end }}"
+    data-theme="transparent_dark"
+    data-lang="{{ if $isEn }}en{{ else }}vi{{ end }}"
     crossorigin="anonymous"
     async>
   </script>

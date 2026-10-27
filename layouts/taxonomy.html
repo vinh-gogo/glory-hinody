@@ -1,0 +1,59 @@
+{{- define "main" }}
+{{- $isEn := eq .Lang "en" }}
+{{- $terms := .Data.Terms.ByCount }}
+{{- $totalTopics := len $terms }}
+{{- $totalPosts := len (where site.RegularPages "Type" "in" site.Params.mainSections) }}
+
+<div class="nm-page-shell tags-cosmic">
+  <header class="archive-hero reveal-on-scroll">
+    <div class="archive-eyebrow-row">
+      <span class="nm-label">BẢN ĐỒ CHỦ ĐỀ · TOPIC CONSTELLATION</span>
+    </div>
+
+    <div class="archive-title-row">
+      <h1 class="archive-title">
+        {{- if and (eq .Title "Tags") (not $isEn) -}}
+          Chủ đề Nghiên cứu
+        {{- else if and (eq .Title "Tags") $isEn -}}
+          Topic Constellation
+        {{- else -}}
+          {{- .Title -}}
+        {{- end -}}
+      </h1>
+      <span class="nm-badge-purple archive-count-badge">
+        {{ $totalTopics }} {{ if $isEn }}{{ if eq $totalTopics 1 }}topic{{ else }}topics{{ end }}{{ else }}chủ đề{{ end }}
+      </span>
+    </div>
+
+    <p class="archive-subtitle">
+      {{- if .Description -}}
+        {{ .Description }}
+      {{- else if $isEn -}}
+        Mapping {{ $totalTopics }} interconnected technical domains across {{ $totalPosts }} engineering monographs — from deterministic AI agents and Hybrid GraphRAG to on-device neural quantization.
+      {{- else -}}
+        Bản đồ {{ $totalTopics }} chòm sao chủ đề kết nối {{ $totalPosts }} chuyên khảo kỹ thuật — từ AI Agent tất định, Hybrid GraphRAG đến lượng tử hóa mạng nơ-ron trên thiết bị biên.
+      {{- end -}}
+    </p>
+  </header>
+
+  <div class="tags-constellation-grid">
+    {{- range $index, $term := $terms }}
+    <a href="{{ $term.Page.RelPermalink }}" class="glass-card tag-constellation-card reveal-on-scroll">
+      <div class="tag-constellation-top">
+        <span class="nm-label tag-constellation-index">{{ printf "%02d" (add $index 1) }}</span>
+        <span class="tag-constellation-arrow" aria-hidden="true">↗</span>
+      </div>
+
+      <h2 class="tag-constellation-title notranslate" translate="no">{{ $term.Page.Title }}</h2>
+
+      <div class="tag-constellation-footer">
+        <span class="{{ if modBool $index 2 }}nm-badge-gold{{ else }}nm-badge-purple{{ end }} tag-constellation-count">
+          {{ $term.Count }} {{ if $isEn }}{{ if eq $term.Count 1 }}article{{ else }}articles{{ end }}{{ else }}bài viết{{ end }}
+        </span>
+      </div>
+    </a>
+    {{- end }}
+  </div>
+</div>
+
+{{- end }}

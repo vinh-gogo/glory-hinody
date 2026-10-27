@@ -1,17 +1,20 @@
+{{- $isEn := eq .Lang "en" }}
 {{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
 {{- if and (gt (len $pages) 1) (in $pages . ) }}
-<nav class="post-nav-container" aria-label="{{ if eq .Lang "en" }}Post navigation{{ else }}Điều hướng bài viết{{ end }}">
+<nav class="post-nav-container post-nav-cosmic reveal-on-scroll" aria-label="{{ if $isEn }}Monograph navigation{{ else }}Điều hướng bài viết{{ end }}">
   {{- with $pages.Next . }}
-  <a class="post-nav-card prev" href="{{ .Permalink }}" rel="prev">
-    <span class="post-nav-label">← {{ i18n "prev_post" | default "Bài trước" }}</span>
+  <a class="glass-card post-nav-card prev" href="{{ .Permalink }}" rel="prev">
+    <span class="nm-label post-nav-label">← {{ if $isEn }}PREVIOUS MONOGRAPH{{ else }}BÀI VIẾT MỚI HƠN{{ end }}</span>
     <span class="post-nav-title">{{ .Title }}</span>
+    <span class="post-nav-date">{{ if $isEn }}{{ .Date.Format "Jan 02, 2006" }}{{ else }}{{ .Date.Format "02/01/2006" }}{{ end }}</span>
   </a>
   {{- end }}
 
   {{- with $pages.Prev . }}
-  <a class="post-nav-card next" href="{{ .Permalink }}" rel="next">
-    <span class="post-nav-label">{{ i18n "next_post" | default "Bài sau" }} →</span>
+  <a class="glass-card post-nav-card next" href="{{ .Permalink }}" rel="next">
+    <span class="nm-label post-nav-label">{{ if $isEn }}NEXT MONOGRAPH{{ else }}BÀI VIẾT TRƯỚC ĐÓ{{ end }} →</span>
     <span class="post-nav-title">{{ .Title }}</span>
+    <span class="post-nav-date">{{ if $isEn }}{{ .Date.Format "Jan 02, 2006" }}{{ else }}{{ .Date.Format "02/01/2006" }}{{ end }}</span>
   </a>
   {{- end }}
 </nav>

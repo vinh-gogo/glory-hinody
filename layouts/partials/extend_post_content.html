@@ -1,24 +1,32 @@
-<div class="post-author-card">
-  <div class="author-avatar" aria-hidden="true">
-    <span>VH</span>
+{{- $isEn := eq .Lang "en" }}
+<div class="glass-card post-author-card reveal-on-scroll">
+  <div class="author-avatar author-cosmic-emblem" aria-hidden="true">
+    <span class="author-monogram">LQV</span>
   </div>
+
   <div class="author-details">
     <div class="author-header">
-      <span class="author-name notranslate" translate="no">Lê Quang Vinh</span>
-      <span class="author-role">AI Engineer &amp; Researcher</span>
+      <span class="nm-label author-eyebrow">
+        {{- if $isEn }}AUTHOR · AI ENGINEER &amp; RESEARCHER{{ else }}TÁC GIẢ · KỸ SƯ &amp; NGHIÊN CỨU AI{{ end -}}
+      </span>
+      <h3 class="author-name notranslate" translate="no">Lê Quang Vinh</h3>
     </div>
+
     <p class="author-bio">
-      {{- if eq .Language.Lang "en" -}}
-      AI Engineer based in Ho Chi Minh City. Graduated in Computer Science (IUH, 4.0/4.0), published depth estimation research at SSRC. Focused on low-resource inference optimization (quantization int8/fp4), Multi-Agent workflows, and On-Device Neural Networks.
+      {{- if $isEn -}}
+        AI Engineer based in Ho Chi Minh City. First-rank Computer Science graduate (IUH, GPA 4.0/4.0) with published depth estimation research at SSRC. Crafting deterministic Multi-Agent workflows, Hybrid GraphRAG architectures, multimodal diffusion pipelines, and low-resource neural quantization (int8/fp4).
       {{- else -}}
-      Kỹ sư AI tại TP. Hồ Chí Minh. Tốt nghiệp Thủ khoa ngành Khoa học Máy tính (IUH, 4.0/4.0), công bố nghiên cứu Depth Estimation tại hội nghị SSRC. Tập trung tối ưu hóa suy luận mô hình trên tài nguyên giới hạn (quantization int8/fp4), Multi-Agent RAG và On-Device Neural Networks.
+        Kỹ sư AI tại TP. Hồ Chí Minh. Tốt nghiệp Thủ khoa ngành Khoa học Máy tính (IUH, GPA 4.0/4.0), công bố nghiên cứu ước lượng chiều sâu tại hội nghị SSRC. Tập trung kiến tạo hệ thống Multi-Agent tất định, Hybrid GraphRAG, mô hình khuếch tán đa phương thức và lượng tử hóa suy luận trên tài nguyên giới hạn (int8/fp4).
       {{- end -}}
     </p>
+
     <div class="author-links">
-      <a href="https://github.com/vinh-gogo" target="_blank" rel="noopener noreferrer" class="author-link">GitHub ↗</a>
-      <a href="https://linkedin.com/in/quangvinh2302" target="_blank" rel="noopener noreferrer" class="author-link">LinkedIn ↗</a>
-      <a href="mailto:lea26462@gmail.com" class="author-link">Email ↗</a>
-      <a href="{{ "/about/" | relLangURL }}" class="author-link author-link-profile">{{ if eq .Language.Lang "en" }}About author →{{ else }}Hồ sơ tác giả →{{ end }}</a>
+      <a href="https://github.com/vinh-gogo" target="_blank" rel="noopener noreferrer" class="nm-chip author-link">GitHub ↗</a>
+      <a href="https://linkedin.com/in/quangvinh2302" target="_blank" rel="noopener noreferrer" class="nm-chip author-link">LinkedIn ↗</a>
+      <a href="mailto:lea26462@gmail.com" class="nm-chip author-link">Email ↗</a>
+      <a href="{{ "/about/" | relLangURL }}" class="nm-chip author-link author-link-profile">
+        {{ if $isEn }}About Author →{{ else }}Hồ sơ Tác giả →{{ end }}
+      </a>
     </div>
   </div>
 </div>

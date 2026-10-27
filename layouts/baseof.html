@@ -1,33 +1,66 @@
 {{- if lt hugo.Version "0.146.0" }}
 {{- errorf "=> hugo v0.146.0 or greater is required for hugo-PaperMod to build " }}
 {{- end -}}
-
 <!DOCTYPE html>
-{{- $theme := site.Params.defaultTheme | default "auto" }}
-{{- if eq $theme "dark" }}
-<html lang="{{ site.Language }}" dir="{{ .Language.Direction | default "auto" }}" data-theme="dark">
-{{- else if eq $theme "light" }}
-<html lang="{{ site.Language }}" dir="{{ .Language.Direction | default "auto" }}" data-theme="light">
-{{- else }}
-<html lang="{{ site.Language }}" dir="{{ .Language.Direction | default "auto" }}" data-theme="auto">
-{{- end }}
+<html lang="{{ site.Language.Lang }}" dir="{{ .Language.Direction | default "ltr" }}" data-theme="dark">
 
 <head>
-    {{- partial "head.html" . }}
+  {{- partial "head.html" . }}
 </head>
 
-{{- if (or (ne .Kind `page` ) (eq .Layout `archives`) (eq .Layout `search`)) }}
-<body class="list" id="top">
-{{- else }}
-<body class="single" id="top">
-{{- end }}
-    <a href="#content" class="skip-link">{{ if eq .Lang "en" }}Skip to content{{ else }}Bỏ qua tới nội dung{{ end }}</a>
-    {{ partial "header.html" . -}}
-    <main class="main" id="content">
+<body class="{{ if .IsHome }}is-home{{ else }}is-inner list{{ end }}{{ if and (eq .Kind "page") (not .IsHome) (ne .Layout "search") (ne .Layout "archives") }} single{{ end }}" id="top">
+  <a href="#content" class="skip-link">{{ if eq .Lang "en" }}Skip to content{{ else }}Bỏ qua tới nội dung{{ end }}</a>
+
+  <div class="cosmic-root">
+    {{- if .IsHome }}
+    <div id="bh-canvas" class="bh-canvas" aria-hidden="true"></div>
+    {{- end }}
+    <canvas id="starCanvas" class="star-canvas" aria-hidden="true"></canvas>
+
+    {{- if .IsHome }}
+    <div id="stargazing-caption" class="stargazing-caption">
+      <button type="button" class="stargazing-caption-glass" data-stargaze-enter aria-label="{{ if eq .Lang "en" }}Enter Lê Quang Vinh's engineering portfolio{{ else }}Bước vào không gian nội dung của Lê Quang Vinh{{ end }}">
+        <p class="stargazing-text" data-initial-text="{{ if eq .Lang "en" }}Lê Quang Vinh · Scroll down to enter the engineering cosmos{{ else }}Lê Quang Vinh · Cuộn xuống để bước vào vũ trụ kỹ thuật{{ end }}" data-dive-text="{{ if eq .Lang "en" }}Scroll once more to reveal portfolio{{ else }}Tiếp tục cuộn để mở không gian nội dung{{ end }}">{{ if eq .Lang "en" }}Lê Quang Vinh · Scroll down to enter the engineering cosmos{{ else }}Lê Quang Vinh · Cuộn xuống để bước vào vũ trụ kỹ thuật{{ end }}</p>
+        <div class="stargazing-chevron scroll-bounce" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6"></path>
+          </svg>
+        </div>
+      </button>
+    </div>
+    {{- end }}
+
+    <div id="cursor-glow" class="cursor-glow" aria-hidden="true"></div>
+
+    {{- partial "header.html" . -}}
+
+    <div id="scroll-container" class="scroll-container {{ if .IsHome }}home-fullpage{{ else }}inner-scroll{{ end }}">
+      <main class="main" id="content">
         {{- block "main" . }}{{ end }}
-    </main>
-    {{ partial "footer.html" . -}}
-    {{ partial "tabbar.html" . -}}
+      </main>
+      {{- if not .IsHome }}
+        {{- partial "footer.html" . -}}
+      {{- end }}
+    </div>
+
+    {{- if .IsHome }}
+    <nav id="snap-dots" class="snap-dots" aria-label="{{ if eq .Lang "en" }}Section navigation{{ else }}Điều hướng phân đoạn{{ end }}">
+      <button type="button" class="snap-dot is-active" data-snap-target="0" aria-label="{{ if eq .Lang "en" }}Hero{{ else }}Mở đầu{{ end }}"></button>
+      <button type="button" class="snap-dot" data-snap-target="1" aria-label="{{ if eq .Lang "en" }}What Drives Me{{ else }}Động lực cốt lõi{{ end }}"></button>
+      <button type="button" class="snap-dot" data-snap-target="2" aria-label="{{ if eq .Lang "en" }}Selected Writings{{ else }}Nghiên cứu &amp; Ghi chép{{ end }}"></button>
+      <button type="button" class="snap-dot" data-snap-target="3" aria-label="{{ if eq .Lang "en" }}Engineering Philosophy{{ else }}Triết lý kỹ thuật{{ end }}"></button>
+      <button type="button" class="snap-dot" data-snap-target="4" aria-label="{{ if eq .Lang "en" }}Connect{{ else }}Kết nối{{ end }}"></button>
+    </nav>
+    {{- end }}
+
+    <div id="page-transition-overlay" class="page-transition-overlay" aria-hidden="true"></div>
+  </div>
+
+  {{- if not .IsHome }}
+    {{- partial "tabbar.html" . -}}
+  {{- else }}
+    {{- partial "extend_footer.html" . -}}
+  {{- end }}
 </body>
 
 </html>

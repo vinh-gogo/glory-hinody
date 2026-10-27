@@ -1,111 +1,146 @@
-<header class="header">
-    <nav class="header-nav">
-        <div class="header-brand-wrap">
-            <div class="logo">
-                {{- $label_text := (site.Params.label.text | default site.Title) }}
-                {{- if site.Title }}
-                <a href="{{ "" | absLangURL }}" accesskey="h" title="{{ $label_text }} (Alt + H)">
-                    {{- if site.Params.label.icon }}
-                    {{- $img := resources.Get site.Params.label.icon }}
-                    {{- if $img }}
-                        {{- $processableFormats := (slice "jpg" "jpeg" "png" "tif" "bmp" "gif") -}}
-                        {{- if hugo.IsExtended -}}
-                            {{- $processableFormats = $processableFormats | append "webp" -}}
-                        {{- end -}}
-                        {{- $prod := (hugo.IsProduction | or (eq site.Params.env "production")) }}
-                        {{- if and (in $processableFormats $img.MediaType.SubType) (eq $prod true)}}
-                            {{- if site.Params.label.iconHeight }}
-                                {{- $img = $img.Resize (printf "x%d" site.Params.label.iconHeight) }}
-                            {{ else }}
-                                {{- $img = $img.Resize "x30" }}
-                            {{- end }}
-                        {{- end }}
-                        <img src="{{ $img.Permalink }}" alt="" aria-label="logo"
-                            height="{{- site.Params.label.iconHeight | default "30" -}}">
-                    {{- else }}
-                    <img src="{{- site.Params.label.icon | absURL -}}" alt="" aria-label="logo"
-                        height="{{- site.Params.label.iconHeight | default "30" -}}">
-                    {{- end -}}
-                    {{- else if hasPrefix site.Params.label.iconSVG "<svg" }}
-                        {{ site.Params.label.iconSVG | safeHTML }}
-                    {{- end -}}
-                    {{- $label_text -}}
-                </a>
-                {{- end }}
-            </div>
+{{- $currentLang := .Lang -}}
+{{- $viURL := "/" -}}
+{{- $enURL := "/en/" -}}
+{{- range .Translations -}}
+  {{- if eq .Lang "vi" -}}{{- $viURL = .RelPermalink -}}{{- end -}}
+  {{- if eq .Lang "en" -}}{{- $enURL = .RelPermalink -}}{{- end -}}
+{{- end -}}
+{{- $isHome := .IsHome -}}
+{{- $isPosts := and (not $isHome) (or (eq .Section "posts") (eq .Type "posts")) -}}
+{{- $isTags := and (not $isHome) (or (eq .Data.Plural "tags") (eq .Section "tags") (eq .Type "tags")) -}}
+{{- $isSearch := eq .Layout "search" -}}
+{{- $isAbout := eq .Layout "about" -}}
 
-            <div class="header-controls-group" role="region" aria-label="Theme and Language Controls">
-                {{- if (not site.Params.disableThemeToggle) }}
-                <button id="theme-toggle" class="theme-toggle-btn" accesskey="t" title="{{ if eq .Lang "en" }}Switch Theme (Alt + T){{ else }}Chuyển chế độ sáng / tối (Alt + T){{ end }}" aria-label="Chuyển chế độ sáng / tối">
-                    <span class="theme-icon-box">
-                        <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" aria-hidden="true">
-                            <path d="M12 3a6 6 0 0 0 9 9 9 0 1 1-9-9Z"></path>
-                        </svg>
-                        <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" aria-hidden="true">
-                            <circle cx="12" cy="12" r="4"></circle>
-                            <line x1="12" y1="2" x2="12" y2="4"></line>
-                            <line x1="12" y1="20" x2="12" y2="22"></line>
-                            <line x1="4.93" y1="4.93" x2="6.34" y2="6.34"></line>
-                            <line x1="17.66" y1="17.66" x2="19.07" y2="19.07"></line>
-                            <line x1="2" y1="12" x2="4" y2="12"></line>
-                            <line x1="20" y1="12" x2="22" y2="12"></line>
-                            <line x1="4.93" y1="19.07" x2="6.34" y2="17.66"></line>
-                            <line x1="17.66" y1="6.34" x2="19.07" y2="4.93"></line>
-                        </svg>
-                    </span>
-                </button>
-                {{- end }}
+<header id="site-nav" class="site-nav {{ if $isHome }}nav-hidden{{ else }}nav-active{{ end }}" role="banner">
+  <div class="site-nav-inner">
+    <a href="{{ "" | absLangURL }}" class="site-logo" data-stargaze-return aria-label="Glory Hinody">
+      <span class="font-nasa-logo">GLORY HINODY</span>
+    </a>
 
-                <span class="controls-divider" aria-hidden="true"></span>
-
-                <div class="lang-segmented-control" role="group" aria-label="Language Selector">
-                    {{- $currentLang := .Lang -}}
-                    {{- $viURL := "/" -}}
-                    {{- $enURL := "/en/" -}}
-                    {{- range .Translations -}}
-                        {{- if eq .Lang "vi" -}}{{- $viURL = .RelPermalink -}}{{- end -}}
-                        {{- if eq .Lang "en" -}}{{- $enURL = .RelPermalink -}}{{- end -}}
-                    {{- end -}}
-                    {{- if eq $currentLang "en" -}}
-                        <a class="lang-pill" href="{{ $viURL }}" title="Chuyển sang Tiếng Việt" aria-label="Tiếng Việt">VI</a>
-                        <span class="lang-pill active" aria-current="page" title="Currently viewing English">EN</span>
-                    {{- else -}}
-                        <span class="lang-pill active" aria-current="page" title="Đang xem Tiếng Việt">VI</span>
-                        <a class="lang-pill" href="{{ $enURL }}" title="Switch to English" aria-label="English">EN</a>
-                    {{- end -}}
-                </div>
-            </div>
-        </div>
-
-        {{- $currentPage := . }}
-        <ul id="menu" class="menu">
-            {{- range site.Menus.main }}
-            {{- $menu_item_url := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL) ) | absLangURL }}
-            {{- $page_url:= $currentPage.Permalink | absLangURL }}
-            {{- $is_search := eq (site.GetPage .KeyName).Layout `search` }}
-            <li>
-                <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }} {{- cond $is_search (" (Alt + /)" | safeHTMLAttr) ("" | safeHTMLAttr ) }}"
-                {{- cond $is_search (" accesskey=/" | safeHTMLAttr) ("" | safeHTMLAttr ) }}>
-                    <span {{- if eq $menu_item_url $page_url }} class="active" {{- end }}>
-                        {{- .Pre }}
-                        {{- .Name -}}
-                        {{ .Post -}}
-                    </span>
-                    {{- if (findRE "://" .URL) }}&nbsp;
-                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
-                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
-                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
-                        <path d="M15 3h6v6"></path>
-                        <path d="M10 14L21 3"></path>
-                    </svg>
-                    {{- end }}
-                </a>
-            </li>
-            {{- end }}
-        </ul>
+    <nav class="site-nav-links" aria-label="{{ if eq $currentLang "en" }}Primary{{ else }}Điều hướng chính{{ end }}">
+      <a href="{{ "/" | relLangURL }}" class="site-nav-link{{ if $isHome }} is-active{{ end }}"{{ if $isHome }} aria-current="page" data-stargaze-return{{ end }}>
+        {{- i18n "home" | default (cond (eq $currentLang "en") "Home" "Trang chủ") -}}
+      </a>
+      {{- range site.Menus.main }}
+      {{- $itemIsPosts := strings.Contains .URL "/posts/" -}}
+      {{- $itemIsTags := strings.Contains .URL "/tags/" -}}
+      {{- $itemIsSearch := strings.Contains .URL "/search/" -}}
+      {{- $itemIsAbout := strings.Contains .URL "/about/" -}}
+      {{- $itemActive := false -}}
+      {{- if $itemIsPosts }}{{- $itemActive = $isPosts -}}
+      {{- else if $itemIsTags }}{{- $itemActive = $isTags -}}
+      {{- else if $itemIsSearch }}{{- $itemActive = $isSearch -}}
+      {{- else if $itemIsAbout }}{{- $itemActive = $isAbout -}}
+      {{- else }}{{- $itemActive = eq (.URL | relURL) $.RelPermalink -}}
+      {{- end }}
+      <a href="{{ .URL | relURL }}" class="site-nav-link{{ if $itemActive }} is-active{{ end }}"{{ if $itemActive }} aria-current="page"{{ end }}{{ if $itemIsSearch }} accesskey="/" title="{{ .Name }} (Alt + /)"{{ end }}>
+        {{- .Name -}}
+      </a>
+      {{- end }}
     </nav>
+
+    <div class="site-nav-controls">
+      {{- if $isHome }}
+      <button type="button" id="cosmic-mode-toggle" class="cosmic-pill-btn" data-cosmic-toggle aria-pressed="true" title="{{ if eq $currentLang "en" }}Switch cosmic background (Gargantua / Starfield){{ else }}Chuyển nền vũ trụ (Hố đen Gargantua / Bầu trời sao){{ end }}">
+        <span class="cosmic-pill-dot"></span>
+        <span class="cosmic-pill-label">GARGANTUA</span>
+      </button>
+      {{- end }}
+
+      <div class="lang-segmented-control" role="group" aria-label="{{ if eq $currentLang "en" }}Language Selector{{ else }}Chọn ngôn ngữ{{ end }}">
+        {{- if eq $currentLang "en" -}}
+          <a class="lang-pill" href="{{ $viURL }}" title="Chuyển sang Tiếng Việt" aria-label="Tiếng Việt">VI</a>
+          <span class="lang-pill active is-active" aria-current="page" title="Currently viewing English">EN</span>
+        {{- else -}}
+          <span class="lang-pill active is-active" aria-current="page" title="Đang xem Tiếng Việt">VI</span>
+          <a class="lang-pill" href="{{ $enURL }}" title="Switch to English" aria-label="English">EN</a>
+        {{- end -}}
+      </div>
+
+      <button type="button" class="mobile-menu-trigger" data-drawer-toggle aria-expanded="false" aria-controls="mobile-menu" aria-label="{{ if eq $currentLang "en" }}Menu{{ else }}Mở menu điều hướng{{ end }}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="4" x2="20" y1="12" y2="12"></line>
+          <line x1="4" x2="20" y1="6" y2="6"></line>
+          <line x1="4" x2="20" y1="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
 </header>
+
+<div id="mobile-drawer-overlay" class="mobile-drawer-overlay" data-drawer-close aria-hidden="true"></div>
+
+<div id="mobile-menu" class="mobile-drawer-panel" role="dialog" aria-modal="true" aria-label="{{ if eq $currentLang "en" }}Mobile navigation menu{{ else }}Menu điều hướng di động{{ end }}">
+  <div class="mobile-drawer-header">
+    <span class="font-nasa-logo mobile-drawer-brand">GLORY HINODY</span>
+    <button type="button" class="mobile-drawer-close" data-drawer-close aria-label="{{ if eq $currentLang "en" }}Close menu{{ else }}Đóng menu{{ end }}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 6 6 18"></path>
+        <path d="m6 6 12 12"></path>
+      </svg>
+    </button>
+  </div>
+
+  <nav class="mobile-drawer-nav" aria-label="{{ if eq $currentLang "en" }}Mobile Primary{{ else }}Điều hướng di động{{ end }}">
+    <a href="{{ "/" | relLangURL }}" class="mobile-nav-item{{ if $isHome }} is-active{{ end }}"{{ if $isHome }} aria-current="page" data-stargaze-return{{ end }}>
+      <span class="mobile-nav-icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
+          <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        </svg>
+      </span>
+      <span>{{ i18n "home" | default (cond (eq $currentLang "en") "Home" "Trang chủ") }}</span>
+    </a>
+
+    <a href="{{ "/posts/" | relLangURL }}" class="mobile-nav-item{{ if $isPosts }} is-active{{ end }}"{{ if $isPosts }} aria-current="page"{{ end }}>
+      <span class="mobile-nav-icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+        </svg>
+      </span>
+      <span>{{ i18n "posts" | default (cond (eq $currentLang "en") "Articles" "Bài viết") }}</span>
+    </a>
+
+    <a href="{{ "/tags/" | relLangURL }}" class="mobile-nav-item{{ if $isTags }} is-active{{ end }}"{{ if $isTags }} aria-current="page"{{ end }}>
+      <span class="mobile-nav-icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"></path>
+          <circle cx="7.5" cy="7.5" r=".5" fill="currentColor"></circle>
+        </svg>
+      </span>
+      <span>{{ i18n "tags" | default (cond (eq $currentLang "en") "Topics" "Chủ đề") }}</span>
+    </a>
+
+    <a href="{{ "/search/" | relLangURL }}" class="mobile-nav-item{{ if $isSearch }} is-active{{ end }}"{{ if $isSearch }} aria-current="page"{{ end }}>
+      <span class="mobile-nav-icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.3-4.3"></path>
+        </svg>
+      </span>
+      <span>{{ i18n "search" | default (cond (eq $currentLang "en") "Search" "Tìm kiếm") }}</span>
+    </a>
+
+    <a href="{{ "/about/" | relLangURL }}" class="mobile-nav-item{{ if $isAbout }} is-active{{ end }}"{{ if $isAbout }} aria-current="page"{{ end }}>
+      <span class="mobile-nav-icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </span>
+      <span>{{ i18n "about" | default (cond (eq $currentLang "en") "About" "Tác giả") }}</span>
+    </a>
+
+    <div class="mobile-drawer-lang" role="group" aria-label="{{ if eq $currentLang "en" }}Switch language{{ else }}Chuyển ngôn ngữ{{ end }}">
+      {{- if eq $currentLang "en" -}}
+        <a class="lang-pill" href="{{ $viURL }}">Tiếng Việt (VI)</a>
+        <span class="lang-pill active is-active" aria-current="page">English (EN)</span>
+      {{- else -}}
+        <span class="lang-pill active is-active" aria-current="page">Tiếng Việt (VI)</span>
+        <a class="lang-pill" href="{{ $enURL }}">English (EN)</a>
+      {{- end -}}
+    </div>
+  </nav>
+
+  <p class="mobile-drawer-tagline">AI · Research · Systems</p>
+</div>

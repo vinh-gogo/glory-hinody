@@ -15,7 +15,8 @@ params:
   author: "Lê Quang Vinh"
   title: "Glory Hinody"
   keywords: ["AI Engineer", "Generative AI", "Video Diffusion", "GraphRAG", "On-Device AI", "Lê Quang Vinh", "PaperMod"]
-  defaultTheme: auto
+  defaultTheme: dark
+  disableThemeToggle: true
   ShowReadingTime: true
   ShowShareButtons: true
   ShowPostNavLinks: true
@@ -25,6 +26,10 @@ params:
   ShowRssButtonInSectionTermList: true
   comments: true
   ShareButtons: ["facebook", "linkedin", "telegram", "x"]
+
+  assets:
+    theme_color: "#060810"
+    msapplication_TileColor: "#060810"
 
   homeInfoParams:
     Title: "Glory Hinody"

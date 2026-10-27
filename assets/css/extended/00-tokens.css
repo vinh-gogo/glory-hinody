@@ -1,137 +1,219 @@
 /* ==========================================================================
-   Glory Hinody — Design Tokens & Theme Variables
-   Indigo / Violet Technical & Editorial Design System
+   Glory Hinody — Nausmind Dark Cosmic Luxury Design System
+   00-tokens.css · Design Tokens, PaperMod Variable Bridge & Motion Keyframes
    ========================================================================== */
 
-:root {
-  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+:root,
+:root[data-theme="dark"],
+:root[data-theme="light"] {
+  /* ── Cosmic Core Surfaces ──────────────────────────────────────────────── */
+  --bg: #060810;
+  --bg-void: #02030c;
+  --bg-elevated: rgba(16, 20, 42, 0.42);
+  --panel: rgba(16, 20, 42, 0.42);
+  --panel-hover: rgba(16, 20, 42, 0.88);
+  --panel-solid: #0b0e1d;
 
-  /* Dimensions & Spacing */
-  --container: 1140px;
-  --max-width: 1140px;
-  --reading: 740px;
-  --header-height: 56px;
-  --header-h: 56px;
-  --tabbar-h: 58px;
+  /* ── Editorial Ink & Hierarchy ─────────────────────────────────────────── */
+  --text: #f3f1fa;
+  --text-primary: #f3f1fa;
+  --text-bright: #ffffff;
+  --muted: #c8c4da;
+  --text-muted: #c8c4da;
+  --muted-dim: rgba(200, 196, 218, 0.68);
+
+  /* ── Signature Nausmind Dual Accents (Warm Gold + Cosmic Violet) ───────── */
+  --accent-gold: #c8a96e;
+  --accent-gold-dim: rgba(200, 169, 110, 0.14);
+  --accent-gold-border: rgba(200, 169, 110, 0.34);
+
+  --accent-purple: #8b7cf6;
+  --accent-purple-dim: rgba(139, 124, 246, 0.14);
+  --accent-purple-border: rgba(139, 124, 246, 0.34);
+
+  /* ── Semantic Status & Component Bridge Tokens ─────────────────────────── */
+  --green-status: #4ade80;
+  --green-status-dim: rgba(74, 222, 128, 0.08);
+  --green-status-border: rgba(74, 222, 128, 0.30);
+
+  --accent: #c8a96e;
+  --accent-hover: #dfc28d;
+  --accent-contrast: #060810;
+  --accent-dim: rgba(139, 124, 246, 0.14);
+  --accent-soft: rgba(139, 124, 246, 0.14);
+
+  --line: rgba(255, 255, 255, 0.08);
+  --line-subtle: rgba(255, 255, 255, 0.05);
+  --line-strong: rgba(139, 124, 246, 0.32);
+
+  --code-block: #090c1a;
+
+  /* ── PaperMod Core Variable Neutralization (Universal Dark Lock) ───────── */
+  --theme: #060810;
+  --entry: rgba(16, 20, 42, 0.42);
+  --primary: #f3f1fa;
+  --secondary: #c8c4da;
+  --tertiary: rgba(255, 255, 255, 0.08);
+  --content: #e6e3f3;
+  --code-block-bg: #0a0d1c;
+  --code-bg: rgba(139, 124, 246, 0.12);
+  --border: rgba(255, 255, 255, 0.08);
+  --radius: 12px;
+
+  /* ── Typography Stacks ─────────────────────────────────────────────────── */
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-label: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-logo: 'Orbitron', 'DM Sans', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* ── Layout Metrics & Spatial Rhythm ───────────────────────────────────── */
+  --container: 1200px;
+  --max-width: 1200px;
+  --nav-width: 1360px;
+  --main-width: 1200px;
+  --reading: 760px;
+  --header-height: 68px;
+  --header-h: 68px;
+  --footer-height: 80px;
+  --tabbar-h: 60px;
   --safe-b: env(safe-area-inset-bottom, 0px);
 
-  /* Touch & Interaction Targets */
+  /* ── Interaction Targets, Radii & Motion Curves ────────────────────────── */
   --tap: 44px;
   --tap-sm: 36px;
-
-  /* Radii */
   --r: 12px;
+  --r-lg: 16px;
   --r-sm: 8px;
   --r-pill: 9999px;
 
-  /* Easing & Transition */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --dur: 0.18s;
-}
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 0.25s;
 
-@media (min-width: 768px) {
-  :root {
-    --header-height: 64px;
-    --header-h: 64px;
-  }
-}
-
-/* ── Dark Theme (Deep Obsidian / Indigo Matrix) ───────────────────────── */
-:root, :root[data-theme="dark"] {
-  --bg: #090b0e;
-  --panel: #11141a;
-  --panel-hover: #161a22;
-  --text: #f0f3f6;
-  --text-bright: #ffffff;
-  --muted: #94a3b8;
-  --line: #222730;
-  --line-strong: #333b47;
-
-  /* Signature Indigo Accent */
-  --accent: #a5b4fc;
-  --accent-hover: #c7d2fe;
-  --accent-contrast: #0b0d1a;
-  --accent-dim: rgba(165, 180, 252, 0.14);
-  --accent-soft: rgba(165, 180, 252, 0.14);
-
-  --code-bg: #0d1015;
-  --code-block: #0b0d11;
-
-  /* PaperMod variable bridge */
-  --theme: var(--bg);
-  --entry: var(--panel);
-  --primary: var(--text);
-  --secondary: var(--muted);
-  --tertiary: var(--line);
-  --content: var(--text);
-  --border: var(--line);
   color-scheme: dark;
 }
 
-/* ── Light Theme (Architectural Paper / Indigo Ink) ─────────────────── */
-:root[data-theme="light"] {
-  --bg: #fafaf8;
-  --panel: #ffffff;
-  --panel-hover: #f4f4f0;
-  --text: #14171a;
-  --text-bright: #000000;
-  --muted: #64748b;
-  --line: #e2e4dc;
-  --line-strong: #cbd5e1;
+/* ==========================================================================
+   Canonical Nausmind Keyframe Animations
+   ========================================================================== */
 
-  /* High-Contrast Royal Indigo */
-  --accent: #4f46e5;
-  --accent-hover: #4338ca;
-  --accent-contrast: #ffffff;
-  --accent-dim: rgba(79, 70, 229, 0.08);
-  --accent-soft: rgba(79, 70, 229, 0.08);
-
-  --code-bg: #f1f5f9;
-  --code-block: #1e293b;
-
-  /* PaperMod variable bridge */
-  --theme: var(--bg);
-  --entry: var(--panel);
-  --primary: var(--text);
-  --secondary: var(--muted);
-  --tertiary: var(--line);
-  --content: var(--text);
-  --border: var(--line);
-  color-scheme: light;
-}
-
-/* ── Accessibility & Reset Defaults ───────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+@keyframes heroReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(28px);
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
   }
 }
 
+@keyframes dreamerpulse {
+  0% {
+    text-shadow: 0 0 20px rgba(200, 169, 110, 0), 0 0 40px rgba(139, 124, 246, 0);
+  }
+  50% {
+    text-shadow: 0 0 42px rgba(200, 169, 110, 0.5), 0 0 84px rgba(139, 124, 246, 0.22);
+  }
+  100% {
+    text-shadow: 0 0 24px rgba(200, 169, 110, 0.24), 0 0 54px rgba(139, 124, 246, 0.12);
+  }
+}
+
+@keyframes dreameridle {
+  0%,
+  100% {
+    text-shadow: 0 0 22px rgba(200, 169, 110, 0.22), 0 0 48px rgba(139, 124, 246, 0.1);
+  }
+  50% {
+    text-shadow: 0 0 52px rgba(200, 169, 110, 0.52), 0 0 100px rgba(139, 124, 246, 0.2);
+  }
+}
+
+@keyframes scrollbounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translateY(9px);
+    opacity: 0.9;
+  }
+}
+
+@keyframes statusPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.55), 0 0 12px rgba(74, 222, 128, 0.75);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(0.94);
+    box-shadow: 0 0 0 7px rgba(74, 222, 128, 0), 0 0 16px rgba(74, 222, 128, 0.4);
+  }
+}
+
+@keyframes mobileNavIn {
+  0% {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes curtainIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes curtainOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ── Focus & Skip-Link Accessibility ─────────────────────────────────────── */
 :focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
+  outline: 2px solid var(--accent-purple);
+  outline-offset: 3px;
   border-radius: 4px;
 }
 
 .skip-link {
-  position: absolute;
-  top: -60px;
+  position: fixed;
+  top: -80px;
   left: 20px;
-  background: var(--accent);
-  color: var(--accent-contrast);
-  padding: 8px 16px;
-  font-weight: 700;
-  border-radius: var(--r-sm);
-  z-index: 10000;
-  transition: top 0.2s ease;
+  background: var(--accent-gold);
+  color: #060810 !important;
+  font-family: var(--font-label);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 10px 18px;
+  border-radius: var(--r-pill);
+  z-index: 10001;
   text-decoration: none;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  transition: top 0.22s var(--ease);
 }
 
 .skip-link:focus {
-  top: 12px;
+  top: 14px;
 }

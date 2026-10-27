@@ -1,17 +1,40 @@
 {{- define "main" }}
-<div class="error-page">
-  <div class="error-code">404</div>
-  <h1 class="error-title">{{ if eq .Lang "en" }}Page Not Found{{ else }}Không tìm thấy trang{{ end }}</h1>
-  <p class="error-msg">
-    {{ if eq .Lang "en" }}
-    The page you are looking for does not exist or has been moved.
-    {{ else }}
-    Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển.
-    {{ end }}
-  </p>
-  <div class="error-actions">
-    <a href="{{ "" | absLangURL }}" class="error-btn-primary">← {{ i18n "home" | default "Trang chủ" }}</a>
-    <a href="{{ "/posts/" | absLangURL }}" class="error-btn-secondary">{{ i18n "posts" | default "Bài viết" }}</a>
+{{- $isEn := eq .Lang "en" }}
+
+<div class="nm-page-shell error-404-cosmic">
+  <div class="error-404-stage">
+    <p class="nm-label error-404-eyebrow">EVENT HORIZON · MẤT TÍN HIỆU</p>
+
+    <h1 class="error-404-code">404</h1>
+
+    <p class="error-404-lead">
+      {{- if $isEn -}}
+        This coordinate has crossed Gargantua's event horizon.
+      {{- else -}}
+        Trang bạn tìm kiếm đã vượt qua chân trời sự kiện của Gargantua.
+      {{- end -}}
+    </p>
+
+    <p class="error-404-sub">
+      {{- if $isEn -}}
+        No light or telemetry escapes beyond this radius — return to safe orbital coordinates below.
+      {{- else -}}
+        Không ánh sáng hay tín hiệu nào thoát ra khỏi bán kính Schwarzschild này — hãy quay về quỹ đạo an toàn bên dưới.
+      {{- end -}}
+    </p>
+
+    <div class="error-404-actions">
+      <a href="{{ "/" | relLangURL }}" class="nm-pill-btn nm-pill-btn-primary">
+        ← {{ if $isEn }}Return Home{{ else }}Về Trang chủ{{ end }}
+      </a>
+      <a href="{{ "/posts/" | relLangURL }}" class="nm-pill-btn">
+        {{ if $isEn }}Articles{{ else }}Sổ tay Kỹ thuật{{ end }}
+      </a>
+      <a href="{{ "/search/" | relLangURL }}" class="nm-pill-btn">
+        {{ if $isEn }}Search{{ else }}Tìm kiếm{{ end }}
+      </a>
+    </div>
   </div>
 </div>
+
 {{- end }}

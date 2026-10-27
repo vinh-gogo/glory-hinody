@@ -1,25 +1,20 @@
-<!-- ── Security Meta Layer (Defense-in-Depth) ─────────────────── -->
+<!-- ── Security & Cosmic Meta Layer (Defense-in-Depth) ────────────── -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Referrer Policy: không leak URL đầy đủ khi click ra ngoài -->
+<meta name="color-scheme" content="dark">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<!-- Ngăn index trang lỗi / search internal -->
-{{- if or (eq .Kind "404") (eq .Layout "search") }}
+{{- if or (eq .Kind "404") (eq .Layout "error404") (eq .Layout "search") (.Params.robotsNoIndex) }}
 <meta name="robots" content="noindex, nofollow">
 {{- else }}
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
 {{- end }}
 
-<!-- ── Distinctive Typography: Space Grotesk + JetBrains Mono + Plus Jakarta Sans -->
-<!-- Font loading optimized: preconnect + display=swap prevents FOUT -->
+<!-- ── Nausmind Cosmic Typography (Vietnamese + Latin) ───────────── -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@500;600;700;800&display=swap">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
-</noscript>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=DM+Sans:wght@400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=DM+Sans:wght@400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@600;700&display=swap">
 
-<!-- Default OG Social Image for sharing -->
+<!-- ── Default OG Social Image for Sharing ───────────────────────── -->
 {{- $ogImage := "https://glory-hinody.pages.dev/og-default.png" }}
 {{- if not (.Params.cover.image) }}
 <meta property="og:image" content="{{ $ogImage }}">
@@ -29,7 +24,11 @@
 <meta name="twitter:image" content="{{ $ogImage }}">
 {{- end }}
 
-{{- if or .Params.math (eq .Kind "page") }}
+<!-- ── Security Guard (Executes first before any runtime scripts) ── -->
+<script src="/js/security-guard.v4.js"></script>
+
+<!-- ── KaTeX Mathematical Typesetting ────────────────────────────── -->
+{{- if or .Params.math (and (eq .Kind "page") (not .IsHome)) }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
   integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
   crossorigin="anonymous">

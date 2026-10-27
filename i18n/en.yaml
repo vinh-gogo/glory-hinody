@@ -76,3 +76,99 @@
 
 - id: logbook_subtitle
   translation: "Technical logbook of Le Quang Vinh (AI Engineer)."
+
+- id: code_copy
+  translation: "copy"
+
+- id: code_copied
+  translation: "copied!"
+
+- id: skip_to_content
+  translation: "Skip to content"
+
+- id: stargazing_prompt
+  translation: "Lê Quang Vinh · Scroll down to enter the engineering cosmos"
+
+- id: stargazing_dive
+  translation: "Scroll once more to reveal portfolio"
+
+- id: stargazing_enter_aria
+  translation: "Enter Lê Quang Vinh's engineering portfolio"
+
+- id: cosmic_toggle_title
+  translation: "Switch cosmic background (Gargantua / Starfield)"
+
+- id: hero_eyebrow
+  translation: "LÊ QUANG VINH · AI R&D & SOFTWARE ENGINEER"
+
+- id: hero_line_1
+  translation: "Researcher."
+
+- id: hero_line_2
+  translation: "Engineer."
+
+- id: hero_line_3
+  translation: "Builder."
+
+- id: hero_sub
+  translation: "Deterministic AI Agents · Hybrid GraphRAG · Multimodal Diffusion · Offline-First Systems"
+
+- id: scroll_hint
+  translation: "Scroll"
+
+- id: motivation_eyebrow
+  translation: "WHAT DRIVES ME"
+
+- id: works_eyebrow
+  translation: "SELECTED WRITINGS"
+
+- id: works_sidenote
+  translation: "Deep-dive engineering monographs on system design, empirical benchmarks, and real-world deployments."
+
+- id: view_all_posts
+  translation: "View all articles"
+
+- id: cta_eyebrow
+  translation: "IF THIS RESONATES"
+
+- id: cta_heading
+  translation: "Let's connect."
+
+- id: snap_nav_aria
+  translation: "Section navigation"
+
+- id: snap_hero
+  translation: "Hero"
+
+- id: snap_motivation
+  translation: "What Drives Me"
+
+- id: snap_works
+  translation: "Selected Writings"
+
+- id: snap_quote
+  translation: "Engineering Philosophy"
+
+- id: snap_cta
+  translation: "Connect"
+
+- id: about_eyebrow
+  translation: "ABOUT · ENGINEERING PORTFOLIO"
+
+- id: publications_heading
+  translation: "Research & Publication"
+
+- id: experience_heading
+  translation: "Experience & Flagship Systems"
+
+- id: skills_heading
+  translation: "Technical Arsenal"
+
+- id: education_heading
+  translation: "Education & Honors"
+
+- id: contact_heading
+  translation: "Get In Touch"
+
+- id: availability_status
+  translation: "Available for AI R&D & Software Engineering roles"

@@ -1,173 +1,225 @@
 {{- define "main" }}
-
-{{- if (and site.Params.profileMode.enabled .IsHome) }}
-{{- partial "index_profile.html" . }}
-{{- else }}
-
-{{- if and (not .IsHome) .Title }}
-<header class="page-header">
-  <div class="header-breadcrumbs">
-    {{- partial "breadcrumbs.html" . }}
-  </div>
-  <h1 class="page-title">
-    {{ .Title }}
-    {{- if and (or (eq .Kind `term`) (eq .Kind `section`)) (.Param "ShowRssButtonInSectionTermList") }}
-    {{- with .OutputFormats.Get "rss" }}
-    <a href="{{ .RelPermalink }}" title="RSS" aria-label="RSS" class="rss-link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round" height="18">
-        <path d="M4 11a9 9 0 0 1 9 9" />
-        <path d="M4 4a16 16 0 0 1 16 16" />
-        <circle cx="5" cy="19" r="1" />
-      </svg>
-    </a>
-    {{- end }}
-    {{- end }}
-  </h1>
-  {{- if .Description }}
-  <div class="page-description">
-    {{ .Description | markdownify }}
-  </div>
-  {{- end }}
-</header>
+{{- $isEn := eq .Lang "en" }}
+{{- $currentTerm := .Data.Term }}
+{{- $pages := .RegularPages }}
+{{- if eq .Kind "section" }}
+  {{- $pages = .RegularPagesRecursive }}
 {{- end }}
-
-{{- if .Content }}
-<div class="post-content md-content">
-  {{- if not (.Param "disableAnchoredHeadings") }}
-  {{- partial "anchored_headings.html" .Content -}}
-  {{- else }}{{ .Content }}{{ end }}
-</div>
+{{- if eq (len $pages) 0 }}
+  {{- $pages = .Pages }}
 {{- end }}
-
-{{- $pages := union .RegularPages .Sections }}
-
-{{- if .IsHome }}
-{{- $pages = where site.RegularPages "Type" "in" site.Params.mainSections }}
-{{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true"  }}
-{{- end }}
-
+{{- $totalCount := len $pages }}
 {{- $paginator := .Paginate $pages }}
 
-{{- if and .IsHome site.Params.homeInfoParams (eq $paginator.PageNumber 1) }}
-{{- partial "home_info.html" . }}
-{{- end }}
-
-{{- $currentTerm := .Data.Term }}
-{{- $isPostsList := or .IsHome (eq .Section "posts") (eq .Kind "term") }}
-
-{{/* ── Clean Dynamic Topic Filter Chips Bar ── */}}
-{{- if $isPostsList }}
-<nav class="topic-filter-bar" aria-label="{{ i18n "topic_label" | default "Chủ đề" }}">
-  <div class="topic-chips-wrapper">
-    {{- $allPostsURL := "/posts/" | relLangURL }}
-    <a href="{{ $allPostsURL }}" class="topic-chip {{ if and (eq .RelPermalink $allPostsURL) (not $currentTerm) }}active{{ end }}">
-      {{ i18n "all_topics" | default "Tất cả" }}
-    </a>
-
-    {{/* Dynamically show top tags */}}
-    {{- range first 7 site.Taxonomies.tags.ByCount }}
-    {{- $termURL := .Page.RelPermalink }}
-    <a href="{{ $termURL }}" class="topic-chip {{ if eq $currentTerm .Name }}active{{ end }}">
-      <span>{{ .Page.Title }}</span>
-      <span class="chip-count">{{ .Count }}</span>
-    </a>
-    {{- end }}
-
-    <a href="{{ "/tags/" | relLangURL }}" class="topic-chip">
-      {{ i18n "view_all_topics" | default "Tất cả chủ đề →" }}
-    </a>
-  </div>
-</nav>
-{{- end }}
-
-{{/* ── Article Cards Grid ── */}}
-<div class="log-entries-list">
-{{- range $index, $page := $paginator.Pages }}
-<article class="log-entry post-entry">
-  <div>
-    <div class="log-entry-meta">
-      <time class="log-date">{{ .Date.Format "02/01/2006" }}</time>
-      <span class="meta-dot">·</span>
-      <span class="log-readtime">{{ i18n "read_time" (dict "Count" .ReadingTime) | default (printf "%d phút đọc" .ReadingTime) }}</span>
-    </div>
-
-    <h2 class="log-title">
-      {{ .Title }}
-    </h2>
-
-    {{- if (ne (.Param "hideSummary") true) }}
-    {{- $intro := or .Description .Params.summary (.Summary | plainify | htmlUnescape | truncate 180) }}
-    {{- with $intro }}
-    <p class="log-excerpt">
-      {{ . | plainify | htmlUnescape }}
-    </p>
-    {{- end }}
-    {{- end }}
-
-    {{- with .Params.tags }}
-    <div class="card-tags">
-      {{- range first 3 . }}
-      <span class="card-tag">{{ . }}</span>
+<div class="nm-page-shell archive-cosmic">
+  <header class="archive-hero reveal-on-scroll">
+    <div class="archive-eyebrow-row">
+      {{- if $currentTerm }}
+      <span class="nm-label">CHỦ ĐỀ · TOPIC</span>
+      <span class="meta-dot" aria-hidden="true">·</span>
+      <a href="{{ "/tags/" | relLangURL }}" class="archive-back-link nm-arrow-link">
+        ← {{ if $isEn }}All Topics{{ else }}Tất cả chủ đề{{ end }}
+      </a>
+      {{- else }}
+      <span class="nm-label">SỔ TAY KỸ THUẬT · ENGINEERING LOGBOOK</span>
       {{- end }}
     </div>
-    {{- end }}
-  </div>
 
-  <div class="log-card-footer">
-    <div class="post-stats-pill" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
-      <button type="button" class="stat-badge stat-btn stat-likes" title="{{ i18n "reactions" | default "Thích" }}" aria-label="{{ i18n "reactions" | default "Thích" }}" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
-        <svg class="stat-icon heart-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-        </svg>
-        <span class="stat-count">0</span>
-      </button>
-
-      <button type="button" class="stat-badge stat-btn stat-comments" title="{{ i18n "comments" | default "Bình luận" }}" aria-label="{{ i18n "comments" | default "Bình luận" }}" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
-        <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        </svg>
-        <span class="stat-count">0</span>
-      </button>
-
-      <button type="button" class="stat-badge stat-btn stat-shares" title="{{ i18n "share" | default "Chia sẻ" }}" aria-label="{{ i18n "share" | default "Chia sẻ" }}" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
-        <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="18" cy="5" r="3"></circle>
-          <circle cx="6" cy="12" r="3"></circle>
-          <circle cx="18" cy="19" r="3"></circle>
-          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-        </svg>
-        <span class="stat-count">0</span>
-      </button>
+    <div class="archive-title-row">
+      <h1 class="archive-title">
+        {{- if and (eq .Kind "section") (eq .Section "posts") (eq .Title "Posts") -}}
+          {{- if $isEn }}Engineering Monographs{{ else }}Sổ tay Kỹ thuật{{ end -}}
+        {{- else -}}
+          {{- .Title -}}
+        {{- end -}}
+      </h1>
+      <span class="nm-badge-gold archive-count-badge">
+        {{ $totalCount }} {{ if $isEn }}{{ if eq $totalCount 1 }}monograph{{ else }}monographs{{ end }}{{ else }}chuyên khảo{{ end }}
+      </span>
+      {{- if and (or (eq .Kind "term") (eq .Kind "section")) (.Param "ShowRssButtonInSectionTermList") }}
+        {{- with .OutputFormats.Get "rss" }}
+        <a href="{{ .RelPermalink }}" title="RSS Feed" aria-label="RSS Feed" class="nm-chip rss-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 11a9 9 0 0 1 9 9"></path>
+            <path d="M4 4a16 16 0 0 1 16 16"></path>
+            <circle cx="5" cy="19" r="1"></circle>
+          </svg>
+          <span>RSS</span>
+        </a>
+        {{- end }}
+      {{- end }}
     </div>
 
-    <span class="log-readmore">{{ i18n "read_more" | default "Đọc bài" }} →</span>
+    <p class="archive-subtitle">
+      {{- if .Description -}}
+        {{ .Description | plainify }}
+      {{- else if $currentTerm -}}
+        {{- if $isEn -}}
+          Selected technical monographs, system architecture notes, and empirical experiments filed under “{{ .Title }}”.
+        {{- else -}}
+          Tuyển tập chuyên khảo kỹ thuật, kiến trúc hệ thống và ghi chép thực nghiệm chuyên sâu thuộc chủ đề “{{ .Title }}”.
+        {{- end -}}
+      {{- else -}}
+        {{- if $isEn -}}
+          Deep-dive monographs and research logs on deterministic AI agents, Hybrid GraphRAG, multimodal diffusion systems, and low-resource neural inference.
+        {{- else -}}
+          Chuyên khảo chuyên sâu và nhật ký nghiên cứu về AI Agent tất định, Hybrid GraphRAG, mô hình khuếch tán đa phương thức và tối ưu suy luận trên thiết bị biên.
+        {{- end -}}
+      {{- end -}}
+    </p>
+
+    <nav class="topic-filter-bar" aria-label="{{ if $isEn }}Filter by topic{{ else }}Lọc theo chủ đề{{ end }}">
+      {{- $allPostsURL := "/posts/" | relLangURL }}
+      <a href="{{ $allPostsURL }}" class="nm-chip topic-pill {{ if not $currentTerm }}is-active{{ end }}">
+        <span>{{ if $isEn }}All{{ else }}Tất cả{{ end }}</span>
+      </a>
+
+      {{- with site.Taxonomies.tags }}
+        {{- range first 8 .ByCount }}
+          {{- $isActive := or (eq $.RelPermalink .Page.RelPermalink) (and $currentTerm (eq (lower $currentTerm) (lower .Name))) }}
+          <a href="{{ .Page.RelPermalink }}" class="nm-chip topic-pill notranslate {{ if $isActive }}is-active{{ end }}" translate="no">
+            <span class="topic-pill-label">{{ .Page.Title }}</span>
+            <span class="topic-pill-count">{{ .Count }}</span>
+          </a>
+        {{- end }}
+      {{- end }}
+
+      <a href="{{ "/tags/" | relLangURL }}" class="nm-chip topic-pill topic-pill-all-tags">
+        <span>{{ if $isEn }}All Topics ↗{{ else }}Tất cả chủ đề ↗{{ end }}</span>
+      </a>
+
+      <a href="{{ "/search/" | relLangURL }}" class="nm-chip topic-pill topic-pill-search">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <span>{{ if $isEn }}Search{{ else }}Tìm kiếm{{ end }}</span>
+      </a>
+    </nav>
+  </header>
+
+  {{- if .Content }}
+  <div class="archive-intro post-content md-content reveal-on-scroll">
+    {{- if not (.Param "disableAnchoredHeadings") }}
+      {{- partial "anchored_headings.html" .Content -}}
+    {{- else }}
+      {{ .Content }}
+    {{- end }}
+  </div>
+  {{- end }}
+
+  <div class="posts-cosmic-grid">
+    {{- range $index, $page := $paginator.Pages }}
+    {{- $pageIsEn := eq $page.Lang "en" }}
+    {{- $tags := $page.Params.tags }}
+    <article class="glass-card log-entry post-entry reveal-on-scroll">
+      <div class="log-entry-body">
+        <div class="log-entry-meta">
+          <time class="log-entry-date" datetime="{{ $page.Date.Format "2006-01-02" }}">
+            {{- if $pageIsEn }}{{ $page.Date.Format "Jan 02, 2006" }}{{ else }}{{ $page.Date.Format "02/01/2006" }}{{ end -}}
+          </time>
+          <span class="meta-dot" aria-hidden="true">·</span>
+          <span class="log-entry-readtime">
+            {{- if $pageIsEn }}{{ $page.ReadingTime }} min read{{ else }}{{ $page.ReadingTime }} phút đọc{{ end -}}
+          </span>
+          {{- with $tags }}
+            {{- with index . 0 }}
+            <span class="{{ if modBool $index 2 }}nm-badge-gold{{ else }}nm-badge-purple{{ end }} log-entry-primary-tag notranslate" translate="no">{{ . }}</span>
+            {{- end }}
+          {{- end }}
+        </div>
+
+        <h2 class="log-entry-title">{{ $page.Title }}</h2>
+
+        {{- if ne ($page.Param "hideSummary") true }}
+          {{- $summary := $page.Description | default ($page.Summary | plainify | htmlUnescape | truncate 160) }}
+          {{- with $summary }}
+          <p class="log-entry-summary">{{ . | plainify | htmlUnescape }}</p>
+          {{- end }}
+        {{- end }}
+      </div>
+
+      <div class="log-entry-footer">
+        <div class="log-entry-tags notranslate" translate="no" style="position: relative; z-index: 3;">
+          {{- if and $tags (gt (len $tags) 1) }}
+            {{- range first 2 (after 1 $tags) }}
+              {{- $tagHref := printf "/tags/%s/" (. | urlize) | relLangURL }}
+              {{- with site.GetPage (printf "/tags/%s" (. | urlize)) }}
+                {{- $tagHref = .RelPermalink }}
+              {{- end }}
+              <a href="{{ $tagHref }}" class="nm-chip log-entry-chip" style="position: relative; z-index: 3;">{{ . }}</a>
+            {{- end }}
+          {{- else if $tags }}
+            {{- range first 1 $tags }}
+              {{- $tagHref := printf "/tags/%s/" (. | urlize) | relLangURL }}
+              {{- with site.GetPage (printf "/tags/%s" (. | urlize)) }}
+                {{- $tagHref = .RelPermalink }}
+              {{- end }}
+              <a href="{{ $tagHref }}" class="nm-chip log-entry-chip" style="position: relative; z-index: 3;">{{ . }}</a>
+            {{- end }}
+          {{- end }}
+        </div>
+
+        <div class="post-stats-pill" data-url="{{ $page.Permalink }}" data-title="{{ $page.Title }}" style="position: relative; z-index: 3;">
+          <button type="button" class="stat-btn stat-likes" title="{{ if $pageIsEn }}Like{{ else }}Thích{{ end }}" aria-label="{{ if $pageIsEn }}Like{{ else }}Thích{{ end }}" data-url="{{ $page.Permalink }}" data-title="{{ $page.Title }}" style="position: relative; z-index: 3;">
+            <svg class="stat-icon heart-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span class="stat-count">0</span>
+          </button>
+
+          <button type="button" class="stat-btn stat-comments" title="{{ if $pageIsEn }}Comments{{ else }}Bình luận{{ end }}" aria-label="{{ if $pageIsEn }}Comments{{ else }}Bình luận{{ end }}" data-url="{{ $page.Permalink }}" data-title="{{ $page.Title }}" style="position: relative; z-index: 3;">
+            <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span class="stat-count">0</span>
+          </button>
+
+          <button type="button" class="stat-btn stat-shares" title="{{ if $pageIsEn }}Share{{ else }}Chia sẻ{{ end }}" aria-label="{{ if $pageIsEn }}Share{{ else }}Chia sẻ{{ end }}" data-url="{{ $page.Permalink }}" data-title="{{ $page.Title }}" style="position: relative; z-index: 3;">
+            <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+            <span class="stat-count">0</span>
+          </button>
+        </div>
+      </div>
+
+      <a class="entry-link" aria-label="{{ $page.Title | plainify }}" href="{{ $page.Permalink }}"></a>
+    </article>
+    {{- end }}
   </div>
 
-  <a class="entry-link" aria-label="{{ .Title }}" href="{{ .Permalink }}"></a>
-</article>
-{{- end }}
-</div>
-
-{{/* ── Clean Pagination ── */}}
-{{- if gt $paginator.TotalPages 1 }}
-<footer class="page-footer">
-  <nav class="pagination">
+  {{- if gt $paginator.TotalPages 1 }}
+  <nav class="pagination cosmic-pagination reveal-on-scroll" aria-label="{{ if $isEn }}Pagination{{ else }}Phân trang{{ end }}">
     {{- if $paginator.HasPrev }}
-    <a class="prev" href="{{ $paginator.Prev.URL | absURL }}">
-      «&nbsp;{{ i18n "prev_page" | default "Trang trước" }}
+    <a class="nm-pill-btn prev" href="{{ $paginator.Prev.URL }}" rel="prev">
+      ← {{ if $isEn }}Previous{{ else }}Trang trước{{ end }}
     </a>
+    {{- else }}
+    <span class="nm-pill-btn prev is-disabled" aria-disabled="true">
+      ← {{ if $isEn }}Previous{{ else }}Trang trước{{ end }}
+    </span>
     {{- end }}
+
+    <span class="nm-label pagination-indicator">
+      {{ if $isEn }}PAGE {{ $paginator.PageNumber }} / {{ $paginator.TotalPages }}{{ else }}TRANG {{ $paginator.PageNumber }} / {{ $paginator.TotalPages }}{{ end }}
+    </span>
+
     {{- if $paginator.HasNext }}
-    <a class="next" href="{{ $paginator.Next.URL | absURL }}">
-      {{ i18n "next_page" | default "Trang tiếp theo" }}&nbsp;»
+    <a class="nm-pill-btn next" href="{{ $paginator.Next.URL }}" rel="next">
+      {{ if $isEn }}Next{{ else }}Trang tiếp{{ end }} →
     </a>
+    {{- else }}
+    <span class="nm-pill-btn next is-disabled" aria-disabled="true">
+      {{ if $isEn }}Next{{ else }}Trang tiếp{{ end }} →
+    </span>
     {{- end }}
   </nav>
-</footer>
-{{- end }}
-
-{{- end }}
+  {{- end }}
+</div>
 
 {{- end }}

@@ -1,36 +1,970 @@
 {{- define "main" }}
+{{- $isEn := eq .Lang "en" -}}
+{{- $allPosts := where site.RegularPages "Type" "posts" -}}
+{{- $postCount := len $allPosts -}}
+{{- if eq $postCount 0 -}}{{- $postCount = 16 -}}{{- end -}}
 
-<article class="about-page">
+<style>
+  :where(.about-cosmic) {
+    color: var(--text, #f3f1fa);
+  }
+  :where(.about-cosmic .about-hero-section) {
+    margin-bottom: 5.5rem;
+  }
+  :where(.about-cosmic .about-hero-layout) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2.25rem;
+  }
+  @media (min-width: 768px) {
+    :where(.about-cosmic .about-hero-layout) {
+      flex-direction: row;
+      align-items: flex-end;
+      gap: 3rem;
+    }
+  }
+  :where(.about-cosmic .about-avatar-halo) {
+    position: relative;
+    width: 9.5rem;
+    height: 9.5rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: radial-gradient(circle at 35% 30%, rgba(200, 169, 110, 0.2), rgba(16, 20, 42, 0.85) 62%, rgba(6, 8, 16, 0.96) 100%);
+    border: 1px solid rgba(200, 169, 110, 0.34);
+    box-shadow: 0 0 48px rgba(200, 169, 110, 0.16), inset 0 0 28px rgba(139, 124, 246, 0.18);
+  }
+  @media (min-width: 768px) {
+    :where(.about-cosmic .about-avatar-halo) {
+      width: 11rem;
+      height: 11rem;
+    }
+  }
+  :where(.about-cosmic .avatar-ring-outer) {
+    position: absolute;
+    inset: -10px;
+    border-radius: 9999px;
+    border: 1px dashed rgba(139, 124, 246, 0.32);
+    pointer-events: none;
+  }
+  :where(.about-cosmic .avatar-ring-inner) {
+    position: absolute;
+    inset: 6px;
+    border-radius: 9999px;
+    border: 1px solid rgba(200, 169, 110, 0.22);
+    pointer-events: none;
+  }
+  :where(.about-cosmic .about-monogram) {
+    font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
+    font-size: 2.6rem;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.08em;
+    color: var(--accent-gold, #c8a96e);
+    text-shadow: 0 0 28px rgba(200, 169, 110, 0.35);
+  }
+  :where(.about-cosmic .about-hero-title) {
+    font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
+    font-size: clamp(3rem, 7.5vw, 5.75rem);
+    font-weight: 300;
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+    margin: 0.65rem 0 1rem;
+    color: var(--text, #f3f1fa);
+  }
+  :where(.about-cosmic .about-hero-subtitle) {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 1rem;
+    color: var(--muted, #c8c4da);
+    margin: 0 0 1.6rem;
+    line-height: 1.6;
+  }
+  :where(.about-cosmic .about-hero-pills) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  :where(.about-cosmic .about-meta-stack) {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.6rem;
+  }
+  :where(.about-cosmic .about-meta-val) {
+    font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
+    font-size: 1.45rem;
+    font-weight: 400;
+    color: var(--text, #f3f1fa);
+    margin: 0.25rem 0 0;
+    line-height: 1.3;
+  }
+  :where(.about-cosmic .about-manifesto) {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 48rem;
+  }
+  :where(.about-cosmic .about-manifesto-lead) {
+    font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
+    font-size: clamp(1.65rem, 2.8vw, 2.35rem);
+    font-weight: 300;
+    line-height: 1.32;
+    color: var(--text, #f3f1fa);
+    margin: 0;
+  }
+  :where(.about-cosmic .about-manifesto-body) {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 1rem;
+    line-height: 1.78;
+    color: var(--muted, #c8c4da);
+    margin: 0;
+  }
+  :where(.about-cosmic .about-manifesto-body em),
+  :where(.about-cosmic .about-manifesto-body strong) {
+    color: var(--text, #f3f1fa);
+  }
+  :where(.about-cosmic .nm-pub-card) {
+    padding: 2rem;
+  }
+  @media (min-width: 768px) {
+    :where(.about-cosmic .nm-pub-card) {
+      padding: 2.5rem;
+    }
+  }
+  :where(.about-cosmic .nm-pub-top) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.15rem;
+  }
+  :where(.about-cosmic .nm-pub-badges) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  :where(.about-cosmic .nm-pub-title) {
+    font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
+    font-size: clamp(1.5rem, 2.5vw, 2.05rem);
+    font-weight: 400;
+    line-height: 1.28;
+    color: var(--text, #f3f1fa);
+    margin: 0 0 0.65rem;
+  }
+  :where(.about-cosmic .nm-pub-venue) {
+    margin: 0 0 1rem;
+  }
+  :where(.about-cosmic .nm-pub-summary) {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: var(--muted, #c8c4da);
+    margin: 0 0 1.4rem;
+  }
+  :where(.about-cosmic .nm-pub-bottom) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1.15rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  :where(.about-cosmic .nm-chip-row) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  :where(.about-cosmic .nm-exp-stack) {
+    display: flex;
+    flex-direction: column;
+    gap: 3.75rem;
+  }
+  :where(.about-cosmic .nm-exp-row) {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding-bottom: 3.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  :where(.about-cosmic .nm-exp-row:last-child) {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  @media (min-width: 900px) {
+    :where(.about-cosmic .nm-exp-row) {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 2.5rem;
+    }
+    :where(.about-cosmic .nm-exp-meta) {
+      grid-column: span 4 / span 4;
+    }
+    :where(.about-cosmic .nm-exp-body) {
+      grid-column: span 8 / span 8;
+    }
+  }
+  :where(.about-cosmic .nm-exp-org) {
+    font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
+    font-size: 1.35rem;
+    font-weight: 500;
+    color: var(--text, #f3f1fa);
+    margin: 0.35rem 0;
+    line-height: 1.3;
+  }
+  :where(.about-cosmic .nm-exp-stack-line) {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 0.74rem;
+    line-height: 1.6;
+    color: var(--muted-dim, rgba(200, 196, 218, 0.72));
+    margin: 0.45rem 0 0;
+  }
+  :where(.about-cosmic .nm-exp-role) {
+    font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
+    font-size: clamp(1.5rem, 2.4vw, 1.95rem);
+    font-weight: 400;
+    font-style: italic;
+    color: var(--accent-gold, #c8a96e);
+    margin: 0 0 1.15rem;
+    line-height: 1.25;
+  }
+  :where(.about-cosmic .nm-exp-bullets) {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  :where(.about-cosmic .nm-exp-bullets li) {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 0.95rem;
+    line-height: 1.72;
+    color: var(--muted, #c8c4da);
+  }
+  :where(.about-cosmic .nm-exp-dot) {
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: var(--accent-purple, #8b7cf6);
+    margin-top: 0.62rem;
+    flex-shrink: 0;
+  }
+  :where(.about-cosmic .nm-skills-grid),
+  :where(.about-cosmic .nm-contact-grid) {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    :where(.about-cosmic .nm-skills-grid),
+    :where(.about-cosmic .nm-contact-grid) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  :where(.about-cosmic .nm-skill-card) {
+    padding: 2rem;
+    height: 100%;
+  }
+  :where(.about-cosmic .nm-skill-heading) {
+    margin: 0 0 1.4rem;
+  }
+  :where(.about-cosmic .nm-edu-degree) {
+    font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
+    font-size: 1.75rem;
+    font-weight: 400;
+    color: var(--text, #f3f1fa);
+    margin: 0 0 0.35rem;
+  }
+  :where(.about-cosmic .nm-edu-school) {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 0.98rem;
+    color: var(--muted, #c8c4da);
+    margin: 0 0 0.45rem;
+  }
+  :where(.about-cosmic .nm-edu-gpa) {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 0.84rem;
+    color: var(--accent-gold, #c8a96e);
+    margin: 0;
+  }
+  :where(.about-cosmic .nm-honors-list) {
+    margin-top: 2.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  :where(.about-cosmic .nm-honor-row) {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 1.4rem 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  @media (min-width: 768px) {
+    :where(.about-cosmic .nm-honor-row) {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+  :where(.about-cosmic .nm-honor-title) {
+    font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: var(--text, #f3f1fa);
+    margin: 0;
+  }
+  :where(.about-cosmic .nm-honor-sub) {
+    margin: 0.3rem 0 0;
+  }
+  :where(.about-cosmic .nm-contact-card) {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    padding: 1.6rem 1.75rem;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+  }
+  :where(.about-cosmic .nm-contact-icon) {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: rgba(139, 124, 246, 0.12);
+    color: var(--accent-purple, #8b7cf6);
+    border: 1px solid rgba(139, 124, 246, 0.25);
+  }
+  :where(.about-cosmic .nm-contact-val) {
+    font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
+    font-size: 1.35rem;
+    color: var(--text, #f3f1fa);
+    margin: 0.2rem 0 0;
+    word-break: break-word;
+  }
+  :where(.about-cosmic .nm-availability-card) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 1.6rem 1.75rem;
+    height: 100%;
+  }
+  :where(.about-cosmic .nm-availability-row) {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+  :where(.about-cosmic .status-dot) {
+    width: 10px;
+    height: 10px;
+    border-radius: 9999px;
+    background: var(--green-status, #4ade80);
+    box-shadow: 0 0 12px rgba(74, 222, 128, 0.75);
+    flex-shrink: 0;
+  }
+  :where(.about-cosmic .nm-availability-status) {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--green-status, #4ade80);
+    margin: 0;
+  }
+  :where(.about-cosmic .nm-availability-note) {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 0.85rem;
+    color: var(--muted, #c8c4da);
+    margin: 0;
+    line-height: 1.55;
+  }
+</style>
 
-  {{/* Header */}}
-  <header class="about-header">
-    <div class="about-title-row">
-      <h1 class="about-title">{{ .Title }}</h1>
+<article class="nm-page-shell about-cosmic">
+  <!-- ── 1. Cosmic Hero Header ─────────────────────────────────────── -->
+  <section class="about-hero-section">
+    <div class="reveal-on-scroll" style="transition-delay: 0ms;">
+      <div class="about-hero-layout">
+        <div class="about-avatar-halo" aria-hidden="true">
+          <span class="avatar-ring avatar-ring-outer"></span>
+          <span class="avatar-ring avatar-ring-inner"></span>
+          <span class="about-monogram">LQV</span>
+        </div>
+
+        <div class="about-hero-copy">
+          <p class="nm-label">{{ if $isEn }}ABOUT · ENGINEERING PORTFOLIO{{ else }}HỒ SƠ TÁC GIẢ · PORTFOLIO KỸ THUẬT{{ end }}</p>
+          <h1 class="about-hero-title">Lê Quang <em class="text-accent-gold italic">Vinh</em></h1>
+          <p class="about-hero-subtitle">
+            {{- if $isEn -}}
+            AI R&amp;D &amp; Full-Stack Software Engineer · Glory Hinody
+            {{- else -}}
+            Kỹ sư R&amp;D Trí tuệ Nhân tạo &amp; Phần mềm Full-Stack · Glory Hinody
+            {{- end -}}
+          </p>
+
+          <div class="about-hero-pills">
+            <a href="mailto:lea26462@gmail.com" class="nm-pill-btn nm-pill-btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+              </svg>
+              <span>lea26462@gmail.com</span>
+            </a>
+
+            <a href="https://github.com/vinh-gogo" target="_blank" rel="noopener noreferrer" class="nm-pill-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path>
+                <path d="M9 18c-4.51 2-5-2-7-2"></path>
+              </svg>
+              <span>GitHub</span>
+            </a>
+
+            <a href="https://linkedin.com/in/quangvinh2302" target="_blank" rel="noopener noreferrer" class="nm-pill-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                <rect width="4" height="12" x="2" y="9"></rect>
+                <circle cx="4" cy="4" r="2"></circle>
+              </svg>
+              <span>LinkedIn</span>
+            </a>
+
+            <a href="{{ "/posts/" | relLangURL }}" class="nm-pill-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+              </svg>
+              <span>{{ if $isEn }}Technical Logbook ({{ $postCount }}){{ else }}Sổ tay Kỹ thuật ({{ $postCount }}){{ end }}</span>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
-    {{- if .Description }}
-    <p class="about-description">{{ .Description }}</p>
-    {{- end }}
-    {{- if (.Param "ShowToc") }}
-    {{- partial "toc.html" . }}
-    {{- end }}
-  </header>
+  </section>
 
-  {{/* Content */}}
-  {{- if .Content }}
-  <div class="post-content md-content about-content">
-    {{- partial "anchored_headings.html" .Content -}}
-  </div>
-  {{- end }}
+  <!-- ── 2. 12-Col Bio & Structured Metadata ───────────────────────── -->
+  <section class="nm-grid-12 about-bio-section">
+    <div class="nm-col-4">
+      <div class="reveal-on-scroll" style="transition-delay: 100ms;">
+        <div class="about-meta-stack">
+          <div>
+            <p class="nm-label">{{ if $isEn }}ROLE{{ else }}VAI TRÒ{{ end }}</p>
+            <p class="about-meta-val">{{ if $isEn }}AI &amp; Software Engineer{{ else }}Kỹ sư AI &amp; Phần mềm{{ end }}</p>
+          </div>
 
-  {{/* Footer */}}
-  <footer class="about-footer">
-    <div class="about-social-links">
-      <a href="https://github.com/vinh-gogo" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
-      <a href="https://linkedin.com/in/quangvinh2302" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
-      <a href="mailto:lea26462@gmail.com">Email ↗</a>
+          <div>
+            <p class="nm-label">{{ if $isEn }}UNIVERSITY{{ else }}TRƯỜNG ĐẠI HỌC{{ end }}</p>
+            <p class="about-meta-val">{{ if $isEn }}Industrial University of HCMC (IUH){{ else }}ĐH Công nghiệp TP.HCM (IUH){{ end }}</p>
+          </div>
+
+          <div>
+            <p class="nm-label">{{ if $isEn }}THESIS GPA{{ else }}ĐIỂM KHÓA LUẬN{{ end }}</p>
+            <p class="about-meta-val text-accent-gold">4.0 / 4.0</p>
+          </div>
+
+          <div>
+            <p class="nm-label">{{ if $isEn }}PUBLICATION{{ else }}CÔNG BỐ KHOA HỌC{{ end }}</p>
+            <p class="about-meta-val">SSRC 2024 · {{ if $isEn }}First Author{{ else }}Tác giả chính{{ end }}</p>
+          </div>
+
+          <div>
+            <p class="nm-label">{{ if $isEn }}STACK{{ else }}NGÔN NGỮ CHỦ LỰC{{ end }}</p>
+            <p class="about-meta-val">Python · Go · Kotlin · SQL</p>
+          </div>
+
+          <div>
+            <p class="nm-label">{{ if $isEn }}LOCATION{{ else }}ĐỊA ĐIỂM{{ end }}</p>
+            <p class="about-meta-val">{{ if $isEn }}Ho Chi Minh City, Vietnam{{ else }}TP. Hồ Chí Minh, Việt Nam{{ end }}</p>
+          </div>
+        </div>
+      </div>
     </div>
-  </footer>
 
+    <div class="nm-col-8">
+      <div class="reveal-on-scroll" style="transition-delay: 200ms;">
+        <div class="about-manifesto">
+          {{- if $isEn }}
+          <p class="about-manifesto-lead">
+            I engineer intelligent systems grounded in <span class="text-accent-gold italic">deterministic architecture</span> and <span class="text-accent-gold italic">empirical verification</span> — bridging the gap between academic modeling and resilient production software.
+          </p>
+          <p class="about-manifesto-body">
+            Graduating with a B.S. in Computer Science from the Industrial University of Ho Chi Minh City (IUH, 2021–2025) with a <strong>4.0/4.0 graduation thesis</strong> published at <strong>SSRC 2024</strong>, I specialize in building <em>constrained AI Agent systems (LangGraph, Deterministic Saga)</em>, <em>Hybrid GraphRAG pipelines (Neo4j, Dual-Collection Qdrant)</em>, <em>quantized multimodal Video/Audio generation (Int8/FP4, ONNX)</em>, and <em>Offline-First cross-platform applications (Kotlin Multiplatform, Go, FastAPI)</em>.
+          </p>
+          <p class="about-manifesto-body">
+            <strong>Glory Hinody</strong> is my bilingual engineering logbook — archiving system blueprints, runtime invariants, reproducible benchmarks, and field lessons distilled across {{ $postCount }} deep-dive technical monographs.
+          </p>
+          {{- else }}
+          <p class="about-manifesto-lead">
+            Mình thiết kế các hệ thống thông minh đặt nền móng trên <span class="text-accent-gold italic">kiến trúc tất định</span> và <span class="text-accent-gold italic">kiểm chứng thực nghiệm</span> — thu hẹp khoảng cách giữa mô hình học thuật và phần mềm vận hành thực chiến.
+          </p>
+          <p class="about-manifesto-body">
+            Tốt nghiệp Cử nhân Khoa học Máy tính tại Đại học Công nghiệp TP.HCM (IUH, 2021–2025) với điểm <strong>Khóa luận tốt nghiệp 4.0/4.0</strong> và công trình công bố tại hội nghị <strong>SSRC 2024</strong>, mình tập trung phát triển <em>hệ thống AI Agent có kiểm soát (LangGraph, Deterministic Saga)</em>, <em>Hybrid GraphRAG (Neo4j, Dual-Collection Qdrant)</em>, <em>pipeline tạo sinh Video/Audio đa phương thức lượng tử hóa (Int8/FP4, ONNX)</em> và <em>ứng dụng đa nền tảng Offline-First (Kotlin Multiplatform, Go, FastAPI)</em>.
+          </p>
+          <p class="about-manifesto-body">
+            <strong>Glory Hinody</strong> là sổ tay kỹ thuật song ngữ ghi lại toàn bộ kiến trúc hệ thống, bất biến thời gian chạy, số liệu thực nghiệm và bài học thực chiến qua {{ $postCount }} chuyên khảo chuyên sâu.
+          </p>
+          {{- end }}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="nm-divider"></div>
+
+  <!-- ── 3. Research & Publication ─────────────────────────────────── -->
+  <section id="research">
+    <div class="reveal-on-scroll" style="transition-delay: 0ms;">
+      <h2 class="nm-section-title">{{ if $isEn }}Research &amp; Publication{{ else }}Nghiên cứu Khoa học{{ end }}</h2>
+    </div>
+
+    <div class="reveal-on-scroll" style="transition-delay: 80ms;">
+      <div class="glass-card nm-pub-card">
+        <div class="nm-pub-top">
+          <div class="nm-pub-badges">
+            <span class="nm-badge-published">PUBLISHED · SSRC 2024</span>
+            <span class="nm-badge-gold">{{ if $isEn }}THESIS 4.0 / 4.0{{ else }}KHÓA LUẬN 4.0 / 4.0{{ end }}</span>
+          </div>
+          <span class="nm-label">{{ if $isEn }}First Author · Computer Vision{{ else }}Tác giả chính · Thị giác Máy tính{{ end }}</span>
+        </div>
+
+        <h3 class="nm-pub-title">
+          {{- if $isEn -}}
+          Monocular Depth Estimation with Deep Convolutional Neural Networks (Enhanced Hybrid ResNet–DenseNet U-Net)
+          {{- else -}}
+          Ước lượng Độ sâu Ảnh đơn dựa trên Mạng Nơ-ron Tích chập Sâu (Enhanced Hybrid ResNet–DenseNet U-Net)
+          {{- end -}}
+        </h3>
+
+        <p class="nm-label nm-pub-venue">
+          {{- if $isEn -}}
+          SSRC 2024 · Student Scientific Research Conference · Industrial University of Ho Chi Minh City (IUH)
+          {{- else -}}
+          Hội nghị Nghiên cứu Khoa học SSRC 2024 · Đại học Công nghiệp TP. Hồ Chí Minh (IUH)
+          {{- end -}}
+        </p>
+
+        <p class="nm-pub-summary">
+          {{- if $isEn -}}
+          Proposed an Enhanced U-Net encoder–decoder fusing Hybrid ResNet–DenseNet feature backbones trained with a multi-component structural objective ($\mathcal{L}_1 + \mathcal{L}_{SSIM} + \mathcal{L}_{grad}$), achieving <strong>RMSE 0.0370</strong> and <strong>Cosine Similarity 0.974</strong> across 1,200 hold-out RGB-D test frames on the LineMOD benchmark.
+          {{- else -}}
+          Thiết kế kiến trúc Enhanced U-Net kết hợp trục đặc trưng lai Hybrid ResNet–DenseNet huấn luyện cùng hàm mất mát cấu trúc đa thành phần ($\mathcal{L}_1 + \mathcal{L}_{SSIM} + \mathcal{L}_{grad}$), đạt sai số <strong>RMSE 0.0370</strong> và độ tương đồng <strong>Cosine Similarity 0.974</strong> trên tập kiểm thử độc lập 1.200 ảnh LineMOD RGB-D.
+          {{- end -}}
+        </p>
+
+        <div class="nm-pub-bottom">
+          <div class="nm-chip-row">
+            <span class="nm-chip">Deep CNNs</span>
+            <span class="nm-chip">Hybrid ResNet–DenseNet</span>
+            <span class="nm-chip">Enhanced U-Net</span>
+            <span class="nm-chip">LineMOD RGB-D</span>
+            <span class="nm-chip">PyTorch</span>
+          </div>
+
+          <div class="nm-inline-links">
+            <a href="{{ "/posts/depth-estimation-cnn-ssrc/" | relLangURL }}" class="nm-arrow-link">
+              <span class="nm-arrow" aria-hidden="true">→</span>
+              <span>{{ if $isEn }}Read Paper Analysis{{ else }}Đọc bài phân tích{{ end }}</span>
+              <span class="nm-ext" aria-hidden="true">↗</span>
+            </a>
+            <a href="https://github.com/Vinh-Gogo/depth-estimation" target="_blank" rel="noopener noreferrer" class="nm-arrow-link">
+              <span class="nm-arrow" aria-hidden="true">→</span>
+              <span>GitHub Repo</span>
+              <span class="nm-ext" aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="nm-divider"></div>
+
+  <!-- ── 4. Experience & Flagship Systems ──────────────────────────── -->
+  <section id="experience">
+    <div class="reveal-on-scroll" style="transition-delay: 0ms;">
+      <h2 class="nm-section-title">{{ if $isEn }}Experience &amp; Flagship Systems{{ else }}Kinh nghiệm &amp; Dự án Trọng điểm{{ end }}</h2>
+    </div>
+
+    <div class="nm-exp-stack">
+      <!-- 4.1 WETEC Internship -->
+      <div class="nm-exp-row reveal-on-scroll" style="transition-delay: 0ms;">
+        <div class="nm-exp-meta">
+          <p class="nm-label">10/2025 — 12/2025</p>
+          <p class="nm-exp-org">{{ if $isEn }}WETEC — Water Environment &amp; Technology Energy Corp.{{ else }}WETEC — Công ty CP Công nghệ Năng lượng &amp; Môi trường Nước{{ end }}</p>
+          <p class="nm-exp-stack-line">Python · Firecrawl AI · Qdrant · Neo4j GraphRAG · FastAPI · Docker</p>
+        </div>
+        <div class="nm-exp-body">
+          <h3 class="nm-exp-role">{{ if $isEn }}AI Engineer Intern · Enterprise GraphRAG Pipelines{{ else }}AI Engineer Intern · Pipeline GraphRAG Doanh nghiệp{{ end }}</h3>
+          <ul class="nm-exp-bullets">
+            <li>
+              <span class="nm-exp-dot" aria-hidden="true"></span>
+              <span>{{ if $isEn }}Engineered an automated extraction and sanitization pipeline for 168 pages of water engineering &amp; ESG reports (BIWASE) using <strong>Firecrawl AI</strong>, achieving <code>0.9968</code> Cosine semantic preservation.{{ else }}Xây dựng pipeline bóc tách và làm sạch tự động 168 trang báo cáo kỹ thuật &amp; ESG ngành nước (BIWASE) bằng <strong>Firecrawl AI</strong>, đạt độ bảo toàn ngữ nghĩa Cosine <code>0.9968</code>.{{ end }}</span>
+            </li>
+            <li>
+              <span class="nm-exp-dot" aria-hidden="true"></span>
+              <span>{{ if $isEn }}Architected a <strong>Dual-Collection Qdrant + Neo4j GraphRAG</strong> retrieval system resolving cross-period tabular ambiguity while maintaining <strong>&lt;2s</strong> end-to-end latency via <strong>FastAPI &amp; Docker</strong>.{{ else }}Thiết kế kiến trúc truy xuất <strong>Dual-Collection Qdrant + Neo4j GraphRAG</strong>, giải quyết triệt để nhập nhằng bảng biểu định kỳ và giữ độ trễ <strong>&lt;2 giây</strong> qua <strong>FastAPI &amp; Docker</strong>.{{ end }}</span>
+            </li>
+          </ul>
+          <div class="nm-inline-links">
+            <a href="https://github.com/Vinh-Gogo/pdf-rag" target="_blank" rel="noopener noreferrer" class="nm-arrow-link"><span class="nm-arrow">→</span> Vinh-Gogo/pdf-rag <span class="nm-ext">↗</span></a>
+            <a href="{{ "/posts/pdf-rag-enterprise-dual-collection/" | relLangURL }}" class="nm-arrow-link"><span class="nm-arrow">→</span> {{ if $isEn }}Dual-Collection PDF-RAG{{ else }}Bài viết PDF-RAG{{ end }} <span class="nm-ext">↗</span></a>
+            <a href="{{ "/posts/graph-rag-neo4j-qdrant/" | relLangURL }}" class="nm-arrow-link"><span class="nm-arrow">→</span> {{ if $isEn }}Neo4j &amp; Qdrant GraphRAG{{ else }}Bài viết GraphRAG{{ end }} <span class="nm-ext">↗</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4.2 OpenVideoLab, Video Factory & Shinobi Studio -->
+      <div class="nm-exp-row reveal-on-scroll" style="transition-delay: 60ms;">
+        <div class="nm-exp-meta">
+          <p class="nm-label">2026 · {{ if $isEn }}FLAGSHIP SUITE{{ else }}HỆ SINH THÁI TRỌNG ĐIỂM{{ end }}</p>
+          <p class="nm-exp-org">Open Video Lab · Video Factory · Shinobi Studio</p>
+          <p class="nm-exp-stack-line">PyTorch · LTX-2.5 · MiniMax · Int8/FP4 · RIFE · KMP · SHA-256</p>
+        </div>
+        <div class="nm-exp-body">
+          <h3 class="nm-exp-role">{{ if $isEn }}Multimodal Video Diffusion &amp; Node-Graph Production Suite{{ else }}Hệ sinh thái Tạo sinh Video Khuếch tán &amp; Trình dựng Node-Graph{{ end }}</h3>
+          <ul class="nm-exp-bullets">
+            <li>
+              <span class="nm-exp-dot" aria-hidden="true"></span>
+              <span>{{ if $isEn }}<strong>Open Video Lab:</strong> Optimized Diffusion Transformers (<strong>LTX-2.5, MiniMax</strong>) via <strong>int8/fp4 quantization</strong>, reducing peak VRAM below <strong>14GB</strong> for smooth execution on 16GB GPUs with <strong>RIFE</strong> 48/96fps optical-flow interpolation.{{ else }}<strong>Open Video Lab:</strong> Tối ưu hóa mô hình Diffusion Transformers (<strong>LTX-2.5, MiniMax</strong>) bằng <strong>lượng tử hóa int8/fp4</strong>, ép mức tiêu thụ VRAM xuống <strong>&lt;14GB</strong> trên GPU 16GB kèm nội suy khung hình <strong>RIFE</strong> 48/96fps.{{ end }}</span>
+            </li>
+            <li>
+              <span class="nm-exp-dot" aria-hidden="true"></span>
+              <span>{{ if $isEn }}<strong>Video Factory &amp; Shinobi Studio:</strong> Built a 6-stage deterministic 2D animation pipeline backed by <strong>SHA-256 Content-Addressed Caching</strong> for surgical single-scene rebuilds, paired with a cross-platform <strong>Node-Graph</strong> studio in Kotlin Multiplatform.{{ else }}<strong>Video Factory &amp; Shinobi Studio:</strong> Kiến tạo pipeline 6 công đoạn sản xuất hoạt hình 2D tích hợp <strong>Content-Addressed Cache SHA-256</strong> (tái dựng cục bộ từng phân cảnh) và trình dựng phim đồ thị nút <strong>Node-Graph</strong> đa nền tảng trên KMP.{{ end }}</span>
+            </li>
+          </ul>
+          <div class="nm-inline-links">
+            <a href="https://github.com/vinh-gogo/open-video-lab" target="_blank" rel="noopener noreferrer" class="nm-arrow-link"><span class="nm-arrow">→</span> vinh-gogo/open-video-lab <span class="nm-ext">↗</span></a>
+            <a href="{{ "/posts/openvideolab-video-diffusion/" | relLangURL }}" class="nm-arrow-link"><span class="nm-arrow">→</span> OpenVideoLab <span class="nm-ext">↗</span></a>
+            <a href="{{ "/posts/quantization-int8-fp4-inference/" | relLangURL }}" class="nm-arrow-link"><span class="nm-arrow">→</span> Int8/FP4 Quantization <span class="nm-ext">↗</span></a>
+            <a href="{{ "/posts/shinobi-ai-video-studio-node-graph-kmp/" | relLangURL }}" class="nm-arrow-link"><span class="nm-arrow">→</span> Shinobi Studio <span class="nm-ext">↗</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4.3 Hybrid GraphRAG & Deterministic Multi-Agent Suite -->
+      <div class="nm-exp-row reveal-on-scroll" style="transition-delay: 120ms;">
+        <div class="nm-exp-meta">
+          <p class="nm-label">2025 — 2026 · {{ if $isEn }}PRODUCTION AI{{ else }}HỆ THỐNG AGENT{{ end }}</p>
+          <p class="nm-exp-org">{{ if $isEn }}Constrained Multi-Agent &amp; Real-Time Chatwoot Bridge{{ else }}Multi-Agent CSKH Có Kiểm soát &amp; Cầu nối Chatwoot Real-Time{{ end }}</p>
+          <p class="nm-exp-stack-line">LangGraph · Pydantic v2 · BM25 + Vector · bge-reranker-v2-m3 · FastAPI · WebSocket</p>
+        </div>
+        <div class="nm-exp-body">
+          <h3 class="nm-exp-role">{{ if $isEn }}Deterministic ReAct State Machine &amp; Hybrid Retrieval Engine{{ else }}Máy trạng thái ReAct Tất định &amp; Động cơ Truy xuất Lai{{ end }}</h3>
+          <ul class="nm-exp-bullets">
+            <li>
+              <span class="nm-exp-dot" aria-hidden="true"></span>
+              <span>{{ if $isEn }}Designed a constrained <strong>LangGraph</strong> ReAct workflow (Pre/Post Hooks, <strong>Pydantic v2</strong> runtime invariants, Human-in-the-Loop) with <strong>Hybrid Search</strong> achieving <strong>95% Hit@1 / 99% Hit@5</strong> across 3,200 F&amp;B and retail benchmark queries.{{ else }}Thiết kế máy trạng thái ReAct trên <strong>LangGraph</strong> (Pre/Post Hooks, Runtime Invariants với <strong>Pydantic v2</strong>, Human-in-the-Loop) kết hợp <strong>Hybrid Search</strong> đạt <strong>95% Hit@1 / 99% Hit@5</strong> trên 3.200 truy vấn F&amp;B và bán lẻ.{{ end }}</span>
+            </li>
+            <li>
+              <span class="nm-exp-dot" aria-hidden="true"></span>
+              <span>{{ if $isEn }}Engineered a fault-tolerant <strong>FastAPI + ActionCable WebSocket</strong> real-time bridge (<code>chatwoot_api_channel</code>) equipped with a finite state machine, heartbeat watchdog, and circuit breaker.{{ else }}Xây dựng dịch vụ cầu nối thời gian thực <strong>FastAPI + ActionCable WebSocket</strong> (<code>chatwoot_api_channel</code>) tích hợp State Machine, Heartbeat Watchdog và Circuit Breaker chống đứt gãy kết nối.{{ end }}</span>
+            </li>
+          </ul>
+          <div class="nm-inline-links">
+            <a href="https://github.com/thanhhuynhk17/langgraph_re_act_agent" target="_blank" rel="noopener noreferrer" class="nm-arrow-link"><span class="nm-arrow">→</span> langgraph_re_act_agent <span class="nm-ext">↗</span></a>
+            <a href="{{ "/posts/multi-agent-workflow-langraph/" | relLangURL }}" class="nm-arrow-link"><span class="nm-arrow">→</span> {{ if $isEn }}LangGraph Hooks{{ else }}Kiến trúc LangGraph{{ end }} <span class="nm-ext">↗</span></a>
+            <a href="{{ "/posts/chatwoot-realtime-api-channel-websocket-fastapi/" | relLangURL }}" class="nm-arrow-link"><span class="nm-arrow">→</span> {{ if $isEn }}ActionCable Bridge{{ else }}Cầu nối WebSocket{{ end }} <span class="nm-ext">↗</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4.4 AI-Doodle CLI & Claw-CLI (Edge ONNX & Deterministic Saga) -->
+      <div class="nm-exp-row reveal-on-scroll" style="transition-delay: 180ms;">
+        <div class="nm-exp-meta">
+          <p class="nm-label">2026 · {{ if $isEn }}SYSTEMS &amp; EDGE AI{{ else }}CÔNG CỤ DÒNG LỆNH &amp; EDGE AI{{ end }}</p>
+          <p class="nm-exp-org">AI-Doodle CLI &amp; Claw-CLI</p>
+          <p class="nm-exp-stack-line">Go 1.25+ · Python · Silero VAD v5 ONNX · Gemma 4 · W3C EPUB 3.3</p>
+        </div>
+        <div class="nm-exp-body">
+          <h3 class="nm-exp-role">{{ if $isEn }}Deterministic Saga Authoring Engine &amp; Voice Terminal Agent{{ else }}Động cơ Sáng tác Saga Tất định &amp; Trợ lý Giọng nói Terminal{{ end }}</h3>
+          <ul class="nm-exp-bullets">
+            <li>
+              <span class="nm-exp-dot" aria-hidden="true"></span>
+              <span>{{ if $isEn }}<strong><code>aidoodle-cli</code> (Go 1.25+):</strong> Autonomous 7-mode content engine powered by a <strong>Deterministic Saga Engine</strong>, <strong>Mechanical Output Validators</strong>, Retro Web UI, and zero-dependency pure-Go <strong>W3C EPUB 3.3 / DOCX</strong> compilers.{{ else }}<strong><code>aidoodle-cli</code> (Go 1.25+):</strong> Động cơ sáng tác tự động 7 chế độ vận hành trên <strong>Deterministic Saga Engine</strong>, <strong>Mechanical Output Validators</strong>, Retro Web UI và trình biên dịch <strong>W3C EPUB 3.3 / DOCX</strong> thuần Go không phụ thuộc ngoài.{{ end }}</span>
+            </li>
+            <li>
+              <span class="nm-exp-dot" aria-hidden="true"></span>
+              <span>{{ if $isEn }}<strong><code>claw-cli</code> (Python + ONNX Runtime):</strong> Bilingual voice-controlled terminal agent integrating <strong>Silero VAD v5 ONNX</strong> (<code>0.6s</code> auto-end-of-utterance), Unified Colab Gateway (<code>Gemma 4</code>), and a <strong>4-Tier Safety Policy Sandbox</strong>.{{ else }}<strong><code>claw-cli</code> (Python + ONNX Runtime):</strong> Trợ lý terminal điều khiển bằng giọng nói Việt–Anh pha thuật ngữ code, tích hợp <strong>Silero VAD v5 ONNX</strong> (<code>0.6s</code> tự chốt câu), Unified Colab Gateway (<code>Gemma 4</code>) và <strong>Sandbox an toàn 4 tầng</strong>.{{ end }}</span>
+            </li>
+          </ul>
+          <div class="nm-inline-links">
+            <a href="https://github.com/vinh-gogo/aidoodle-cli" target="_blank" rel="noopener noreferrer" class="nm-arrow-link"><span class="nm-arrow">→</span> vinh-gogo/aidoodle-cli <span class="nm-ext">↗</span></a>
+            <a href="https://github.com/vinh-gogo/claw-cli" target="_blank" rel="noopener noreferrer" class="nm-arrow-link"><span class="nm-arrow">→</span> vinh-gogo/claw-cli <span class="nm-ext">↗</span></a>
+            <a href="{{ "/posts/aidoodle-cli-deterministic-saga-epub-engine-go/" | relLangURL }}" class="nm-arrow-link"><span class="nm-arrow">→</span> AI-Doodle CLI <span class="nm-ext">↗</span></a>
+            <a href="{{ "/posts/claw-cli-voice-terminal-agent-silero-vad-sandbox/" | relLangURL }}" class="nm-arrow-link"><span class="nm-arrow">→</span> Claw-CLI <span class="nm-ext">↗</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4.5 Glory Vocab & AI Lingua / Skills-KMP (Offline-First & Edge Runtime) -->
+      <div class="nm-exp-row reveal-on-scroll" style="transition-delay: 240ms;">
+        <div class="nm-exp-meta">
+          <p class="nm-label">2026 · {{ if $isEn }}OFFLINE-FIRST &amp; KMP{{ else }}OFFLINE-FIRST &amp; ĐA NỀN TẢNG{{ end }}</p>
+          <p class="nm-exp-org">Glory Vocab (gloryvocab.com) · AI Lingua &amp; Skills-KMP</p>
+          <p class="nm-exp-stack-line">Kotlin Multiplatform · Compose · SQLDelight 3NF · Hugo · IndexedDB · Cloudflare D1</p>
+        </div>
+        <div class="nm-exp-body">
+          <h3 class="nm-exp-role">{{ if $isEn }}Offline-First FSRS Learning Engines &amp; On-Device Recognition{{ else }}Hệ sinh thái Học tập Offline-First FSRS &amp; Nhận diện Trên Thiết bị{{ end }}</h3>
+          <ul class="nm-exp-bullets">
+            <li>
+              <span class="nm-exp-dot" aria-hidden="true"></span>
+              <span>{{ if $isEn }}<strong>Glory Vocab (<code>gloryvocab.com</code>):</strong> Compiles a schema-validated YAML corpus (4,090 headwords, 379 synonym sets, 30 ETS passages) into <strong>8,406 bilingual static pages</strong> at <strong>100/100 Lighthouse Performance</strong>, with IndexedDB v2 + Service Worker v7 <strong>Offline-First FSRS</strong> and <strong>Zero-PII</strong> Cloudflare D1 delta sync.{{ else }}<strong>Glory Vocab (<code>gloryvocab.com</code>):</strong> Biên dịch kho dữ liệu YAML chuẩn hóa (4.090 từ vựng, 379 bộ đồng nghĩa, 30 bài đọc ETS) thành <strong>8.406 trang tĩnh song ngữ</strong> đạt <strong>100/100 Lighthouse Performance</strong>, tích hợp <strong>FSRS Offline-First</strong> trên IndexedDB v2 + Service Worker v7 và đồng bộ <strong>Zero-PII</strong> qua Cloudflare D1.{{ end }}</span>
+            </li>
+            <li>
+              <span class="nm-exp-dot" aria-hidden="true"></span>
+              <span>{{ if $isEn }}<strong>AI Lingua &amp; Skills-KMP:</strong> Cross-platform Desktop &amp; Android suite sharing <strong>85% common Kotlin code</strong> (5-Tier Clean Architecture, Vertical Slicing, MVI, 3NF SQLDelight), featuring 200+ CEFR/TOEIC topics, Gemini + Novita AI fallback chain, and an offline <strong>Handwriting Pad (<code>&lt;15ms</code>)</strong>.{{ else }}<strong>AI Lingua &amp; Skills-KMP:</strong> Ứng dụng Desktop &amp; Android chia sẻ <strong>85% code Kotlin chung</strong> (Clean Architecture 5 lớp, Vertical Slicing, MVI, SQLDelight 3NF), hỗ trợ luyện dịch 200+ chủ đề CEFR/TOEIC, LLM Fallback Chain và bảng nhận diện chữ viết tay offline <strong>Handwriting Pad (<code>&lt;15ms</code>)</strong>.{{ end }}</span>
+            </li>
+          </ul>
+          <div class="nm-inline-links">
+            <a href="https://gloryvocab.com" target="_blank" rel="noopener noreferrer" class="nm-arrow-link"><span class="nm-arrow">→</span> gloryvocab.com <span class="nm-ext">↗</span></a>
+            <a href="{{ "/posts/glory-vocab-hugo-fsrs-cloudflare-d1/" | relLangURL }}" class="nm-arrow-link"><span class="nm-arrow">→</span> Glory Vocab <span class="nm-ext">↗</span></a>
+            <a href="{{ "/posts/on-device-ai-onnx-kotlin/" | relLangURL }}" class="nm-arrow-link"><span class="nm-arrow">→</span> AI Lingua <span class="nm-ext">↗</span></a>
+            <a href="{{ "/posts/skills-kmp-architecture-design-patterns/" | relLangURL }}" class="nm-arrow-link"><span class="nm-arrow">→</span> Skills-KMP <span class="nm-ext">↗</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4.6 Glory Hinody Engineering Platform -->
+      <div class="nm-exp-row reveal-on-scroll" style="transition-delay: 300ms;">
+        <div class="nm-exp-meta">
+          <p class="nm-label">2025 — {{ if $isEn }}PRESENT{{ else }}HIỆN TẠI{{ end }}</p>
+          <p class="nm-exp-org">Glory Hinody Engineering Platform</p>
+          <p class="nm-exp-stack-line">Hugo Extended · WebGL GLSL · Canvas 2D · Strict CSP · Cloudflare Pages</p>
+        </div>
+        <div class="nm-exp-body">
+          <h3 class="nm-exp-role">{{ if $isEn }}Bilingual Technical Publication &amp; Relativistic WebGL Shell{{ else }}Nền tảng Xuất bản Kỹ thuật Song ngữ &amp; Đồ họa Hố đen WebGL{{ end }}</h3>
+          <ul class="nm-exp-bullets">
+            <li>
+              <span class="nm-exp-dot" aria-hidden="true"></span>
+              <span>{{ if $isEn }}Zero-dependency bilingual engineering logbook combining sub-second static compilation, custom relativistic Gargantua gravitational-lensing GLSL shaders, KaTeX &amp; Mermaid technical diagrams, and hardened Content-Security-Policy defense-in-depth.{{ else }}Nền tảng sổ tay kỹ thuật song ngữ không phụ thuộc framework nặng, kết hợp tốc độ biên dịch tĩnh dưới một giây, shader GLSL thấu kính hấp dẫn Gargantua thời gian thực, biểu đồ KaTeX &amp; Mermaid và lớp phòng vệ Content-Security-Policy nghiêm ngặt.{{ end }}</span>
+            </li>
+          </ul>
+          <div class="nm-inline-links">
+            <a href="https://github.com/vinh-gogo/glory-hinody" target="_blank" rel="noopener noreferrer" class="nm-arrow-link"><span class="nm-arrow">→</span> vinh-gogo/glory-hinody <span class="nm-ext">↗</span></a>
+            <a href="{{ "/posts/" | relLangURL }}" class="nm-arrow-link"><span class="nm-arrow">→</span> {{ if $isEn }}Explore All {{ $postCount }} Monographs{{ else }}Khám phá {{ $postCount }} Bài viết{{ end }} <span class="nm-ext">↗</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="nm-divider"></div>
+
+  <!-- ── 5. Technical Arsenal (2x2 Glass Grid) ─────────────────────── -->
+  <section id="skills">
+    <div class="reveal-on-scroll" style="transition-delay: 0ms;">
+      <h2 class="nm-section-title">{{ if $isEn }}Technical Arsenal{{ else }}Ma trận Kỹ năng{{ end }}</h2>
+    </div>
+
+    <div class="nm-skills-grid">
+      <div class="reveal-on-scroll" style="transition-delay: 0ms;">
+        <div class="glass-card nm-skill-card">
+          <h3 class="nm-label nm-skill-heading">{{ if $isEn }}AI / LLM &amp; MULTIMODAL{{ else }}AI / LLM &amp; ĐA PHƯƠNG THỨC{{ end }}</h3>
+          <div class="nm-chip-row">
+            <span class="nm-chip">LangGraph</span>
+            <span class="nm-chip">Deterministic Saga</span>
+            <span class="nm-chip">Neo4j GraphRAG</span>
+            <span class="nm-chip">Dual-Collection Qdrant</span>
+            <span class="nm-chip">Hybrid Search (BM25 + Vector)</span>
+            <span class="nm-chip">bge-reranker-v2-m3</span>
+            <span class="nm-chip">Diffusion Transformers (LTX-2.5, MiniMax, FLUX.1)</span>
+            <span class="nm-chip">Deep CNNs (ResNet, DenseNet, U-Net)</span>
+            <span class="nm-chip">FastMCP &amp; Semantic Router</span>
+            <span class="nm-chip">PyTorch</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal-on-scroll" style="transition-delay: 80ms;">
+        <div class="glass-card nm-skill-card">
+          <h3 class="nm-label nm-skill-heading">{{ if $isEn }}BACKEND &amp; DISTRIBUTED SYSTEMS{{ else }}BACKEND &amp; HỆ THỐNG PHÂN TÁN{{ end }}</h3>
+          <div class="nm-chip-row">
+            <span class="nm-chip">Python</span>
+            <span class="nm-chip">Go (Golang)</span>
+            <span class="nm-chip">Kotlin</span>
+            <span class="nm-chip">FastAPI</span>
+            <span class="nm-chip">ActionCable WebSocket</span>
+            <span class="nm-chip">PostgreSQL</span>
+            <span class="nm-chip">SQLite &amp; SQLDelight (3NF)</span>
+            <span class="nm-chip">Cloudflare Pages Functions &amp; D1</span>
+            <span class="nm-chip">C# (.NET)</span>
+            <span class="nm-chip">Pydantic v2 Invariants</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal-on-scroll" style="transition-delay: 160ms;">
+        <div class="glass-card nm-skill-card">
+          <h3 class="nm-label nm-skill-heading">{{ if $isEn }}FRONTEND, DESKTOP &amp; GRAPHICS{{ else }}FRONTEND, DESKTOP &amp; ĐỒ HỌA{{ end }}</h3>
+          <div class="nm-chip-row">
+            <span class="nm-chip">Kotlin Multiplatform (KMP)</span>
+            <span class="nm-chip">Compose Multiplatform</span>
+            <span class="nm-chip">Clean Architecture &amp; MVI</span>
+            <span class="nm-chip">TypeScript / JavaScript</span>
+            <span class="nm-chip">WebGL / GLSL Shaders</span>
+            <span class="nm-chip">Hugo Extended</span>
+            <span class="nm-chip">IndexedDB v2 &amp; Service Workers</span>
+            <span class="nm-chip">Node-Graph UI</span>
+            <span class="nm-chip">W3C EPUB 3.3 Compiler</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal-on-scroll" style="transition-delay: 240ms;">
+        <div class="glass-card nm-skill-card">
+          <h3 class="nm-label nm-skill-heading">{{ if $isEn }}MLOPS, EDGE &amp; SECURITY{{ else }}MLOPS, EDGE AI &amp; BẢO MẬT{{ end }}</h3>
+          <div class="nm-chip-row">
+            <span class="nm-chip">Quantization (Int8 / FP4)</span>
+            <span class="nm-chip">ONNX Runtime</span>
+            <span class="nm-chip">Silero VAD v5</span>
+            <span class="nm-chip">vLLM</span>
+            <span class="nm-chip">RIFE &amp; FFmpeg</span>
+            <span class="nm-chip">SHA-256 Content-Addressed Cache</span>
+            <span class="nm-chip">4-Tier Agent Sandbox</span>
+            <span class="nm-chip">Strict CSP &amp; Defense-in-Depth</span>
+            <span class="nm-chip">Docker &amp; Linux</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="nm-divider"></div>
+
+  <!-- ── 6. Education & Academic Excellence ────────────────────────── -->
+  <section id="education">
+    <div class="reveal-on-scroll" style="transition-delay: 0ms;">
+      <h2 class="nm-section-title">{{ if $isEn }}Education &amp; Honors{{ else }}Học vấn &amp; Thành tựu{{ end }}</h2>
+    </div>
+
+    <div class="reveal-on-scroll" style="transition-delay: 60ms;">
+      <div class="nm-exp-row">
+        <div class="nm-exp-meta">
+          <p class="nm-label">2021 — 2025</p>
+        </div>
+        <div class="nm-exp-body">
+          <h3 class="nm-edu-degree">{{ if $isEn }}Bachelor of Science in Computer Science{{ else }}Cử nhân Khoa học Máy tính{{ end }}</h3>
+          <p class="nm-edu-school">{{ if $isEn }}Industrial University of Ho Chi Minh City (IUH){{ else }}Đại học Công nghiệp TP. Hồ Chí Minh (IUH){{ end }}</p>
+          <p class="nm-edu-gpa">{{ if $isEn }}Graduation Thesis GPA: 4.0 / 4.0 (Distinction){{ else }}Điểm Khóa luận Tốt nghiệp: 4.0 / 4.0 (Xuất sắc){{ end }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="nm-honors-list">
+      <div class="reveal-on-scroll" style="transition-delay: 100ms;">
+        <div class="nm-honor-row">
+          <div>
+            <h3 class="nm-honor-title">{{ if $isEn }}First-Author Peer-Reviewed Publication — SSRC 2024{{ else }}Tác giả chính Công bố Khoa học — Hội nghị SSRC 2024{{ end }}</h3>
+            <p class="nm-label nm-honor-sub">{{ if $isEn }}Enhanced Hybrid ResNet–DenseNet U-Net · RMSE 0.0370 on LineMOD RGB-D{{ else }}Enhanced Hybrid ResNet–DenseNet U-Net · RMSE 0.0370 trên LineMOD RGB-D{{ end }}</p>
+          </div>
+          <span class="nm-label">2024</span>
+        </div>
+      </div>
+
+      <div class="reveal-on-scroll" style="transition-delay: 160ms;">
+        <div class="nm-honor-row">
+          <div>
+            <h3 class="nm-honor-title">{{ if $isEn }}Perfect 4.0 / 4.0 Graduation Thesis Defense{{ else }}Bảo vệ Khóa luận Tốt nghiệp Điểm tuyệt đối 4.0 / 4.0{{ end }}</h3>
+            <p class="nm-label nm-honor-sub">{{ if $isEn }}Faculty of Information Technology · Industrial University of HCMC{{ else }}Khoa Công nghệ Thông tin · Đại học Công nghiệp TP.HCM{{ end }}</p>
+          </div>
+          <span class="nm-label">2025</span>
+        </div>
+      </div>
+
+      <div class="reveal-on-scroll" style="transition-delay: 220ms;">
+        <div class="nm-honor-row">
+          <div>
+            <h3 class="nm-honor-title">{{ if $isEn }}Author of {{ $postCount }} Bilingual AI &amp; Systems Engineering Monographs{{ else }}Tác giả {{ $postCount }} Chuyên khảo Kỹ thuật AI &amp; Hệ thống Song ngữ{{ end }}</h3>
+            <p class="nm-label nm-honor-sub">Glory Hinody · VI / EN Technical Logbook</p>
+          </div>
+          <span class="nm-label">2025 — 2026</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="nm-divider"></div>
+
+  <!-- ── 7. Get In Touch (2x2 Cosmic Contact Grid) ─────────────────── -->
+  <section id="contact">
+    <div class="reveal-on-scroll" style="transition-delay: 0ms;">
+      <h2 class="nm-section-title">{{ if $isEn }}Get In Touch{{ else }}Liên hệ &amp; Hợp tác{{ end }}</h2>
+    </div>
+
+    <div class="nm-contact-grid">
+      <div class="reveal-on-scroll" style="transition-delay: 0ms;">
+        <a href="mailto:lea26462@gmail.com" class="glass-card nm-contact-card">
+          <span class="nm-contact-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+            </svg>
+          </span>
+          <div>
+            <p class="nm-label">Email</p>
+            <p class="nm-contact-val">lea26462@gmail.com</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="reveal-on-scroll" style="transition-delay: 80ms;">
+        <a href="https://github.com/vinh-gogo" target="_blank" rel="noopener noreferrer" class="glass-card nm-contact-card">
+          <span class="nm-contact-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path>
+              <path d="M9 18c-4.51 2-5-2-7-2"></path>
+            </svg>
+          </span>
+          <div>
+            <p class="nm-label">GitHub</p>
+            <p class="nm-contact-val">github.com/vinh-gogo</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="reveal-on-scroll" style="transition-delay: 160ms;">
+        <a href="https://linkedin.com/in/quangvinh2302" target="_blank" rel="noopener noreferrer" class="glass-card nm-contact-card">
+          <span class="nm-contact-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+              <rect width="4" height="12" x="2" y="9"></rect>
+              <circle cx="4" cy="4" r="2"></circle>
+            </svg>
+          </span>
+          <div>
+            <p class="nm-label">LinkedIn</p>
+            <p class="nm-contact-val">linkedin.com/in/quangvinh2302</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="reveal-on-scroll" style="transition-delay: 240ms;">
+        <div class="glass-card nm-availability-card">
+          <div class="nm-availability-row">
+            <span class="status-dot" aria-hidden="true"></span>
+            <p class="nm-availability-status">
+              {{- if $isEn -}}
+              Available for AI R&amp;D &amp; Software Engineering roles
+              {{- else -}}
+              Sẵn sàng cho cơ hội AI R&amp;D / Software Engineering
+              {{- end -}}
+            </p>
+          </div>
+          <p class="nm-availability-note">
+            {{- if $isEn -}}
+            Open to full-time engineering positions, applied AI research collaborations, and high-reliability system builds in Ho Chi Minh City or remote.
+            {{- else -}}
+            Mở đón các vị trí kỹ sư toàn thời gian, hợp tác nghiên cứu AI ứng dụng và phát triển hệ thống độ tin cậy cao tại TP. Hồ Chí Minh hoặc từ xa.
+            {{- end -}}
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
 </article>
-
 {{- end }}

@@ -76,3 +76,99 @@
 
 - id: logbook_subtitle
   translation: "Technical logbook của Lê Quang Vinh (AI Engineer)."
+
+- id: code_copy
+  translation: "sao chép"
+
+- id: code_copied
+  translation: "đã chép!"
+
+- id: skip_to_content
+  translation: "Bỏ qua tới nội dung"
+
+- id: stargazing_prompt
+  translation: "Lê Quang Vinh · Cuộn xuống để bước vào vũ trụ kỹ thuật"
+
+- id: stargazing_dive
+  translation: "Tiếp tục cuộn để mở không gian nội dung"
+
+- id: stargazing_enter_aria
+  translation: "Bước vào không gian nội dung của Lê Quang Vinh"
+
+- id: cosmic_toggle_title
+  translation: "Chuyển nền vũ trụ (Hố đen Gargantua / Bầu trời sao)"
+
+- id: hero_eyebrow
+  translation: "LÊ QUANG VINH · KỸ SƯ R&D TRÍ TUỆ NHÂN TẠO"
+
+- id: hero_line_1
+  translation: "Nghiên cứu."
+
+- id: hero_line_2
+  translation: "Kỹ thuật."
+
+- id: hero_line_3
+  translation: "Kiến tạo."
+
+- id: hero_sub
+  translation: "AI Agent Tất định · Hybrid GraphRAG · Tạo sinh Đa phương thức · Hệ thống Offline-First"
+
+- id: scroll_hint
+  translation: "Cuộn"
+
+- id: motivation_eyebrow
+  translation: "ĐỘNG LỰC CỐT LÕI"
+
+- id: works_eyebrow
+  translation: "NGHIÊN CỨU & GHI CHÉP"
+
+- id: works_sidenote
+  translation: "Chuyên khảo kỹ thuật chuyên sâu về thiết kế hệ thống, số liệu thực nghiệm và triển khai thực tế."
+
+- id: view_all_posts
+  translation: "Xem tất cả bài viết"
+
+- id: cta_eyebrow
+  translation: "NẾU ĐỒNG ĐIỆU"
+
+- id: cta_heading
+  translation: "Kết nối cùng mình."
+
+- id: snap_nav_aria
+  translation: "Điều hướng phân đoạn"
+
+- id: snap_hero
+  translation: "Mở đầu"
+
+- id: snap_motivation
+  translation: "Động lực cốt lõi"
+
+- id: snap_works
+  translation: "Nghiên cứu & Ghi chép"
+
+- id: snap_quote
+  translation: "Triết lý kỹ thuật"
+
+- id: snap_cta
+  translation: "Kết nối"
+
+- id: about_eyebrow
+  translation: "HỒ SƠ TÁC GIẢ · PORTFOLIO KỸ THUẬT"
+
+- id: publications_heading
+  translation: "Nghiên cứu Khoa học"
+
+- id: experience_heading
+  translation: "Kinh nghiệm & Dự án Trọng điểm"
+
+- id: skills_heading
+  translation: "Ma trận Kỹ năng"
+
+- id: education_heading
+  translation: "Học vấn & Thành tựu"
+
+- id: contact_heading
+  translation: "Liên hệ & Hợp tác"
+
+- id: availability_status
+  translation: "Sẵn sàng cho cơ hội AI R&D / Software Engineering"

@@ -1,0 +1,52 @@
+{{- define "main" }}
+{{- $isEn := eq .Lang "en" }}
+
+<div class="nm-page-shell search-cosmic">
+  <header class="archive-hero reveal-on-scroll">
+    <div class="archive-eyebrow-row">
+      <span class="nm-label">TRUY VẤN TRI THỨC · KNOWLEDGE INDEX</span>
+    </div>
+
+    <div class="archive-title-row">
+      <h1 class="archive-title">{{ .Title }}</h1>
+    </div>
+
+    <p class="archive-subtitle">
+      {{- if .Description -}}
+        {{ .Description }}
+      {{- else if $isEn -}}
+        Instant full-text Fuse.js lookup across engineering monographs, AI systems research, and technical notes.
+      {{- else -}}
+        Truy vấn toàn văn tức thời qua toàn bộ chuyên khảo kỹ thuật, nghiên cứu hệ thống AI và ghi chép kiến trúc phần mềm.
+      {{- end -}}
+    </p>
+  </header>
+
+  <div id="searchbox" class="searchbox cosmic-searchbox reveal-on-scroll">
+    <div class="glass-card cosmic-search-input-wrap">
+      <svg class="search-input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input id="searchInput" disabled
+        placeholder="{{ .Params.placeholder | default (printf "%s ↵" .Title) }}"
+        aria-label="{{ if $isEn }}Search monographs{{ else }}Tìm kiếm bài viết{{ end }}"
+        type="search" autocomplete="off" maxlength="64">
+      <kbd class="search-kbd-hint nm-label" aria-hidden="true">ESC</kbd>
+    </div>
+
+    <div class="search-quick-tags" aria-label="{{ if $isEn }}Quick search queries{{ else }}Gợi ý từ khóa tìm kiếm{{ end }}">
+      <span class="nm-label search-quick-label">{{ if $isEn }}QUICK FILTER{{ else }}GỢI Ý NHANH{{ end }}</span>
+      <a href="?q=RAG" class="nm-chip search-quick-chip notranslate" translate="no">RAG</a>
+      <a href="?q=Diffusion" class="nm-chip search-quick-chip notranslate" translate="no">Diffusion</a>
+      <a href="?q=Agent" class="nm-chip search-quick-chip notranslate" translate="no">Agent</a>
+      <a href="?q=ONNX" class="nm-chip search-quick-chip notranslate" translate="no">ONNX</a>
+      <a href="?q=Quantization" class="nm-chip search-quick-chip notranslate" translate="no">Quantization</a>
+      <a href="?q=Rust" class="nm-chip search-quick-chip notranslate" translate="no">Rust</a>
+    </div>
+
+    <ul id="searchResults" class="searchResults cosmic-search-results" aria-label="{{ if $isEn }}Search results{{ else }}Kết quả tìm kiếm{{ end }}"></ul>
+  </div>
+</div>
+
+{{- end }}

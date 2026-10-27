@@ -1,21 +1,91 @@
 /* ==========================================================================
-   Glory Hinody — Comments Container & Share Bottom Sheet / Modal
+   Glory Hinody — Cosmic Comments, Share Bar, Share Dialog & Floating Toast
+   60-comments-share.css · Preserves All blog-stats.js & Giscus Hooks
    ========================================================================== */
 
-/* ── Comments Container (Placed Under Article) ────────────────────────── */
-.post-comments-container {
-  margin-top: 40px;
-  padding: 24px;
+/* ── Editorial Share Bar Under Article ───────────────────────────────────── */
+.editorial-share-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.15rem 1.4rem;
+  margin-top: 1.5rem;
   background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  scroll-margin-top: calc(var(--header-height) + 24px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.share-label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+}
+
+.share-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.share-action-link,
+.share-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 0.9rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+
+.share-action-link:hover,
+.share-action-btn:hover {
+  border-color: var(--accent-purple-border);
+  background: rgba(139, 124, 246, 0.14);
+  color: #ffffff;
+}
+
+/* ── Giscus Comments Cosmic Glass Container (#comments) ──────────────────── */
+#comments,
+.post-comments-container,
+.comments-section {
+  margin-top: 2.5rem;
+  padding: 1.75rem;
+  background: var(--panel);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  scroll-margin-top: 5.5rem;
   box-sizing: border-box;
 }
 
+#comments.glass-card:hover,
+.comments-section.glass-card:hover {
+  transform: none;
+}
+
 @media (max-width: 640px) {
-  .post-comments-container {
-    padding: 18px 14px;
+  #comments,
+  .post-comments-container,
+  .comments-section {
+    padding: 1.25rem 1rem;
   }
 }
 
@@ -23,28 +93,48 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 14px;
-  margin-bottom: 18px;
-  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .comments-header-title {
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-bright);
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--text-bright);
+}
+
+.comments-heading {
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--text-bright);
+  margin: 0;
+}
+
+.comments-header-title svg {
+  color: var(--accent-gold);
 }
 
 .comments-header-badge {
-  font-size: 0.75rem;
+  font-family: var(--font-label);
+  font-size: 10px;
   font-weight: 600;
-  color: var(--accent);
-  background: var(--accent-dim);
-  padding: 2px 8px;
-  border-radius: var(--r-pill);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-purple);
+  background: var(--accent-purple-dim);
+  border: 1px solid var(--accent-purple-border);
+  padding: 0.22rem 0.65rem;
+  border-radius: 9999px;
 }
 
 .post-comments-container iframe.giscus-frame {
@@ -52,63 +142,76 @@
   max-width: 100% !important;
 }
 
-/* Comments Flash on Click */
 @keyframes commentsPulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(165, 180, 252, 0.45);
-    border-color: var(--accent);
+    box-shadow: 0 0 0 0 rgba(139, 124, 246, 0.45);
+    border-color: var(--accent-purple);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(165, 180, 252, 0.15);
-    border-color: var(--accent);
+    box-shadow: 0 0 0 10px rgba(139, 124, 246, 0.12);
+    border-color: var(--accent-gold);
   }
   100% {
     box-shadow: 0 0 0 0 transparent;
   }
 }
 
+#comments.highlight-flash,
 .post-comments-container.highlight-flash {
   animation: commentsPulse 1.4s ease-out;
-  border-color: var(--accent) !important;
+  border-color: var(--accent-gold) !important;
 }
 
-/* ── Interactive Stats Logic (Like, HeartPop) ─────────────────────────── */
+/* ── Liked Heart State (.stat-likes.is-liked) ────────────────────────────── */
+.stat-likes.is-liked,
 button.stat-likes.is-liked {
-  color: #ef4444 !important;
+  color: #fb7185 !important;
+  border-color: rgba(251, 113, 133, 0.35) !important;
+  background: rgba(251, 113, 133, 0.1) !important;
 }
 
+.stat-likes.is-liked svg,
 button.stat-likes.is-liked svg {
-  fill: #ef4444;
-  stroke: #ef4444;
+  fill: #fb7185;
+  stroke: #fb7185;
   animation: heartPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes heartPop {
-  0% { transform: scale(1); }
-  45% { transform: scale(1.4); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.38);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
-/* ── Share Modal & Mobile Bottom Sheet ────────────────────────────────── */
+/* ── Cosmic Share Modal & Mobile Bottom Sheet (#share-modal) ─────────────── */
+#share-modal,
 .share-modal {
   position: fixed;
   inset: 0;
   z-index: 9999;
   display: flex;
-  align-items: flex-end; /* Bottom sheet on mobile */
+  align-items: flex-end;
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.24s ease;
 }
 
 @media (min-width: 640px) {
+  #share-modal,
   .share-modal {
-    align-items: center; /* Centered modal on desktop */
-    padding: 20px;
+    align-items: center;
+    padding: 1.25rem;
   }
 }
 
+#share-modal.is-open,
 .share-modal.is-open {
   opacity: 1;
   pointer-events: auto;
@@ -117,9 +220,9 @@ button.stat-likes.is-liked svg {
 .share-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(9, 11, 14, 0.7);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(4, 6, 14, 0.74);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .share-modal-dialog {
@@ -127,34 +230,38 @@ button.stat-likes.is-liked svg {
   z-index: 1;
   width: 100%;
   max-width: 480px;
-  background: var(--panel);
-  border: 1px solid var(--line-strong);
-  border-radius: 16px 16px 0 0; /* Bottom sheet radius */
+  background: rgba(12, 15, 32, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(139, 124, 246, 0.28);
+  border-radius: 18px 18px 0 0;
   padding-bottom: var(--safe-b);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.65),
+    0 0 40px rgba(139, 124, 246, 0.12);
   transform: translateY(100%);
-  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
 }
 
 @media (min-width: 640px) {
   .share-modal-dialog {
-    border-radius: var(--r);
+    border-radius: 16px;
     padding-bottom: 0;
     transform: translateY(16px) scale(0.98);
   }
 }
 
+#share-modal.is-open .share-modal-dialog,
 .share-modal.is-open .share-modal-dialog {
   transform: translateY(0) scale(1);
 }
 
-/* Mobile drag indicator */
 .share-sheet-handle {
   width: 36px;
   height: 4px;
-  background: var(--line-strong);
-  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
   margin: 10px auto 4px auto;
 }
 
@@ -168,44 +275,51 @@ button.stat-likes.is-liked svg {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--line);
+  padding: 0.95rem 1.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .share-modal-title {
   font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 400;
   color: var(--text-bright);
 }
 
 .share-modal-close {
-  background: transparent;
-  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--muted);
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   line-height: 1;
   cursor: pointer;
-  padding: 4px;
-  transition: color 0.15s ease;
+  transition: color 0.2s ease, background 0.2s ease;
 }
 
 .share-modal-close:hover {
-  color: var(--text-bright);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .share-modal-body {
-  padding: 18px 20px;
+  padding: 1.25rem 1.35rem 1.4rem;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 1rem;
 }
 
 .share-target-title {
-  font-size: 0.94rem;
-  font-weight: 600;
-  color: var(--text-bright);
-  line-height: 1.45;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.38;
+  color: var(--text);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -214,130 +328,141 @@ button.stat-likes.is-liked svg {
 
 .share-copy-row {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .share-link-input {
-  flex: 1;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  color: var(--muted);
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  padding: 0 12px;
+  flex: 1 1 0%;
+  min-width: 0;
   min-height: 44px;
+  padding: 0 0.85rem;
+  border-radius: 10px;
+  background: rgba(6, 8, 16, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
   outline: none;
-  border-radius: var(--r-sm);
+  transition: border-color 0.2s ease, color 0.2s ease;
 }
 
 .share-link-input:focus {
-  border-color: var(--accent);
-  color: var(--text-bright);
+  border-color: var(--accent-purple);
+  color: #ffffff;
 }
 
 .share-link-copy-btn {
-  background: var(--panel-hover);
-  border: 1px solid var(--line-strong);
-  color: var(--accent);
-  font-family: var(--font-body);
-  font-size: 0.86rem;
-  font-weight: 600;
-  padding: 0 16px;
   min-height: 44px;
-  cursor: pointer;
+  padding: 0 1.15rem;
+  border-radius: 10px;
+  background: var(--accent-gold-dim);
+  border: 1px solid var(--accent-gold-border);
+  color: var(--accent-gold);
+  font-family: var(--font-label);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   white-space: nowrap;
-  transition: all 0.15s ease;
-  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
 }
 
 .share-link-copy-btn:hover {
-  background: var(--accent);
-  color: var(--accent-contrast);
+  background: var(--accent-gold);
+  color: #060810;
 }
 
 .share-channels-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
 }
 
 .share-channel-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 0.55rem;
   min-height: 44px;
-  padding: 8px 12px;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  color: var(--text-bright);
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
   font-family: var(--font-body);
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.84rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
   text-decoration: none;
-  border-radius: var(--r-sm);
+  transition: all 0.2s var(--ease);
 }
 
 .share-channel-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--panel-hover);
+  border-color: var(--accent-purple-border);
+  background: rgba(139, 124, 246, 0.14);
+  color: #ffffff;
 }
 
 .share-native-wrap {
-  margin-top: 4px;
+  margin-top: 0.25rem;
 }
 
 .share-native-btn {
   width: 100%;
   min-height: 44px;
-  padding: 10px;
-  background: var(--accent-dim);
-  border: 1px solid var(--accent);
-  color: var(--accent);
+  padding: 0.65rem;
+  border-radius: 10px;
+  background: var(--accent-purple-dim);
+  border: 1px solid var(--accent-purple-border);
+  color: #e4dfff;
   font-family: var(--font-body);
-  font-size: 0.88rem;
-  font-weight: 600;
-  border-radius: var(--r-sm);
+  font-size: 0.86rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s var(--ease);
 }
 
 .share-native-btn:hover {
-  background: var(--accent);
-  color: var(--accent-contrast);
+  background: var(--accent-purple);
+  color: #ffffff;
 }
 
-/* ── Toast Notification ───────────────────────────────────────────────── */
+/* ── Floating Cosmic Toast Notification (#glory-toast) ───────────────────── */
+#glory-toast,
 .glory-toast {
   position: fixed;
   bottom: calc(var(--tabbar-h) + var(--safe-b) + 16px);
   right: 16px;
   z-index: 10000;
-  background: var(--panel);
-  border: 1px solid var(--accent);
-  color: var(--text-bright);
+  background: rgba(14, 18, 38, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(200, 169, 110, 0.42);
+  color: #ffffff;
   font-family: var(--font-body);
-  font-size: 0.86rem;
-  font-weight: 600;
-  padding: 10px 18px;
-  border-radius: var(--r-sm);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.68rem 1.2rem;
+  border-radius: 9999px;
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(200, 169, 110, 0.16);
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(12px);
   pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.24s var(--ease), transform 0.24s var(--ease);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 769px) {
+  #glory-toast,
   .glory-toast {
-    bottom: 24px;
-    right: 24px;
+    bottom: 26px;
+    right: 26px;
   }
 }
 
+#glory-toast.is-show,
 .glory-toast.is-show {
   opacity: 1;
   transform: translateY(0);
