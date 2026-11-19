@@ -1,80 +1,80 @@
 /* ==========================================================================
-   Glory Hinody — Nausmind Fullpage Stargazing & 5-Section Snap Stage
-   30-home.css · Gargantua Stargazing Pill, Fullpage Snap Stage & Side Dots
+   Glory Hinody — Eclipse Editorial Stargazing & 5-Section Fullpage Stage
+   30-home.css · Eclipse Entry Capsule, Calibrated Scrim & GPU Snap Physics
    ========================================================================== */
 
-/* ── Stargazing Entry Pill (#stargazing-caption) ─────────────────────────── */
+/* ── Stargazing Entry Capsule (#stargazing-caption) ──────────────────────── */
 .stargazing-caption,
 #stargazing-caption {
   position: fixed;
-  bottom: max(2.75rem, calc(env(safe-area-inset-bottom, 0px) + 1.25rem));
+  bottom: max(2.5rem, calc(env(safe-area-inset-bottom, 0px) + 1.25rem));
   left: 50%;
-  transform: translateX(-50%) translateY(16px);
+  transform: translate3d(-50%, 14px, 0);
   z-index: 45;
   width: max-content;
   max-width: min(92vw, 34rem);
   opacity: 0;
   pointer-events: none;
   transition:
-    opacity 0.7s ease,
-    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.65s var(--ease),
+    transform 0.65s var(--ease);
 }
 
 .stargazing-caption.visible,
 #stargazing-caption.visible {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translate3d(-50%, 0, 0);
   pointer-events: auto;
 }
 
 .stargazing-caption-glass {
-  background: rgba(12, 15, 32, 0.52);
-  backdrop-filter: blur(16px) saturate(1.2);
-  -webkit-backdrop-filter: blur(16px) saturate(1.2);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 0.9rem 1.85rem 0.6rem;
-  color: rgba(243, 241, 250, 0.9);
+  background: rgba(7, 11, 22, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(212, 226, 248, 0.14);
+  border-radius: var(--r-pill);
+  padding: 0.78rem 1.85rem 0.62rem;
+  color: var(--text);
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.48);
+  gap: 0.25rem;
+  box-shadow: var(--rim-top), 0 16px 40px rgba(2, 4, 10, 0.56);
   transition:
-    border-color 0.3s ease,
-    background 0.3s ease,
-    color 0.3s ease,
-    transform 0.3s var(--ease),
-    box-shadow 0.3s ease;
+    border-color var(--dur) var(--ease),
+    background var(--dur) var(--ease),
+    color var(--dur) ease,
+    transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
 }
 
 @supports not (backdrop-filter: blur(1px)) {
   .stargazing-caption-glass {
-    background: rgba(12, 15, 32, 0.9);
+    background: rgba(7, 11, 22, 0.94);
   }
 }
 
 .stargazing-caption-glass:hover {
-  border-color: rgba(200, 169, 110, 0.42);
-  background: rgba(16, 20, 42, 0.72);
+  border-color: var(--accent-gold-border);
+  background: rgba(12, 18, 34, 0.88);
   color: var(--text-bright);
-  box-shadow: 0 12px 36px rgba(200, 169, 110, 0.14);
+  transform: translate3d(0, -2px, 0);
+  box-shadow: var(--rim-top-warm), 0 18px 46px rgba(2, 4, 10, 0.64);
 }
 
 .stargazing-text {
   margin: 0;
   font-family: var(--font-display);
   font-style: italic;
-  font-size: clamp(1rem, 1.35vw, 1.18rem);
+  font-size: clamp(0.98rem, 1.3vw, 1.15rem);
   font-weight: 400;
   letter-spacing: 0.015em;
   text-transform: none;
-  line-height: 1.48;
+  line-height: 1.44;
   color: inherit;
   text-align: center;
   text-wrap: balance;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
 .stargazing-chevron {
@@ -85,26 +85,27 @@
 }
 
 .stargazing-chevron svg {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
 }
 
 .scroll-bounce {
-  animation: scrollbounce 1.85s ease-in-out infinite;
+  animation: scrollbounce 2.2s var(--ease) infinite;
 }
 
 @media (max-width: 480px) {
   .stargazing-caption-glass {
-    padding: 0.78rem 1.35rem 0.52rem;
+    padding: 0.72rem 1.35rem 0.52rem;
+    border-radius: 18px;
   }
 
   .stargazing-text {
-    font-size: 0.98rem;
+    font-size: 0.96rem;
     letter-spacing: 0.01em;
   }
 }
 
-/* ── Fullpage Snap Container (#scroll-container.home-fullpage) ───────────── */
+/* ── Fullpage Snap Container & Calibrated Eclipse Scrim ──────────────────── */
 #scroll-container.home-fullpage,
 .home-fullpage {
   position: fixed;
@@ -115,12 +116,15 @@
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
-  background: rgba(6, 8, 16, 0.56);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  transition:
-    opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
-    background 0.85s ease;
+  background: radial-gradient(
+    ellipse 68% 64% at 72% 48%,
+    rgba(5, 7, 14, 0.66) 0%,
+    rgba(5, 7, 14, 0.82) 56%,
+    rgba(5, 7, 14, 0.90) 100%
+  );
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: opacity 0.72s var(--ease);
 }
 
 #scroll-container.home-fullpage::-webkit-scrollbar,
@@ -157,11 +161,11 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: translateY(48px);
+  transform: translate3d(0, 28px, 0) scale(0.988);
   transition:
-    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-    visibility 0.75s;
+    opacity 0.62s var(--ease),
+    transform 0.62s var(--ease),
+    visibility 0.62s;
   will-change: opacity, transform;
   box-sizing: border-box;
 }
@@ -170,7 +174,7 @@
 .snap-section > .hero-copy,
 .snap-section > .snap-section-inner {
   width: 100%;
-  max-width: 1240px;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -179,7 +183,7 @@
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transform: translateY(0);
+  transform: translate3d(0, 0, 0) scale(1);
   z-index: 2;
 }
 
@@ -187,7 +191,7 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: translateY(-48px);
+  transform: translate3d(0, -24px, 0) scale(0.992);
   z-index: 1;
 }
 
@@ -195,7 +199,7 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: translateY(48px);
+  transform: translate3d(0, 28px, 0) scale(0.988);
   z-index: 1;
 }
 
@@ -210,7 +214,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding-left: 2vw;
+  padding-left: 1.5vw;
 }
 
 @media (max-width: 768px) {
@@ -224,14 +228,14 @@
   font-family: var(--font-label);
   font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: rgba(200, 169, 110, 0.86);
+  color: var(--accent-gold);
   background: transparent;
   border: 0;
   padding: 0;
-  margin: 0 0 1.5rem 0;
-  text-shadow: 0 0 30px rgba(8, 8, 20, 0.85), 0 1px 3px rgba(8, 8, 20, 0.9);
+  margin: 0 0 1.4rem 0;
+  text-shadow: 0 2px 14px rgba(3, 5, 10, 0.72);
 }
 
 @media (max-width: 480px) {
@@ -239,7 +243,7 @@
     font-size: 10px;
     letter-spacing: 0.16em;
     line-height: 1.5;
-    margin-bottom: 1.1rem;
+    margin-bottom: 1.05rem;
   }
 }
 
@@ -247,33 +251,27 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.04em;
+  gap: 0.02em;
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(3.1rem, 8.2vw, 7.2rem);
+  font-size: clamp(3.2rem, 8.2vw, 7.2rem);
   font-weight: 300;
-  line-height: 1.03;
-  letter-spacing: -0.02em;
-  color: var(--text);
+  line-height: 0.99;
+  letter-spacing: -0.024em;
+  color: var(--text-bright);
 }
 
 .hero-line {
   display: inline-block;
   opacity: 0;
-  transform: translateY(28px);
-  filter: blur(6px);
-  text-shadow:
-    0 0 60px rgba(8, 8, 20, 0.9),
-    0 0 30px rgba(8, 8, 20, 0.8),
-    0 2px 4px rgb(8, 8, 20);
-  transition:
-    letter-spacing 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.4s ease;
+  transform: translate3d(0, 22px, 0);
+  text-shadow: 0 4px 28px rgba(3, 5, 10, 0.78);
+  transition: letter-spacing 0.42s var(--ease), opacity 0.4s ease;
   will-change: transform, opacity;
 }
 
 .hero-line:hover {
-  letter-spacing: 0.015em;
+  letter-spacing: -0.01em;
 }
 
 .dreamer-text {
@@ -283,77 +281,64 @@
 }
 
 .dreamer-text.hero-line:hover {
-  letter-spacing: 0.035em;
+  letter-spacing: 0.008em;
 }
 
 .hero-line.visible {
-  animation: heroReveal 0.72s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.line-researcher.visible {
-  animation-delay: 0s;
-}
-
-.line-engineer.visible {
-  animation-delay: 0s;
-}
-
-.dreamer-text.visible,
-.line-dreamer.visible {
-  animation:
-    heroReveal 0.72s cubic-bezier(0.16, 1, 0.3, 1) 0s forwards,
-    dreamerpulse 2.2s ease-in-out 0.9s 1 forwards,
-    dreameridle 4.2s ease-in-out 3.2s infinite;
+  animation: heroReveal 0.56s var(--ease) forwards;
 }
 
 .hero-sub {
   font-family: var(--font-label);
-  font-size: clamp(0.72rem, 1vw, 0.84rem);
-  font-weight: 400;
+  font-size: clamp(0.72rem, 0.96vw, 0.82rem);
+  font-weight: 450;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   line-height: 1.65;
-  color: rgba(200, 196, 218, 0.78);
-  margin: 1.5rem 0 0 0;
+  color: var(--muted);
+  margin: 1.65rem 0 0 0;
   max-width: 46rem;
-}
-
-.hero-sub.visible {
-  animation-delay: 0s;
+  text-shadow: 0 2px 16px rgba(3, 5, 10, 0.75);
 }
 
 @media (max-width: 480px) {
   .hero-sub {
     font-size: 0.68rem;
     letter-spacing: 0.1em;
-    margin-top: 1.1rem;
+    margin-top: 1.15rem;
   }
 }
 
 .hero-scroll-hint {
   position: absolute;
-  bottom: 2.25rem;
+  bottom: 2.1rem;
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease);
+}
+
+.hero-scroll-hint.visible {
+  opacity: 1;
 }
 
 .hero-scroll-hint .scroll-bounce {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.32rem;
   font-family: var(--font-label);
   font-size: 10px;
   font-weight: 500;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: rgba(200, 196, 218, 0.62);
+  color: var(--muted-dim);
 }
 
 .hero-scroll-hint svg {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   color: var(--accent-gold);
 }
 
@@ -366,24 +351,25 @@
 /* ── Section 1: Motivation & Engineering Philosophy (#motivation) ────────── */
 .nm-statement-xl {
   font-family: var(--font-display);
-  font-size: clamp(1.65rem, 3.1vw, 2.75rem);
+  font-size: clamp(1.65rem, 3.05vw, 2.7rem);
   font-weight: 300;
-  line-height: 1.32;
-  letter-spacing: -0.01em;
-  color: var(--text);
-  margin: 0 0 1.4rem 0;
-  text-shadow: 0 2px 24px rgba(6, 8, 16, 0.85);
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--text-bright);
+  margin: 0 0 1.45rem 0;
+  text-shadow: 0 2px 20px rgba(3, 5, 10, 0.78);
 }
 
 .nm-statement-sub {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: clamp(1.1rem, 1.8vw, 1.42rem);
+  font-size: clamp(1.1rem, 1.75vw, 1.38rem);
   font-weight: 300;
-  line-height: 1.55;
+  line-height: 1.54;
   color: var(--muted);
   max-width: 44rem;
-  margin: 0 0 2rem 0;
+  margin: 0 0 2.1rem 0;
+  text-shadow: 0 2px 16px rgba(3, 5, 10, 0.72);
 }
 
 .nm-inline-links {
@@ -417,10 +403,10 @@
 .nm-side-note {
   font-family: var(--font-body);
   font-size: 0.9rem;
-  line-height: 1.62;
-  color: var(--muted-dim);
+  line-height: 1.66;
+  color: var(--muted);
   max-width: 21rem;
-  margin: 0.85rem 0 1.25rem 0;
+  margin: 0.85rem 0 1.35rem 0;
 }
 
 .nm-featured-list {
@@ -435,26 +421,27 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.25rem;
-  padding: 0.95rem 1.35rem;
-  border-radius: 12px;
-  background: rgba(16, 20, 42, 0.38);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 1rem 1.35rem;
+  border-radius: var(--r);
+  background: rgba(10, 15, 28, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  box-shadow: var(--rim-top);
   text-decoration: none;
   position: relative;
   transition:
-    transform 0.3s var(--ease),
-    background 0.3s ease,
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
+    transform var(--dur) var(--ease),
+    background var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
 }
 
 .nm-work-row:hover {
-  transform: translateX(6px);
-  background: rgba(16, 20, 42, 0.84);
-  border-color: rgba(200, 169, 110, 0.36);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.34);
+  transform: translate3d(4px, 0, 0);
+  background: var(--panel-hover);
+  border-color: var(--accent-gold-border);
+  box-shadow: var(--rim-top-warm), 0 14px 36px rgba(2, 4, 10, 0.45);
 }
 
 .nm-work-main,
@@ -472,26 +459,27 @@
   font-family: var(--font-label);
   font-size: 10.5px;
   font-weight: 500;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted-dim);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.28rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .nm-work-title,
 .nm-work-row h3 {
   font-family: var(--font-display);
-  font-size: clamp(1.22rem, 1.75vw, 1.52rem);
+  font-size: clamp(1.22rem, 1.72vw, 1.5rem);
   font-weight: 400;
   line-height: 1.22;
-  letter-spacing: -0.01em;
-  color: var(--text);
+  letter-spacing: -0.012em;
+  color: var(--text-bright);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  transition: color 0.25s ease;
+  transition: color var(--dur-fast) ease;
 }
 
 .nm-work-row:hover .nm-work-title,
@@ -511,16 +499,16 @@
 .nm-work-aside .nm-chip {
   display: inline-flex;
   align-items: center;
-  padding: 0.24rem 0.7rem;
-  border-radius: 9999px;
-  background: rgba(139, 124, 246, 0.1);
-  border: 1px solid rgba(139, 124, 246, 0.22);
+  padding: 0.24rem 0.72rem;
+  border-radius: var(--r-pill);
+  background: var(--accent-lunar-dim);
+  border: 1px solid var(--accent-lunar-border);
   font-family: var(--font-label);
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #dcd6ff;
+  color: var(--accent-lunar-bright);
   white-space: nowrap;
 }
 
@@ -528,13 +516,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 0.98rem;
   color: var(--muted-dim);
-  transition: transform 0.25s var(--ease), color 0.25s ease;
+  transition: transform var(--dur-fast) var(--ease), color var(--dur-fast) ease;
 }
 
 .nm-work-row:hover .nm-work-arrow {
-  transform: translate(3px, -3px);
+  transform: translate3d(2px, -2px, 0);
   color: var(--accent-gold);
 }
 
@@ -588,7 +576,7 @@
 /* ── Section 3: Centered Philosophy Quote (#quote) ───────────────────────── */
 .nm-quote-wrap {
   width: 100%;
-  max-width: 920px;
+  max-width: 900px;
   margin: 0 auto;
   text-align: center;
   padding: 0 1rem;
@@ -596,16 +584,16 @@
 
 .nm-quote-text {
   font-family: var(--font-display);
-  font-size: clamp(1.75rem, 3.5vw, 3.1rem);
+  font-size: clamp(1.75rem, 3.45vw, 3.05rem);
   font-weight: 300;
-  line-height: 1.36;
-  letter-spacing: -0.012em;
-  color: var(--text);
+  line-height: 1.34;
+  letter-spacing: -0.015em;
+  color: var(--text-bright);
   margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
-  text-shadow: 0 2px 24px rgba(6, 8, 16, 0.85);
+  text-shadow: 0 2px 22px rgba(3, 5, 10, 0.8);
 }
 
 /* ── Section 4: Warp Starfield Connect CTA (#cta) ────────────────────────── */
@@ -622,17 +610,18 @@
 
 .nm-cta-eyebrow {
   color: var(--accent-gold);
-  margin-bottom: 1rem;
+  margin-bottom: 0.9rem;
 }
 
 .nm-cta-heading {
   font-family: var(--font-display);
-  font-size: clamp(2.8rem, 6vw, 5.2rem);
+  font-size: clamp(2.8rem, 5.8vw, 5rem);
   font-weight: 300;
-  line-height: 1.06;
-  letter-spacing: -0.02em;
+  line-height: 1.04;
+  letter-spacing: -0.024em;
   color: var(--text-bright);
   margin: 0 0 2.25rem 0;
+  text-shadow: 0 4px 26px rgba(3, 5, 10, 0.78);
 }
 
 .nm-cta-pills {
@@ -640,7 +629,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 0.85rem;
+  gap: 0.75rem;
 }
 
 .snap-section .nm-copyright,
@@ -653,8 +642,8 @@
   max-width: 90vw;
   margin: 0;
   font-family: var(--font-label);
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
   color: var(--muted-dim);
   text-align: center;
 }
@@ -673,7 +662,7 @@
   gap: 0.65rem;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.5s var(--ease);
 }
 
 #snap-dots.visible,
@@ -683,29 +672,27 @@
 }
 
 .snap-dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   padding: 0;
   border: 0;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.22);
+  border-radius: var(--r-pill);
+  background: rgba(196, 214, 242, 0.24);
   cursor: pointer;
   transition:
-    height 0.35s var(--ease),
-    background 0.35s ease,
-    box-shadow 0.35s ease,
-    transform 0.25s ease;
+    height 0.34s var(--ease),
+    background 0.28s ease,
+    transform 0.22s var(--ease);
 }
 
 .snap-dot:hover {
-  background: rgba(255, 255, 255, 0.62);
+  background: rgba(244, 223, 185, 0.65);
   transform: scale(1.25);
 }
 
 .snap-dot.is-active {
-  height: 22px;
+  height: 24px;
   background: var(--accent-gold);
-  box-shadow: 0 0 12px rgba(200, 169, 110, 0.68);
   transform: none;
 }
 

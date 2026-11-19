@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Glory Hinody — Cosmic Dark Glass Mobile Bottom Tab Dock
+   Glory Hinody — Eclipse Obsidian Mobile Bottom Tab Dock
    25-tabbar.css · Shown Only on Inner Pages (<= 768px)
    ========================================================================== */
 
@@ -24,11 +24,11 @@ body.is-home .tabbar {
     justify-content: space-around;
     height: calc(var(--tabbar-h) + var(--safe-b));
     padding: 4px 8px var(--safe-b);
-    background: rgba(10, 13, 28, 0.82);
-    backdrop-filter: blur(20px) saturate(1.25);
-    -webkit-backdrop-filter: blur(20px) saturate(1.25);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45);
+    background: rgba(6, 9, 18, 0.90);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -8px 28px rgba(2, 4, 10, 0.55);
     box-sizing: border-box;
   }
 }
@@ -43,7 +43,7 @@ body.is-home .tabbar {
   gap: 2px;
   min-width: 0;
   height: 100%;
-  color: rgba(200, 196, 218, 0.65);
+  color: var(--muted-dim);
   text-decoration: none;
   font-family: var(--font-label);
   font-size: 10px;
@@ -53,11 +53,11 @@ body.is-home .tabbar {
   line-height: 1.35;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
-  transition: color 0.2s ease, transform 0.15s var(--ease);
+  transition: color var(--dur-fast) ease, transform 0.15s var(--ease);
 }
 
 .tab:active {
-  transform: scale(0.93);
+  transform: scale(0.94);
 }
 
 .tab-ico {
@@ -66,15 +66,15 @@ body.is-home .tabbar {
   justify-content: center;
   width: 24px;
   height: 24px;
-  border-radius: 9999px;
-  transition: color 0.2s ease, filter 0.2s ease;
+  border-radius: var(--r-pill);
+  transition: color var(--dur-fast) ease;
 }
 
 .tab-ico svg {
   width: 19px;
   height: 19px;
   stroke: currentColor;
-  stroke-width: 1.85;
+  stroke-width: 1.75;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -101,15 +101,13 @@ body.is-home .tabbar {
   top: -4px;
   left: 50%;
   transform: translateX(-50%);
-  width: 20px;
-  height: 2px;
-  border-radius: 9999px;
-  background: linear-gradient(90deg, var(--accent-gold), var(--accent-purple));
-  box-shadow: 0 0 10px rgba(200, 169, 110, 0.65);
+  width: 22px;
+  height: 1.5px;
+  border-radius: var(--r-pill);
+  background: var(--accent-gold);
 }
 
 .tab[aria-current="page"] .tab-ico svg,
 .tab.is-active .tab-ico svg {
-  stroke-width: 2.15;
-  filter: drop-shadow(0 0 8px rgba(200, 169, 110, 0.45));
+  stroke-width: 2.05;
 }
