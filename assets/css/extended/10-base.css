@@ -186,6 +186,13 @@ samp {
   will-change: transform, opacity;
 }
 
+.star-canvas.is-eclipse-3d,
+#starCanvas.is-eclipse-3d {
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+}
+
 .bh-canvas.is-hidden,
 .star-canvas.is-hidden {
   opacity: 0 !important;

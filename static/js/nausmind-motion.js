@@ -304,6 +304,13 @@
       }
     }
 
+    function formatCompassDeg(deg) {
+      var wrapped = ((deg % 360.0) + 360.0) % 360.0;
+      var s = wrapped.toFixed(1);
+      while (s.length < 5) s = '0' + s;
+      return s + '°';
+    }
+
     function syncOrbitTelemetry(force) {
       var now = nowMs();
       if (!force && now - lastHudSyncTs < 55) return;
@@ -311,8 +318,23 @@
 
       var d = getCameraDistanceSafe();
       if (orbitTelemetry) {
-        orbitTelemetry.textContent =
-          'AZ ' + formatDeg(orbitYaw) + ' · EL ' + formatDeg(orbitPitch) + ' · ' + d.toFixed(1) + ' Rs';
+        var focused = (typeof window.getFocusedConstellation === 'function')
+          ? window.getFocusedConstellation()
+          : null;
+        if (focused) {
+          var isEn = /^en/i.test(document.documentElement ? (document.documentElement.lang || '') : '');
+          var azLabel = formatCompassDeg(focused.compassAzDeg);
+          if (isEn) {
+            orbitTelemetry.textContent =
+              focused.chiEn.toUpperCase() + ' ' + azLabel + ' · ' + focused.nameEn.toUpperCase() + ' · EL ' + formatDeg(orbitPitch) + ' · ' + d.toFixed(1) + ' Rs';
+          } else {
+            orbitTelemetry.textContent =
+              'CUNG ' + focused.chiVi.toUpperCase() + ' ' + azLabel + ' · ' + focused.nameVi.toUpperCase() + ' · EL ' + formatDeg(orbitPitch) + ' · ' + d.toFixed(1) + ' Rs';
+          }
+        } else {
+          orbitTelemetry.textContent =
+            'AZ ' + formatDeg(orbitYaw) + ' · EL ' + formatDeg(orbitPitch) + ' · ' + d.toFixed(1) + ' Rs';
+        }
       }
       if (orbitResetBtn) {
         var isDirty = Math.abs(wrapAnglePi(orbitYaw)) > 0.06 || Math.abs(orbitPitch) > 0.05 || d < getCameraBoundsSafe().dStargaze - 1.0;
@@ -388,14 +410,26 @@
       if (typeof window.setCameraDistance === 'function') window.setCameraDistance(d);
     }
 
+    var syncingOrbitFromMotion = false;
+
     function setOrbitAnglesSafe(y, p, r) {
       orbitYaw = y;
       orbitPitch = clamp(p, -0.58, 0.58);
       orbitRoll = clamp(typeof r === 'number' ? r : orbitRoll, -6.0, 6.0);
       if (typeof window.setOrbitAngles === 'function') {
+        syncingOrbitFromMotion = true;
         window.setOrbitAngles(orbitYaw, orbitPitch, orbitRoll);
+        syncingOrbitFromMotion = false;
       }
     }
+
+    window.__nmSyncOrbitHud = function (yaw, pitch, roll) {
+      if (syncingOrbitFromMotion) return;
+      if (typeof yaw === 'number' && isFinite(yaw)) orbitYaw = yaw;
+      if (typeof pitch === 'number' && isFinite(pitch)) orbitPitch = clamp(pitch, -0.58, 0.58);
+      if (typeof roll === 'number' && isFinite(roll)) orbitRoll = clamp(roll, -6.0, 6.0);
+      syncOrbitTelemetry(true);
+    };
 
     function setStarSpeedSafe(mult) {
       if (typeof window.setStarSpeed === 'function') window.setStarSpeed(mult);
