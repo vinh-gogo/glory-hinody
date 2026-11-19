@@ -128,10 +128,109 @@ body.is-home.is-stargazing button {
   color: var(--text-bright);
 }
 
+/* ── Cinematic Auto-Explore Trigger (#orbit-explore-btn) ─────────────────── */
+.orbit-explore-btn,
+#orbit-explore-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.46rem;
+  height: 32px;
+  padding: 0 0.92rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--accent-lunar-border);
+  background: rgba(8, 12, 23, 0.74);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--rim-top);
+  color: var(--accent-lunar-bright);
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) ease,
+    background var(--dur-fast) ease,
+    color var(--dur-fast) ease,
+    box-shadow var(--dur) var(--ease),
+    transform var(--dur-fast) var(--ease);
+}
+
+.orbit-explore-btn:hover {
+  border-color: var(--accent-gold-border);
+  background: rgba(16, 23, 41, 0.92);
+  color: var(--text-bright);
+  box-shadow: var(--rim-top-warm), 0 8px 22px rgba(2, 4, 10, 0.45);
+}
+
+.orbit-explore-btn:active {
+  transform: scale(0.97);
+}
+
+.orbit-explore-dot {
+  display: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-gold-bright);
+  box-shadow: 0 0 8px rgba(244, 223, 185, 0.85);
+  animation: explorePulse 1.9s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.orbit-explore-icon-pause {
+  display: none;
+}
+
+.orbit-explore-btn.is-exploring,
+#orbit-explore-btn.is-exploring {
+  border-color: var(--accent-gold);
+  background: rgba(226, 190, 132, 0.14);
+  color: var(--accent-gold-bright);
+  box-shadow: var(--rim-top-warm), 0 0 20px rgba(226, 190, 132, 0.18);
+}
+
+.orbit-explore-btn.is-exploring .orbit-explore-dot {
+  display: inline-block;
+}
+
+.orbit-explore-btn.is-exploring .orbit-explore-icon-play {
+  display: none;
+}
+
+.orbit-explore-btn.is-exploring .orbit-explore-icon-pause {
+  display: inline-block;
+}
+
+@keyframes explorePulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.78);
+  }
+}
+
 @media (max-width: 900px) {
   .stargazing-hud,
   #stargazing-hud {
     padding: 1rem 1.35rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .orbit-explore-label {
+    display: none;
+  }
+
+  .orbit-explore-btn,
+  #orbit-explore-btn {
+    padding: 0 0.65rem;
   }
 }
 
