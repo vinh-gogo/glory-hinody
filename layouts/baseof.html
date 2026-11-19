@@ -47,6 +47,26 @@
           <span>{{ if eq $hudLang "en" }}Reset View{{ else }}Góc mặc định{{ end }}</span>
         </button>
 
+        <button type="button"
+                id="orbit-explore-btn"
+                class="orbit-explore-btn"
+                data-orbit-explore
+                aria-pressed="false"
+                data-label-start="{{ if eq $hudLang "en" }}Auto Explore{{ else }}Khám phá tự động{{ end }}"
+                data-label-stop="{{ if eq $hudLang "en" }}Stop Explore{{ else }}Dừng khám phá{{ end }}"
+                aria-label="{{ if eq $hudLang "en" }}Toggle cinematic 3D auto-explore tour{{ else }}Bật hoặc tắt chế độ khám phá vũ trụ 3D tự động{{ end }}">
+          <span class="orbit-explore-dot" aria-hidden="true"></span>
+          <svg class="orbit-explore-icon-play" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9.5" opacity="0.65"></circle>
+            <polygon points="10.2 8.4 16.2 12 10.2 15.6 10.2 8.4" fill="currentColor" stroke="none"></polygon>
+          </svg>
+          <svg class="orbit-explore-icon-pause" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="6.5" y="5.5" width="3.8" height="13" rx="1" fill="currentColor" stroke="none"></rect>
+            <rect x="13.7" y="5.5" width="3.8" height="13" rx="1" fill="currentColor" stroke="none"></rect>
+          </svg>
+          <span class="orbit-explore-label">{{ if eq $hudLang "en" }}Auto Explore{{ else }}Khám phá tự động{{ end }}</span>
+        </button>
+
         <div class="lang-segmented-control" role="group" aria-label="{{ if eq $hudLang "en" }}Language Selector{{ else }}Chọn ngôn ngữ{{ end }}">
           {{- if eq $hudLang "en" -}}
             <a class="lang-pill" href="{{ $hudViURL }}" title="Chuyển sang Tiếng Việt" aria-label="Tiếng Việt">VI</a>

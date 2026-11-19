@@ -215,6 +215,8 @@
     var stargazingHud = document.getElementById('stargazing-hud');
     var orbitTelemetry = document.getElementById('orbit-telemetry');
     var orbitResetBtn = document.getElementById('orbit-reset-btn');
+    var orbitExploreBtn = document.getElementById('orbit-explore-btn');
+    var earthHotspotLink = document.getElementById('earth-planet-link');
     var stargazingText = stargazingCaption ? stargazingCaption.querySelector('.stargazing-text') : null;
     var snapDotsWrap = document.getElementById('snap-dots');
     var snapDots = snapDotsWrap
@@ -257,8 +259,38 @@
     var velPitch = 0.0;
     var lastHudSyncTs = 0;
 
-    /* Combined 3D Camera Flight Tween (Distance + Yaw + Pitch simultaneously!) */
+    /* Combined 3D Camera Flight Tween (Distance + Yaw + Pitch + Cinema LookTarget/Zoom) */
     var cameraTween = null;
+
+    /* Full Cinema Rig Auto-Explore Controller (8-Shot Closed-Loop Catmull-Rom Choreography) */
+    var EXPLORE_LOOP_SEC = 58.0;
+    var TWO_PI = Math.PI * 2.0;
+    var CINEMA_SHOTS = [
+      /* 0: Establishing Eclipse (Ngọ 180° · Sư Tử) */
+      { yaw: 0.00,  pitch: 0.00,  dist: 28.5, tx: 0.0,   ty: 0.0,  tz: 0.0, zoom: 1.00 },
+      /* 1: Telephoto Hero Close-Up locked onto Earth glory-vocabulary */
+      { yaw: -0.10, pitch: -0.09, dist: 22.0, tx: -10.1, ty: -3.9, tz: 2.0, zoom: 1.48 },
+      /* 2: Wide Celestial Crown Pan across Cancer (Mùi) -> Gemini (Thân) clearing giant planet */
+      { yaw: -0.84, pitch: 0.14,  dist: 28.5, tx: 0.0,   ty: 5.4,  tz: 0.0, zoom: 0.92 },
+      /* 3: High-Angle Accretion Vortex Flyby (Dậu · Kim Ngưu & Pleiades) */
+      { yaw: -1.57, pitch: -0.25, dist: 21.5, tx: 0.0,   ty: 4.2,  tz: 0.0, zoom: 1.04 },
+      /* 4: Far-Side Constellation Tilt across Aries (Tuất) -> Pisces (Hợi) */
+      { yaw: -2.40, pitch: 0.08,  dist: 26.2, tx: 0.0,   ty: 5.8,  tz: 0.0, zoom: 0.95 },
+      /* 5: Intimate North Galactic Crossing (Tý 0° · Bảo Bình) with Giant Planet Eclipsing Behind BH */
+      { yaw: -3.14, pitch: -0.06, dist: 18.2, tx: 0.0,   ty: 1.1,  tz: 0.0, zoom: 1.15 },
+      /* 6: Dramatic Hero Sweep past Backlit Night-Side Earth & Moon to Scorpius (Mão) */
+      { yaw: -4.62, pitch: -0.04, dist: 24.8, tx: 0.0,   ty: 1.4,  tz: 0.0, zoom: 1.02 },
+      /* 7: Grand Wide Pull-Out across Libra (Thìn) & Virgo (Tỵ) returning seamlessly to Ngọ */
+      { yaw: -5.56, pitch: -0.10, dist: 28.0, tx: 0.0,   ty: 2.2,  tz: 0.0, zoom: 0.92 }
+    ];
+    var isAutoExploring = false;
+    var explorePhaseSec = 0.0;
+    var exploreEntrySec = 0.0;
+    var exploreEntryOrigin = null;
+    var exploreTimeScale = 1.0;
+    var isEarthHovered = false;
+    var isRelaxingCinemaRig = false;
+    var reducedMotionExploreStepTs = 0;
 
     /* Trackpad Wheel State */
     var wheelAccum = 0.0;
@@ -337,7 +369,9 @@
         }
       }
       if (orbitResetBtn) {
-        var isDirty = Math.abs(wrapAnglePi(orbitYaw)) > 0.06 || Math.abs(orbitPitch) > 0.05 || d < getCameraBoundsSafe().dStargaze - 1.0;
+        var rigNow = getCinemaRigSafe();
+        var isRigDirty = Math.abs(rigNow.x) > 0.08 || Math.abs(rigNow.y) > 0.08 || Math.abs(rigNow.z) > 0.08 || Math.abs(rigNow.zoom - 1.0) > 0.02;
+        var isDirty = Math.abs(wrapAnglePi(orbitYaw)) > 0.06 || Math.abs(orbitPitch) > 0.05 || d < getCameraBoundsSafe().dStargaze - 1.0 || isRigDirty;
         orbitResetBtn.classList.toggle('is-dirty', isStargazing && isDirty);
       }
     }
@@ -435,12 +469,183 @@
       if (typeof window.setStarSpeed === 'function') window.setStarSpeed(mult);
     }
 
-    /* Smooth 3D Flight Tween (distance + yaw + pitch simultaneously along curved path) */
+    function getCinemaRigSafe() {
+      return (typeof window.getCinemaRig === 'function')
+        ? window.getCinemaRig()
+        : { x: 0.0, y: 0.0, z: 0.0, zoom: 1.0 };
+    }
+
+    function setCinemaRigSafe(tx, ty, tz, zoomMul) {
+      if (typeof window.setCinemaRig === 'function') {
+        window.setCinemaRig(tx, ty, tz, zoomMul);
+      }
+    }
+
+    function catmullRom(p0, p1, p2, p3, u) {
+      var u2 = u * u;
+      var u3 = u2 * u;
+      return 0.5 * (
+        (2.0 * p1) +
+        (-p0 + p2) * u +
+        (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * u2 +
+        (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * u3
+      );
+    }
+
+    function getShotWrappedYaw(rawIdx) {
+      var n = CINEMA_SHOTS.length;
+      if (rawIdx < 0) return CINEMA_SHOTS[rawIdx + n].yaw + TWO_PI;
+      if (rawIdx >= n) return CINEMA_SHOTS[rawIdx - n].yaw - TWO_PI;
+      return CINEMA_SHOTS[rawIdx].yaw;
+    }
+
+    function sampleCinemaSpline(phaseSec) {
+      var n = CINEMA_SHOTS.length;
+      var wrapped = ((phaseSec % EXPLORE_LOOP_SEC) + EXPLORE_LOOP_SEC) % EXPLORE_LOOP_SEC;
+      var scaled = (wrapped / EXPLORE_LOOP_SEC) * n;
+      var seg = Math.floor(scaled) % n;
+      var u = scaled - Math.floor(scaled);
+
+      var s0 = CINEMA_SHOTS[(seg - 1 + n) % n];
+      var s1 = CINEMA_SHOTS[seg];
+      var s2 = CINEMA_SHOTS[(seg + 1) % n];
+      var s3 = CINEMA_SHOTS[(seg + 2) % n];
+
+      var yaw = catmullRom(
+        getShotWrappedYaw(seg - 1),
+        getShotWrappedYaw(seg),
+        getShotWrappedYaw(seg + 1),
+        getShotWrappedYaw(seg + 2),
+        u
+      );
+      var pitch = clamp(catmullRom(s0.pitch, s1.pitch, s2.pitch, s3.pitch, u), -0.52, 0.52);
+      var dist = clamp(catmullRom(s0.dist, s1.dist, s2.dist, s3.dist, u), 16.0, 28.5);
+      var tx = catmullRom(s0.tx, s1.tx, s2.tx, s3.tx, u);
+      var ty = catmullRom(s0.ty, s1.ty, s2.ty, s3.ty, u);
+      var tz = catmullRom(s0.tz, s1.tz, s2.tz, s3.tz, u);
+      var zoom = clamp(catmullRom(s0.zoom, s1.zoom, s2.zoom, s3.zoom, u), 0.86, 1.56);
+
+      /* Runtime safety clearance around foreground Giant Planet at yaw ≈ -0.66 rad */
+      var planetDelta = Math.abs(wrapAnglePi(yaw + 0.66));
+      if (planetDelta < 0.58) {
+        var prox = 1.0 - (planetDelta / 0.58);
+        var minSafeDist = 24.2 + prox * prox * 4.1;
+        if (dist < minSafeDist) dist = minSafeDist;
+      }
+
+      return { yaw: yaw, pitch: pitch, dist: dist, tx: tx, ty: ty, tz: tz, zoom: zoom };
+    }
+
+    function sampleCinemaFrame(phaseSec) {
+      var cur = sampleCinemaSpline(phaseSec);
+      var prev = sampleCinemaSpline(phaseSec - 0.14);
+      var next = sampleCinemaSpline(phaseSec + 0.14);
+      var yawVel = wrapAnglePi(next.yaw - prev.yaw) / 0.28;
+      cur.roll = clamp(-yawVel * 5.2, -3.2, 3.2);
+      return cur;
+    }
+
+    function syncExploreButtonUI() {
+      if (!orbitExploreBtn) return;
+      orbitExploreBtn.classList.toggle('is-exploring', isAutoExploring);
+      orbitExploreBtn.setAttribute('aria-pressed', isAutoExploring ? 'true' : 'false');
+      var labelEl = orbitExploreBtn.querySelector('.orbit-explore-label');
+      if (labelEl) {
+        var nextText = isAutoExploring
+          ? (orbitExploreBtn.getAttribute('data-label-stop') || 'Stop Explore')
+          : (orbitExploreBtn.getAttribute('data-label-start') || 'Auto Explore');
+        labelEl.textContent = nextText;
+      }
+    }
+
+    function findBestExploreStartPhase(currYaw) {
+      if (Math.abs(wrapAnglePi(currYaw)) < 0.48 && Math.abs(orbitPitch) < 0.30) {
+        return 0.0;
+      }
+      var bestT = 0.0;
+      var bestErr = 99.0;
+      var samples = 48;
+      for (var i = 0; i < samples; i++) {
+        var t = (i / samples) * EXPLORE_LOOP_SEC;
+        var p = sampleCinemaSpline(t);
+        var err = Math.abs(wrapAnglePi(p.yaw - currYaw));
+        if (err < bestErr) {
+          bestErr = err;
+          bestT = t;
+        }
+      }
+      return bestT;
+    }
+
+    function startAutoExplore() {
+      if (!isHome || !isStargazing || isClickDiving) return;
+      if (getCosmicModeSafe() !== 'blackhole') return;
+
+      cameraTween = null;
+      isDiving = false;
+      isRelaxingCinemaRig = false;
+      velYaw = 0.0;
+      velPitch = 0.0;
+      restoreStargazeCaptionText();
+
+      var rig = getCinemaRigSafe();
+      explorePhaseSec = findBestExploreStartPhase(orbitYaw);
+      exploreEntrySec = 0.0;
+      exploreTimeScale = 1.0;
+      exploreEntryOrigin = {
+        yaw: wrapAnglePi(orbitYaw),
+        pitch: orbitPitch,
+        dist: getCameraDistanceSafe(),
+        roll: orbitRoll,
+        tx: rig.x,
+        ty: rig.y,
+        tz: rig.z,
+        zoom: rig.zoom
+      };
+      reducedMotionExploreStepTs = nowMs();
+      isAutoExploring = true;
+      syncExploreButtonUI();
+      syncOrbitTelemetry(true);
+      wakeMotionLoop();
+    }
+
+    function stopAutoExplore(relaxRig) {
+      if (!isAutoExploring && !relaxRig) return;
+      isAutoExploring = false;
+      exploreEntryOrigin = null;
+      if (relaxRig) {
+        isRelaxingCinemaRig = true;
+        wakeMotionLoop();
+      }
+      syncExploreButtonUI();
+      syncOrbitTelemetry(true);
+    }
+
+    function toggleAutoExplore() {
+      if (isAutoExploring) stopAutoExplore(false);
+      else startAutoExplore();
+    }
+
+    function setExploreTimeSec(sec) {
+      if (!isHome) return;
+      var t = Number(sec) || 0.0;
+      explorePhaseSec = ((t % EXPLORE_LOOP_SEC) + EXPLORE_LOOP_SEC) % EXPLORE_LOOP_SEC;
+      exploreEntrySec = 10.0;
+      exploreEntryOrigin = null;
+      var pose = sampleCinemaFrame(explorePhaseSec);
+      setCameraDistanceSafe(pose.dist);
+      setCinemaRigSafe(pose.tx, pose.ty, pose.tz, pose.zoom);
+      setOrbitAnglesSafe(pose.yaw, pose.pitch, pose.roll);
+      syncOrbitTelemetry(true);
+    }
+
+    /* Smooth 3D Flight Tween (distance + yaw + pitch + cinema rig simultaneously along curved path) */
     function tweenCamera3D(targetD, targetYaw, targetPitch, durationMs, onDone) {
       var dur = isReducedMotion ? 0 : (typeof durationMs === 'number' ? durationMs : DIVE_DURATION_MS);
       var fromD = getCameraDistanceSafe();
       var fromYaw = wrapAnglePi(orbitYaw);
       var fromPitch = orbitPitch;
+      var fromRig = getCinemaRigSafe();
       var toYaw = (typeof targetYaw === 'number') ? targetYaw : fromYaw;
       var toPitch = (typeof targetPitch === 'number') ? clamp(targetPitch, -0.58, 0.58) : fromPitch;
 
@@ -450,10 +655,14 @@
 
       velYaw = 0.0;
       velPitch = 0.0;
+      isRelaxingCinemaRig = false;
 
-      if (dur <= 0 || (Math.abs(targetD - fromD) < 0.02 && Math.abs(deltaYaw) < 0.005 && Math.abs(toPitch - fromPitch) < 0.005)) {
+      var rigMoved = Math.abs(fromRig.x) > 0.02 || Math.abs(fromRig.y) > 0.02 || Math.abs(fromRig.z) > 0.02 || Math.abs(fromRig.zoom - 1.0) > 0.01;
+
+      if (dur <= 0 || (!rigMoved && Math.abs(targetD - fromD) < 0.02 && Math.abs(deltaYaw) < 0.005 && Math.abs(toPitch - fromPitch) < 0.005)) {
         cameraTween = null;
         setCameraDistanceSafe(targetD);
+        setCinemaRigSafe(0.0, 0.0, 0.0, 1.0);
         setOrbitAnglesSafe(finalYaw, toPitch, 0.0);
         syncOrbitTelemetry(true);
         if (typeof onDone === 'function') onDone();
@@ -467,6 +676,10 @@
         toYaw: finalYaw,
         fromPitch: fromPitch,
         toPitch: toPitch,
+        fromTx: fromRig.x,
+        fromTy: fromRig.y,
+        fromTz: fromRig.z,
+        fromZoom: fromRig.zoom,
         startTs: nowMs(),
         duration: dur,
         onDone: onDone || null
@@ -480,6 +693,7 @@
 
     function resetOrbitView() {
       if (!isHome) return;
+      stopAutoExplore(false);
       var bounds = getCameraBoundsSafe();
       restoreStargazeCaptionText();
       isDiving = false;
@@ -556,6 +770,10 @@
       if (!isHome || !sections.length) return;
       var instant = !!(opts && opts.instant);
       var idx = clamp(typeof targetIdx === 'number' ? targetIdx : 0, 0, sections.length - 1);
+
+      stopAutoExplore(false);
+      isRelaxingCinemaRig = false;
+      setCinemaRigSafe(0.0, 0.0, 0.0, 1.0);
 
       isStargazing = false;
       isDiving = false;
@@ -647,6 +865,7 @@
 
     function handleStargazeDownIntent() {
       if (isTransitioning || isClickDiving) return;
+      stopAutoExplore(false);
 
       var mode = getCosmicModeSafe();
       var dist = getCameraDistanceSafe();
@@ -668,6 +887,7 @@
         }
       } else {
         setCameraDistanceSafe(bounds.dMin);
+        setCinemaRigSafe(0.0, 0.0, 0.0, 1.0);
         setOrbitAnglesSafe(DIVE_TARGET_YAW, DIVE_TARGET_PITCH, 0.0);
         enterContent(0, { instant: false });
       }
@@ -677,7 +897,10 @@
       if (isTransitioning || isClickDiving) return;
       if (getCosmicModeSafe() === 'blackhole') {
         var bounds = getCameraBoundsSafe();
-        if (getCameraDistanceSafe() < bounds.dMax - 0.5) {
+        var rig = getCinemaRigSafe();
+        var rigDirty = Math.abs(rig.x) > 0.08 || Math.abs(rig.y) > 0.08 || Math.abs(rig.z) > 0.08 || Math.abs(rig.zoom - 1.0) > 0.02;
+        if (isAutoExploring || getCameraDistanceSafe() < bounds.dMax - 0.5 || rigDirty) {
+          stopAutoExplore(false);
           isDiving = false;
           restoreStargazeCaptionText();
           tweenCamera3D(bounds.dMax, 0.0, 0.0, DIVE_DURATION_MS);
@@ -732,10 +955,35 @@
         return !!(target && target.closest && target.closest('a, button, input, #stargazing-caption, #stargazing-hud, #site-nav, #mobile-menu'));
       }
 
+      if (earthHotspotLink) {
+        earthHotspotLink.addEventListener('mouseenter', function () {
+          isEarthHovered = true;
+        }, { passive: true });
+        earthHotspotLink.addEventListener('mouseleave', function () {
+          isEarthHovered = false;
+        }, { passive: true });
+      }
+
+      window.addEventListener('nm:cosmic-mode-change', function (ev) {
+        if (ev && ev.detail && ev.detail.mode !== 'blackhole') {
+          stopAutoExplore(false);
+        }
+      });
+
       window.addEventListener('pointerdown', function (ev) {
         if (!isStargazing || isDrawerOpen || isClickDiving) return;
         if (ev.pointerType === 'mouse' && ev.button !== 0) return;
         if (isInteractiveUI(ev.target)) return;
+
+        if (isAutoExploring) {
+          stopAutoExplore(true);
+        } else {
+          var rigDrag = getCinemaRigSafe();
+          if (Math.abs(rigDrag.x) > 0.05 || Math.abs(rigDrag.y) > 0.05 || Math.abs(rigDrag.z) > 0.05 || Math.abs(rigDrag.zoom - 1.0) > 0.02) {
+            isRelaxingCinemaRig = true;
+            wakeMotionLoop();
+          }
+        }
 
         isOrbitDragging = true;
         orbitPointerId = ev.pointerId;
@@ -911,14 +1159,26 @@
         var isUpKey = key === 'ArrowUp' || key === 'PageUp';
 
         if (isStargazing) {
+          if (key === 'a' || key === 'A') {
+            ev.preventDefault();
+            toggleAutoExplore();
+            return;
+          }
+          if (key === 'Escape' && isAutoExploring) {
+            ev.preventDefault();
+            stopAutoExplore(false);
+            return;
+          }
           if (key === 'ArrowLeft') {
             ev.preventDefault();
+            stopAutoExplore(true);
             velYaw = 1.65;
             wakeMotionLoop();
             return;
           }
           if (key === 'ArrowRight') {
             ev.preventDefault();
+            stopAutoExplore(true);
             velYaw = -1.65;
             wakeMotionLoop();
             return;
@@ -955,10 +1215,17 @@
         }
       });
 
-      /* Click handlers: [data-stargaze-enter], [data-stargaze-return], [data-orbit-reset], .snap-dot */
+      /* Click handlers: [data-orbit-explore], [data-orbit-reset], [data-stargaze-enter], [data-stargaze-return], .snap-dot */
       document.addEventListener('click', function (ev) {
         var target = ev.target;
         if (!target || !target.closest) return;
+
+        var exploreBtn = target.closest('[data-orbit-explore]');
+        if (exploreBtn) {
+          ev.preventDefault();
+          toggleAutoExplore();
+          return;
+        }
 
         var resetBtn = target.closest('[data-orbit-reset]');
         if (resetBtn) {
@@ -971,6 +1238,7 @@
         if (enterBtn) {
           ev.preventDefault();
           if (!isStargazing || isClickDiving) return;
+          stopAutoExplore(false);
 
           var bounds = getCameraBoundsSafe();
           if (getCosmicModeSafe() === 'blackhole' && getCameraDistanceSafe() > 2.2 && !isReducedMotion) {
@@ -1097,7 +1365,7 @@
 
       var keepAlive = false;
 
-      /* 1. Step 3D Curved Flight Tween (Distance + Yaw + Pitch with Orbital Slingshot Safety) */
+      /* 1. Step 3D Curved Flight Tween (Distance + Yaw + Pitch + Cinema Rig with Slingshot Safety) */
       if (cameraTween) {
         var elapsed = now - cameraTween.startTs;
         var t = clamp(elapsed / cameraTween.duration, 0.0, 1.0);
@@ -1108,22 +1376,80 @@
         var yawVal = cameraTween.fromYaw + (cameraTween.toYaw - cameraTween.fromYaw) * yawEased;
         var pitchVal = cameraTween.fromPitch + (cameraTween.toPitch - cameraTween.fromPitch) * eased;
         var bankRoll = Math.sin(t * Math.PI) * clamp((cameraTween.toYaw - cameraTween.fromYaw) * 3.8, -3.2, 3.2);
+        var txVal = (cameraTween.fromTx || 0.0) * (1.0 - eased);
+        var tyVal = (cameraTween.fromTy || 0.0) * (1.0 - eased);
+        var tzVal = (cameraTween.fromTz || 0.0) * (1.0 - eased);
+        var zoomVal = (cameraTween.fromZoom || 1.0) + (1.0 - (cameraTween.fromZoom || 1.0)) * eased;
 
         setCameraDistanceSafe(dVal);
+        setCinemaRigSafe(txVal, tyVal, tzVal, zoomVal);
         setOrbitAnglesSafe(yawVal, pitchVal, bankRoll);
         syncOrbitTelemetry(false);
 
         if (t >= 1.0) {
           var doneCb = cameraTween.onDone;
           cameraTween = null;
+          setCinemaRigSafe(0.0, 0.0, 0.0, 1.0);
           setOrbitAnglesSafe(yawVal, pitchVal, 0.0);
           syncOrbitTelemetry(true);
           if (typeof doneCb === 'function') doneCb();
         } else {
           keepAlive = true;
         }
+      } else if (isHome && isStargazing && isAutoExploring && !isOrbitDragging) {
+        /* 2a. Full Cinema Rig Auto-Explore Tour (4-Axis Spline + LookTarget + Dynamic Lens + Bullet-Time Hover) */
+        if (!document.hidden) {
+          if (isReducedMotion) {
+            if (now - reducedMotionExploreStepTs >= 3800) {
+              reducedMotionExploreStepTs = now;
+              explorePhaseSec = (explorePhaseSec + (EXPLORE_LOOP_SEC / CINEMA_SHOTS.length)) % EXPLORE_LOOP_SEC;
+              var rmPose = sampleCinemaFrame(explorePhaseSec);
+              setCameraDistanceSafe(rmPose.dist);
+              setCinemaRigSafe(rmPose.tx, rmPose.ty, rmPose.tz, rmPose.zoom);
+              setOrbitAnglesSafe(rmPose.yaw, rmPose.pitch, 0.0);
+              syncOrbitTelemetry(true);
+            }
+          } else {
+            var targetScale = isEarthHovered ? 0.14 : 1.0;
+            exploreTimeScale += (targetScale - exploreTimeScale) * (1.0 - Math.exp(-5.0 * dtSec));
+            explorePhaseSec = (explorePhaseSec + dtSec * exploreTimeScale) % EXPLORE_LOOP_SEC;
+            exploreEntrySec += dtSec;
+
+            var splinePose = sampleCinemaFrame(explorePhaseSec);
+            var outYaw = splinePose.yaw;
+            var outPitch = splinePose.pitch;
+            var outDist = splinePose.dist;
+            var outRoll = splinePose.roll;
+            var outTx = splinePose.tx;
+            var outTy = splinePose.ty;
+            var outTz = splinePose.tz;
+            var outZoom = splinePose.zoom;
+
+            if (exploreEntryOrigin && exploreEntrySec < 1.45) {
+              var eb = clamp(exploreEntrySec / 1.45, 0.0, 1.0);
+              var s = eb * eb * (3.0 - 2.0 * eb);
+              var dyShortest = wrapAnglePi(splinePose.yaw - exploreEntryOrigin.yaw);
+              outYaw = exploreEntryOrigin.yaw + dyShortest * s;
+              outPitch = exploreEntryOrigin.pitch + (splinePose.pitch - exploreEntryOrigin.pitch) * s;
+              outDist = exploreEntryOrigin.dist + (splinePose.dist - exploreEntryOrigin.dist) * s;
+              outRoll = exploreEntryOrigin.roll + (splinePose.roll - exploreEntryOrigin.roll) * s;
+              outTx = exploreEntryOrigin.tx + (splinePose.tx - exploreEntryOrigin.tx) * s;
+              outTy = exploreEntryOrigin.ty + (splinePose.ty - exploreEntryOrigin.ty) * s;
+              outTz = exploreEntryOrigin.tz + (splinePose.tz - exploreEntryOrigin.tz) * s;
+              outZoom = exploreEntryOrigin.zoom + (splinePose.zoom - exploreEntryOrigin.zoom) * s;
+            } else {
+              exploreEntryOrigin = null;
+            }
+
+            setCameraDistanceSafe(outDist);
+            setCinemaRigSafe(outTx, outTy, outTz, outZoom);
+            setOrbitAnglesSafe(outYaw, outPitch, outRoll);
+            syncOrbitTelemetry(false);
+          }
+        }
+        keepAlive = true;
       } else if (isHome && isStargazing && !isOrbitDragging) {
-        /* 2. Inertial 3D Orbital Glide after drag release + roll level-out */
+        /* 2b. Inertial 3D Orbital Glide after drag release + roll level-out */
         var hasVel = Math.abs(velYaw) > 0.002 || Math.abs(velPitch) > 0.002 || Math.abs(orbitRoll) > 0.03;
         if (hasVel) {
           var damp = Math.exp(-3.4 * dtSec);
@@ -1143,6 +1469,31 @@
           if (orbitRoll !== 0.0) {
             setOrbitAnglesSafe(orbitYaw, orbitPitch, 0.0);
           }
+        }
+      }
+
+      /* 2c. Smooth Cinema Rig relaxation back to Gargantua center when user takes manual control */
+      if (isRelaxingCinemaRig && !cameraTween && !isAutoExploring) {
+        var rNow = getCinemaRigSafe();
+        var rDecay = Math.exp(-4.6 * dtSec);
+        var nx = rNow.x * rDecay;
+        var ny = rNow.y * rDecay;
+        var nz = rNow.z * rDecay;
+        var nZoom = 1.0 + (rNow.zoom - 1.0) * rDecay;
+        var boundsR = getCameraBoundsSafe();
+        var dNow = getCameraDistanceSafe();
+        var nDist = dNow + (boundsR.dStargaze - dNow) * (1.0 - Math.exp(-3.2 * dtSec));
+        var stillRelaxing = Math.abs(nx) > 0.02 || Math.abs(ny) > 0.02 || Math.abs(nz) > 0.02 || Math.abs(nZoom - 1.0) > 0.004 || Math.abs(boundsR.dStargaze - nDist) > 0.08;
+        if (!stillRelaxing) {
+          setCinemaRigSafe(0.0, 0.0, 0.0, 1.0);
+          setCameraDistanceSafe(boundsR.dStargaze);
+          isRelaxingCinemaRig = false;
+          syncOrbitTelemetry(true);
+        } else {
+          setCinemaRigSafe(nx, ny, nz, nZoom);
+          setCameraDistanceSafe(nDist);
+          syncOrbitTelemetry(false);
+          keepAlive = true;
         }
       }
 
@@ -1271,6 +1622,11 @@
       tweenCamera: tweenCamera,
       tweenCamera3D: tweenCamera3D,
       resetOrbitView: resetOrbitView,
+      startAutoExplore: startAutoExplore,
+      stopAutoExplore: stopAutoExplore,
+      toggleAutoExplore: toggleAutoExplore,
+      isAutoExploring: function () { return isAutoExploring; },
+      setExploreTimeSec: setExploreTimeSec,
       refreshReveals: initInnerPageScrollReveals
     };
   }

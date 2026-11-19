@@ -22,10 +22,14 @@
   var domReady = false;
   var explicitDistanceSet = false;
 
-  /* 3D Spherical Orbit State (radians / degrees) */
+  /* 3D Spherical Orbit & Cinema Rig State (radians / degrees / world look-at) */
   var orbitYaw = 0.0;
   var orbitPitch = 0.0;
   var orbitRollDeg = 0.0;
+  var lookTargetX = 0.0;
+  var lookTargetY = 0.0;
+  var lookTargetZ = 0.0;
+  var cinemaZoom = 1.0;
 
   var reducedMotionQuery = window.matchMedia
     ? window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -229,6 +233,7 @@
     'uniform sampler2D uStarTex;',
     'uniform vec2      uResolution;',
     'uniform vec3      uCameraTranslate;',
+    'uniform vec3      uLookTarget;',
     'uniform float     uPov;',
     'uniform float     uOpticalZoom;',
     'uniform vec2      uFramingOffset;',
@@ -573,7 +578,7 @@
     '  vec4 look_from = rotate_y(uCameraTranslate.x) *',
     '                   rotate_x(-pitchAngle) *',
     '                   vec4(camera_pos + vec3(0.0, 0.0, uCameraTranslate.z), 1.0);',
-    '  vec3 view      = vec3(-look_from.x, -look_from.y, -look_from.z);',
+    '  vec3 view      = uLookTarget - vec3(look_from);',
     '  vec3 n_view    = normalize(view);',
     '  vec3 n_upview  = normalize(cross(up, n_view));',
     '  vec3 c_vup     = cross(n_view, n_upview);',
@@ -1037,6 +1042,7 @@
       uStarTex: gl.getUniformLocation(program, 'uStarTex'),
       uResolution: gl.getUniformLocation(program, 'uResolution'),
       uCameraTranslate: gl.getUniformLocation(program, 'uCameraTranslate'),
+      uLookTarget: gl.getUniformLocation(program, 'uLookTarget'),
       uPov: gl.getUniformLocation(program, 'uPov'),
       uOpticalZoom: gl.getUniformLocation(program, 'uOpticalZoom'),
       uFramingOffset: gl.getUniformLocation(program, 'uFramingOffset'),
@@ -1055,6 +1061,7 @@
     gl.uniform1f(uniforms.uExposure, 1.14);
     gl.uniform1f(uniforms.uPitchDeg, 0.0);
     gl.uniform1f(uniforms.uRollDeg, 0.0);
+    gl.uniform3f(uniforms.uLookTarget, 0.0, 0.0, 0.0);
 
     canvas.addEventListener('webglcontextlost', function (ev) {
       ev.preventDefault();
@@ -1130,12 +1137,20 @@
     };
   }
 
+  function getCinemaRigBlend() {
+    var tMag = Math.sqrt(lookTargetX * lookTargetX + lookTargetY * lookTargetY + lookTargetZ * lookTargetZ);
+    return clamp(tMag / 2.8 + Math.abs(cinemaZoom - 1.0) * 3.5, 0.0, 1.0);
+  }
+
   function computeDynamicFrameX(f, cssW, cssH) {
     var aspect = cssW / Math.max(cssH, 1);
     var orbitAway = clamp(Math.abs(orbitYaw) / 0.85, 0.0, 1.0);
-    var stargazeFrameX = f.frameX * (1.0 - 0.72 * orbitAway);
+    var rigBlend = getCinemaRigBlend();
+    var stargazeFrameX = f.frameX * (1.0 - 0.72 * orbitAway) * (1.0 - rigBlend);
     var heroFrameX = aspect >= 1.25 ? 0.165 : (aspect >= 0.98 ? 0.105 : 0.02);
-    var diveFrac = clamp((D_STARGAZE - cameraDistance) / (D_STARGAZE - D_MIN), 0.0, 1.0);
+    var diveFrac = (isStargazingMode && rigBlend > 0.02)
+      ? 0.0
+      : clamp((D_STARGAZE - cameraDistance) / (D_STARGAZE - D_MIN), 0.0, 1.0);
     var smoothDive = diveFrac * diveFrac * (3.0 - 2.0 * diveFrac);
     return stargazeFrameX + (heroFrameX - stargazeFrameX) * smoothDive;
   }
@@ -1149,6 +1164,7 @@
     var cssW = (glState.container && glState.container.clientWidth) || window.innerWidth || 1280;
     var cssH = (glState.container && glState.container.clientHeight) || window.innerHeight || 800;
     var dynFrameX = computeDynamicFrameX(f, cssW, cssH);
+    var effZoom = clamp(f.opticalZoom * cinemaZoom, 0.68, 1.85);
 
     gl.useProgram(glState.program);
     gl.activeTexture(gl.TEXTURE0);
@@ -1157,7 +1173,9 @@
     gl.enableVertexAttribArray(glState.aPositionLoc);
     gl.vertexAttribPointer(glState.aPositionLoc, 2, gl.FLOAT, false, 0, 0);
     gl.uniform2f(u.uFramingOffset, dynFrameX, f.frameY);
+    gl.uniform1f(u.uOpticalZoom, effZoom);
     gl.uniform3f(u.uCameraTranslate, cam.yaw, cam.pitch, cameraZ);
+    gl.uniform3f(u.uLookTarget, lookTargetX, lookTargetY, lookTargetZ);
     gl.uniform1f(u.uRollDeg, cam.rollDeg);
     gl.uniform1f(u.uTime, isReducedMotion ? 14.0 : elapsedSec);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -1915,9 +1933,13 @@
     var camZ = pz1 * cy;
 
     var camLen = Math.sqrt(camX * camX + camY * camY + camZ * camZ) || 1.0;
-    var fwdX = -camX / camLen;
-    var fwdY = -camY / camLen;
-    var fwdZ = -camZ / camLen;
+    var viewX = lookTargetX - camX;
+    var viewY = lookTargetY - camY;
+    var viewZ = lookTargetZ - camZ;
+    var viewLen = Math.sqrt(viewX * viewX + viewY * viewY + viewZ * viewZ) || 1.0;
+    var fwdX = viewX / viewLen;
+    var fwdY = viewY / viewLen;
+    var fwdZ = viewZ / viewLen;
 
     var rollRad = cam.rollDeg * DEG2RAD;
     var upRefX = Math.sin(rollRad);
@@ -1938,7 +1960,8 @@
 
     var f = glState ? glState.framing : computeFraming(w, h);
     var dynFrameX = computeDynamicFrameX(f, w, h);
-    var focal = (h * 0.5 * f.opticalZoom) / Math.tan((f.pov * 0.5) * DEG2RAD);
+    var effZoom = clamp(f.opticalZoom * cinemaZoom, 0.68, 1.85);
+    var focal = (h * 0.5 * effZoom) / Math.tan((f.pov * 0.5) * DEG2RAD);
     var centerX = w * (0.5 + dynFrameX);
     var centerY = h * (0.5 - f.frameY);
 
@@ -1957,7 +1980,7 @@
     };
   }
 
-  /* Analytical angular-cone occluders for sky sphere at infinity (Planet + Moon + Gargantua shadow) */
+  /* Analytical angular-cone occluders for sky sphere at infinity (Planet + Moon + Earth + Gargantua shadow) */
   function computeSkyOccluders(c) {
     var pvx = 10.6 - c.camX;
     var pvy = 0.28 - c.camY;
@@ -1987,7 +2010,7 @@
       eSolid: Math.asin(Math.min(0.998, EARTH_WORLD.r / eDist)),
       eAtm: Math.asin(Math.min(0.999, (EARTH_WORLD.atmR + 0.14) / eDist)),
 
-      bhDx: c.fwdX, bhDy: c.fwdY, bhDz: c.fwdZ,
+      bhDx: -c.camX / c.camLen, bhDy: -c.camY / c.camLen, bhDz: -c.camZ / c.camLen,
       bhSolid: Math.asin(Math.min(0.998, 2.75 / c.camLen)),
       bhAtm: Math.asin(Math.min(0.999, 5.20 / c.camLen))
     };
@@ -2094,12 +2117,15 @@
     var camX = -pz1 * sy;
     var camY = py1;
     var camZ = pz1 * cy;
-    var len = Math.sqrt(camX * camX + camY * camY + camZ * camZ) || 1.0;
-    var fx = -camX / len;
-    var fy = -camY / len;
-    var fz = -camZ / len;
+    var vxL = lookTargetX - camX;
+    var vyL = lookTargetY - camY;
+    var vzL = lookTargetZ - camZ;
+    var len = Math.sqrt(vxL * vxL + vyL * vyL + vzL * vzL) || 1.0;
+    var fx = vxL / len;
+    var fy = vyL / len;
+    var fz = vzL / len;
 
-    /* Upper-sky celestial crown gaze vector (+GAZE_ELEVATION_RAD above Gargantua center) */
+    /* Upper-sky celestial crown gaze vector (softly relaxes when cinema rig already tilts upward) */
     var rx = fz;
     var ry = 0.0;
     var rz = -fx;
@@ -2108,8 +2134,9 @@
     var ux = fy * rz - fz * ry;
     var uy = fz * rx - fx * rz;
     var uz = fx * ry - fy * rx;
-    var cg = Math.cos(GAZE_ELEVATION_RAD);
-    var sg = Math.sin(GAZE_ELEVATION_RAD);
+    var gazeElev = GAZE_ELEVATION_RAD * (1.0 - clamp(lookTargetY / 7.5, 0.0, 0.85));
+    var cg = Math.cos(gazeElev);
+    var sg = Math.sin(gazeElev);
     var gx = fx * cg + ux * sg;
     var gy = fy * cg + uy * sg;
     var gz = fz * cg + uz * sg;
@@ -2126,7 +2153,8 @@
       }
     }
 
-    var compassAz = ((180.0 - (camYaw / DEG2RAD)) % 360.0 + 360.0) % 360.0;
+    var relAz = Math.atan2(-fx, -fz);
+    var compassAz = ((180.0 + (relAz / DEG2RAD)) % 360.0 + 360.0) % 360.0;
     cachedFocusedInfo = {
       constellation: best,
       focus: smoothstep(0.66, 0.96, bestDot),
@@ -2200,8 +2228,9 @@
 
     /* 2. Render All 12 Zodiac Constellations (Curved Occluded Edges, Spectral Stars, Diegetic Labels) */
     var constellations = ZODIAC_DATA.constellations;
-    var cgGaze = Math.cos(GAZE_ELEVATION_RAD);
-    var sgGaze = Math.sin(GAZE_ELEVATION_RAD);
+    var gazeElevR = GAZE_ELEVATION_RAD * (1.0 - clamp(lookTargetY / 7.5, 0.0, 0.85));
+    var cgGaze = Math.cos(gazeElevR);
+    var sgGaze = Math.sin(gazeElevR);
     var gazeX = c.fwdX * cgGaze + c.ux * sgGaze;
     var gazeY = c.fwdY * cgGaze + c.uy * sgGaze;
     var gazeZ = c.fwdZ * cgGaze + c.uz * sgGaze;
@@ -2409,7 +2438,8 @@
       ctx.restore();
     }
 
-    var compassAz = ((180.0 - (c.yaw / DEG2RAD)) % 360.0 + 360.0) % 360.0;
+    var relAzR = Math.atan2(-c.fwdX, -c.fwdZ);
+    var compassAz = ((180.0 + (relAzR / DEG2RAD)) % 360.0 + 360.0) % 360.0;
     cachedFocusedInfo = {
       constellation: bestItem,
       focus: smoothstep(0.66, 0.96, bestDot),
@@ -2470,7 +2500,12 @@
     var edgeFade = smoothstep(-radPx * 0.4, radPx + 22, sx)
                  * smoothstep(c.w + radPx * 0.4, c.w - radPx - 22, sx)
                  * smoothstep(42, 92, sy)
-                 * smoothstep(c.h - 48, c.h - 108, sy);
+                 * smoothstep(c.h - 56, c.h - 118, sy);
+    /* Prevent the floating tag underneath Earth from colliding with the bottom-center stargazing caption */
+    var tagBottom = sy + radPx + 66;
+    if (Math.abs(sx - c.w * 0.5) < 330 && tagBottom > c.h - 126) {
+      edgeFade *= smoothstep(c.h - 86, c.h - 134, tagBottom);
+    }
     var vis = clamp(masterAlpha * edgeFade, 0.0, 1.0);
     if (vis <= 0.05) {
       hideEarthHotspot();
@@ -2512,6 +2547,10 @@
 
     /* 1. 12 Bát Tự Zodiac Constellations (visible in 3D rotation/stargazing mode, fades cleanly on dive) */
     var diveFade = smoothstep(5.5, 19.5, cameraDistance);
+    var rigBlendAlpha = getCinemaRigBlend();
+    if (rigBlendAlpha > 0.05) {
+      diveFade = Math.max(diveFade, 0.90 * rigBlendAlpha);
+    }
     var targetConstAlpha = isStargazingMode ? diveFade : 0.0;
     if (isReducedMotion) {
       starState.constellationAlpha = targetConstAlpha;
@@ -2973,6 +3012,25 @@
       yaw: orbitYaw,
       pitch: orbitPitch,
       rollDeg: orbitRollDeg
+    };
+  };
+
+  window.setCinemaRig = function (tx, ty, tz, zoomMul) {
+    if (typeof tx === 'number' && isFinite(tx)) lookTargetX = clamp(tx, -16.0, 16.0);
+    if (typeof ty === 'number' && isFinite(ty)) lookTargetY = clamp(ty, -10.0, 12.0);
+    if (typeof tz === 'number' && isFinite(tz)) lookTargetZ = clamp(tz, -16.0, 16.0);
+    if (typeof zoomMul === 'number' && isFinite(zoomMul)) cinemaZoom = clamp(zoomMul, 0.80, 1.65);
+    updateFocusedConstellation(orbitYaw, orbitPitch);
+    needsStaticRender = true;
+    ensureLoopRunning();
+  };
+
+  window.getCinemaRig = function () {
+    return {
+      x: lookTargetX,
+      y: lookTargetY,
+      z: lookTargetZ,
+      zoom: cinemaZoom
     };
   };
 
