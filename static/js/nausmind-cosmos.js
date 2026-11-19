@@ -39,6 +39,9 @@
 
   var bhContainer = null;
   var starCanvas = null;
+  var earthHotspotEl = null;
+  var EARTH_WORLD = { x: -11.0, y: -4.3, z: 2.2, r: 1.72, atmR: 1.94 };
+  var earthScreenState = { visible: false, x: 0, y: 0, radiusPx: 0, opacity: 0 };
 
   var glState = null;
   var glFailed = false;
@@ -251,7 +254,7 @@
     'const float INFALL_K        = 0.064;',
     'const float SPIRAL_TIGHT_K  = 1.25;',
     '',
-    '/* True 3D World-Space Celestial Bodies (Left Foreground Planet + Upper-Right Crescent Moon) */',
+    '/* True 3D World-Space Celestial Bodies (Foreground Planet + Moon + Earth-like glory-vocabulary) */',
     'const vec3  PLANET_POS      = vec3(10.6, 0.28, 13.6);',
     'const float PLANET_R        = 7.60;',
     'const float PLANET_ATM_R    = 8.05;',
@@ -259,6 +262,10 @@
     'const vec3  MOON_POS        = vec3(-12.2, 4.2, 6.2);',
     'const float MOON_R          = 0.85;',
     'const float MOON_ATM_R      = 0.92;',
+    '',
+    'const vec3  EARTH_POS       = vec3(-11.0, -4.3, 2.2);',
+    'const float EARTH_R         = 1.72;',
+    'const float EARTH_ATM_R     = 1.94;',
     '',
     'mat4 translate_RowOrder(float x, float y, float z) {',
     '  return mat4(',
@@ -420,6 +427,115 @@
     '  col += mix(vec3(0.14, 0.28, 0.56), vec3(0.86, 0.72, 0.50), dayLight) * fresnel * (0.10 + 0.22 * dayLight);',
     '',
     '  return col;',
+    '}',
+    '',
+    '/* 3D Earth-Like Living Planet Shading (glory-vocabulary: Oceans, Continents, Ice Caps, Clouds & City Lights) */',
+    'vec3 shadeEarth3D(vec3 ro, vec3 rd, float tHit, vec3 center) {',
+    '  vec3 hitPos = ro + rd * tHit;',
+    '  vec3 N = normalize(hitPos - center);',
+    '  vec3 V = -rd;',
+    '  vec3 L = normalize(-hitPos);',
+    '',
+    '  float ndl = dot(N, L);',
+    '  float ndv = max(dot(N, V), 0.0);',
+    '  float fresnel = pow(1.0 - ndv, 3.2);',
+    '  float rimSharp = pow(1.0 - ndv, 7.8);',
+    '',
+    '  /* 23.4-deg axial obliquity + steady planetary rotation */',
+    '  float tiltC = 0.9177;',
+    '  float tiltS = 0.3971;',
+    '  vec3 tiltN = vec3(N.x, N.y * tiltC - N.z * tiltS, N.y * tiltS + N.z * tiltC);',
+    '  float spin = uTime * 0.048 + 1.35;',
+    '  float cs = cos(spin);',
+    '  float sn = sin(spin);',
+    '  vec3 rotN = vec3(tiltN.x * cs - tiltN.z * sn, tiltN.y, tiltN.x * sn + tiltN.z * cs);',
+    '',
+    '  /* Continents, coastal shelves, mountain highlands & polar ice caps */',
+    '  float contMacro = fbm3(rotN * 2.15 + vec3(1.4, -0.5, 2.1), 2.15, 1.0, 0.62);',
+    '  float contFine  = fbm2(rotN * 5.60 + vec3(3.1, 1.7, -2.4), 2.10, 1.0, 0.44);',
+    '  float elev      = contMacro * 0.72 + contFine * 0.28;',
+    '',
+    '  float landMask  = smoothstep(0.992, 1.032, elev);',
+    '  float shallow   = smoothstep(0.945, 1.002, elev) * (1.0 - landMask);',
+    '  float biomeVar  = fbm2(rotN * 3.8 + vec3(-2.0, 0.8, 1.2), 2.0, 1.0, 0.50);',
+    '  float lat       = abs(rotN.y);',
+    '  float iceMask   = smoothstep(0.75, 0.88, lat + (contFine - 1.0) * 0.22);',
+    '',
+    '  vec3 deepOcean  = vec3(0.022, 0.115, 0.340);',
+    '  vec3 coastOcean = vec3(0.065, 0.340, 0.540);',
+    '  vec3 oceanCol   = mix(deepOcean, coastOcean, shallow);',
+    '',
+    '  vec3 forestCol  = vec3(0.095, 0.285, 0.135);',
+    '  vec3 aridCol    = vec3(0.470, 0.385, 0.235);',
+    '  vec3 tundraCol  = vec3(0.240, 0.310, 0.220);',
+    '  float aridMask  = smoothstep(0.96, 1.18, biomeVar) * smoothstep(0.62, 0.12, lat);',
+    '  vec3 landCol    = mix(forestCol, aridCol, aridMask);',
+    '  landCol         = mix(landCol, tundraCol, smoothstep(0.45, 0.76, lat));',
+    '  landCol         = mix(landCol, vec3(0.66, 0.68, 0.71), smoothstep(1.13, 1.28, elev));',
+    '',
+    '  vec3 surfAlbedo = mix(oceanCol, landCol, landMask);',
+    '  surfAlbedo      = mix(surfAlbedo, vec3(0.84, 0.90, 0.96), iceMask);',
+    '',
+    '  /* Independent swirling cloud layer */',
+    '  float cSpin = spin * 1.28 + 0.55;',
+    '  float ccs = cos(cSpin);',
+    '  float csn = sin(cSpin);',
+    '  vec3 cloudN = vec3(tiltN.x * ccs - tiltN.z * csn, tiltN.y, tiltN.x * csn + tiltN.z * ccs);',
+    '  float swirl = fbm2(cloudN * 2.1, 2.0, 1.0, 0.50) - 1.0;',
+    '  float cNoise = fbm3(cloudN * 3.15 + vec3(swirl * 0.65, cloudN.x * 0.45, -swirl * 0.55), 2.25, 1.0, 0.66);',
+    '  float cloudMask = smoothstep(1.035, 1.22, cNoise) * 0.88;',
+    '',
+    '  float dayLight   = smoothstep(-0.14, 0.52, ndl);',
+    '  float terminator = exp(-abs(ndl + 0.02) * 13.0);',
+    '  float nightMask  = smoothstep(0.04, -0.28, ndl);',
+    '',
+    '  vec3 litSurf   = surfAlbedo * (0.14 + 1.18 * dayLight);',
+    '  vec3 nightSurf = surfAlbedo * vec3(0.05, 0.08, 0.16) + vec3(0.008, 0.018, 0.042);',
+    '  vec3 col       = mix(nightSurf, litSurf, dayLight);',
+    '',
+    '  /* Solar-champagne ocean specular glint */',
+    '  vec3 H = normalize(L + V);',
+    '  float oceanSpec = pow(max(dot(N, H), 0.0), 34.0) * (1.0 - landMask) * (1.0 - iceMask) * (1.0 - cloudMask * 0.85) * dayLight;',
+    '  col += vec3(0.95, 0.84, 0.66) * oceanSpec * 0.55;',
+    '',
+    '  /* Delicate night-side golden city light clusters on continents */',
+    '  float cityRaw = fbm2(rotN * 19.0 + vec3(2.3, -1.1, 0.7), 2.15, 1.0, 0.72);',
+    '  float cities  = smoothstep(1.12, 1.26, cityRaw) * landMask * (1.0 - iceMask) * (1.0 - cloudMask * 0.65);',
+    '  col += vec3(0.98, 0.78, 0.42) * cities * nightMask * 0.62;',
+    '',
+    '  /* Cloud deck shading with warm golden-rose terminator scattering */',
+    '  vec3 cloudCol = mix(vec3(0.025, 0.045, 0.095), vec3(0.92, 0.95, 0.99), dayLight);',
+    '  cloudCol += vec3(0.42, 0.24, 0.14) * terminator * 0.45;',
+    '  col = mix(col, cloudCol, cloudMask);',
+    '',
+    '  /* Signature Earth Azure-Cyan Rayleigh Atmospheric Limb */',
+    '  col += vec3(0.16, 0.46, 0.94) * fresnel * (0.24 + 0.78 * dayLight);',
+    '  col += vec3(0.56, 0.84, 1.00) * rimSharp * (0.34 + 1.08 * dayLight);',
+    '  col += vec3(0.92, 0.68, 0.42) * terminator * fresnel * 0.28;',
+    '',
+    '  return col;',
+    '}',
+    '',
+    '/* 3D Volumetric Earth Azure Atmospheric Halo for Grazing Rays */',
+    'vec3 computeEarthAtmHalo3D(vec3 ro, vec3 rd, vec3 center, float bodyR, float atmR) {',
+    '  vec2 hitA = raySphere(ro, rd, center, atmR);',
+    '  if (hitA.y <= 0.0) return vec3(0.0);',
+    '',
+    '  float tNear = max(hitA.x, 0.0);',
+    '  float tMid = 0.5 * (tNear + hitA.y);',
+    '  vec3 closestPt = ro + rd * tMid;',
+    '  float distC = length(closestPt - center);',
+    '  float hNorm = clamp((distC - bodyR) / max(atmR - bodyR, 1.0e-4), 0.0, 1.0);',
+    '',
+    '  vec3 N = normalize(closestPt - center);',
+    '  vec3 L = normalize(-closestPt);',
+    '  float lit = smoothstep(-0.42, 0.48, dot(N, L));',
+    '',
+    '  float edgeSharp = exp(-hNorm * 14.0);',
+    '  float outerSoft = exp(-hNorm * 4.8);',
+    '  vec3 colCore  = vec3(0.42, 0.78, 1.00) * edgeSharp * (0.28 + 0.92 * lit);',
+    '  vec3 colOuter = vec3(0.14, 0.44, 0.92) * outerSoft * (0.10 + 0.30 * lit);',
+    '  return colCore + colOuter;',
     '}',
     '',
     '/* 3D Volumetric Outer Atmospheric Halo for Grazing Rays (Razor-Crisp Hairline Limb) */',
@@ -691,28 +807,38 @@
     '  vec3 rd  = normalize(vec3(ray.direction));',
     '  float distToBH = length(ro);',
     '',
-    '  /* 1. True 3D World-Space Intersections for Foreground Planet & Distant Moon */',
+    '  /* 1. True 3D World-Space Intersections for Foreground Planet, Moon & Earth-like glory-vocabulary */',
     '  vec2 hitPlanet = raySphere(ro, rd, PLANET_POS, PLANET_R);',
     '  vec2 hitMoon   = raySphere(ro, rd, MOON_POS,   MOON_R);',
+    '  vec2 hitEarth  = raySphere(ro, rd, EARTH_POS,  EARTH_R);',
     '',
-    '  /* Exact early-out only when body is strictly closer than the entire accretion disk sphere */',
+    '  /* Find closest solid celestial body hit along ray (0=none, 1=planet, 2=moon, 3=earth) */',
+    '  int   bodyId = 0;',
+    '  float tBody  = 1.0e6;',
+    '  if (hitPlanet.x > 0.0 && hitPlanet.x < tBody) { tBody = hitPlanet.x; bodyId = 1; }',
+    '  if (hitMoon.x   > 0.0 && hitMoon.x   < tBody) { tBody = hitMoon.x;   bodyId = 2; }',
+    '  if (hitEarth.x  > 0.0 && hitEarth.x  < tBody) { tBody = hitEarth.x;  bodyId = 3; }',
+    '',
+    '  /* Exact early-out only when winning body is strictly closer than the entire accretion disk sphere */',
     '  float safeFrontDist = max(distToBH - outerDiskRadius - diskOuterSoft - 0.5, 0.0);',
-    '  bool planetStrictlyFront = (hitPlanet.x > 0.0 && hitPlanet.x < safeFrontDist);',
-    '  bool moonStrictlyFront   = (hitMoon.x > 0.0 && hitMoon.x < safeFrontDist);',
-    '  if (planetStrictlyFront && moonStrictlyFront) {',
-    '    if (hitPlanet.x < hitMoon.x) moonStrictlyFront = false;',
-    '    else planetStrictlyFront = false;',
-    '  }',
+    '  bool strictlyFront = (bodyId > 0 && tBody < safeFrontDist);',
     '',
     '  vec3 hdrCol = vec3(0.0);',
     '',
-    '  /* GPU Early-Out: Rays hitting the solid foreground 3D planet skip RK4 raymarching! */',
-    '  if (planetStrictlyFront) {',
-    '    hdrCol = shadePlanet3D(ro, rd, hitPlanet.x, PLANET_POS, 0.0);',
-    '  } else if (moonStrictlyFront) {',
-    '    hdrCol = shadePlanet3D(ro, rd, hitMoon.x, MOON_POS, 1.0);',
-    '    if (hitPlanet.x <= 0.0) {',
-    '      hdrCol += computeAtmHalo3D(ro, rd, PLANET_POS, PLANET_R, PLANET_ATM_R);',
+    '  /* GPU Early-Out: Rays hitting a solid foreground 3D body skip RK4 raymarching! */',
+    '  if (strictlyFront) {',
+    '    if (bodyId == 1) {',
+    '      hdrCol = shadePlanet3D(ro, rd, tBody, PLANET_POS, 0.0);',
+    '    } else if (bodyId == 2) {',
+    '      hdrCol = shadePlanet3D(ro, rd, tBody, MOON_POS, 1.0);',
+    '      if (hitPlanet.x <= 0.0 && length(PLANET_POS - ro) < tBody) {',
+    '        hdrCol += computeAtmHalo3D(ro, rd, PLANET_POS, PLANET_R, PLANET_ATM_R);',
+    '      }',
+    '    } else {',
+    '      hdrCol = shadeEarth3D(ro, rd, tBody, EARTH_POS);',
+    '      if (hitPlanet.x <= 0.0 && length(PLANET_POS - ro) < tBody) {',
+    '        hdrCol += computeAtmHalo3D(ro, rd, PLANET_POS, PLANET_R, PLANET_ATM_R);',
+    '      }',
     '    }',
     '  } else {',
     '    /* 2. Relativistic RK4 Geodesic Raymarch around Gargantua (Continuous Volumetric Disk) */',
@@ -727,23 +853,17 @@
     '    float escaped = step(0.5, color.a);',
     '    float trans   = clamp(1.0 - diskCoverage, 0.0, 1.0);',
     '',
-    '    /* Exact Per-Pixel 3D Depth Sorting between Planet, Moon, Event Horizon & Translucent Accretion Disk */',
+    '    /* Exact Per-Pixel 3D Depth Sorting between Planet, Moon, Earth, Event Horizon & Accretion Disk */',
     '    bool bodyOccludesAll = false;',
-    '    if (hitPlanet.x > 0.0 && (hitMoon.x <= 0.0 || hitPlanet.x < hitMoon.x)) {',
-    '      vec3 pCol = shadePlanet3D(ro, rd, hitPlanet.x, PLANET_POS, 0.0);',
-    '      if (hitPlanet.x < firstDiskDist && (escaped > 0.5 || hitPlanet.x < distToBH)) {',
-    '        hdrCol = pCol;',
+    '    if (bodyId > 0) {',
+    '      vec3 bCol = (bodyId == 1)',
+    '        ? shadePlanet3D(ro, rd, tBody, PLANET_POS, 0.0)',
+    '        : ((bodyId == 2) ? shadePlanet3D(ro, rd, tBody, MOON_POS, 1.0) : shadeEarth3D(ro, rd, tBody, EARTH_POS));',
+    '      if (tBody < firstDiskDist && (escaped > 0.5 || tBody < distToBH)) {',
+    '        hdrCol = bCol;',
     '        bodyOccludesAll = true;',
     '      } else if (escaped > 0.5) {',
-    '        color.rgb = diskOnly + trans * pCol;',
-    '      }',
-    '    } else if (hitMoon.x > 0.0) {',
-    '      vec3 mCol = shadePlanet3D(ro, rd, hitMoon.x, MOON_POS, 1.0);',
-    '      if (hitMoon.x < firstDiskDist && (escaped > 0.5 || hitMoon.x < distToBH)) {',
-    '        hdrCol = mCol;',
-    '        bodyOccludesAll = true;',
-    '      } else if (escaped > 0.5) {',
-    '        color.rgb = diskOnly + trans * mCol;',
+    '        color.rgb = diskOnly + trans * bCol;',
     '      }',
     '    }',
     '',
@@ -767,11 +887,11 @@
     '      vec3 warmBloom = vec3(0.98, 0.78, 0.46) * eqPlaneBloom * 0.52 * mix(0.18, 1.0, visibleMask);',
     '      vec3 radialCorona = vec3(0.95, 0.93, 0.89) * bhHalo * 0.30 * mix(0.08, 1.0, visibleMask);',
     '',
-    '      /* Suppress sky bloom over distant planet/moon disc continuously with diskCoverage (zero limb seam!) */',
-    '      float skyBloomMask = (hitPlanet.x > 0.0 || hitMoon.x > 0.0) ? diskCoverage : 1.0;',
+    '      /* Suppress sky bloom over distant planet/moon/earth disc continuously with diskCoverage (zero limb seam!) */',
+    '      float skyBloomMask = (bodyId > 0) ? diskCoverage : 1.0;',
     '      hdrCol = color.rgb + photonRing + (cobaltAtmos + warmBloom + radialCorona) * skyBloomMask;',
     '',
-    '      /* 3. Volumetric 3D Atmospheric Rayleigh Halos — ONLY for rays grazing outside the solid core! */',
+    '      /* 3. Volumetric 3D Atmospheric Rayleigh Halos — ONLY for rays grazing outside each solid core! */',
     '      if (hitPlanet.x <= 0.0) {',
     '        float pHaloMask = (length(PLANET_POS - ro) > distToBH) ? (escaped * trans) : 1.0;',
     '        hdrCol += computeAtmHalo3D(ro, rd, PLANET_POS, PLANET_R, PLANET_ATM_R) * pHaloMask;',
@@ -779,6 +899,12 @@
     '      if (hitMoon.x <= 0.0) {',
     '        float mHaloMask = (length(MOON_POS - ro) > distToBH) ? (escaped * trans) : 1.0;',
     '        hdrCol += computeAtmHalo3D(ro, rd, MOON_POS, MOON_R, MOON_ATM_R) * 0.38 * mHaloMask;',
+    '      }',
+    '      if (hitEarth.x <= 0.0) {',
+    '        float eDist = length(EARTH_POS - ro);',
+    '        float eHaloMask = (eDist > distToBH) ? (escaped * trans) : 1.0;',
+    '        if (bodyId > 0 && tBody < eDist) eHaloMask = 0.0;',
+    '        hdrCol += computeEarthAtmHalo3D(ro, rd, EARTH_POS, EARTH_R, EARTH_ATM_R) * eHaloMask;',
     '      }',
     '    }',
     '  }',
@@ -1843,6 +1969,11 @@
     var mvz = 6.2 - c.camZ;
     var mDist = Math.sqrt(mvx * mvx + mvy * mvy + mvz * mvz) || 1.0;
 
+    var evx = EARTH_WORLD.x - c.camX;
+    var evy = EARTH_WORLD.y - c.camY;
+    var evz = EARTH_WORLD.z - c.camZ;
+    var eDist = Math.sqrt(evx * evx + evy * evy + evz * evz) || 1.0;
+
     return {
       pDx: pvx / pDist, pDy: pvy / pDist, pDz: pvz / pDist,
       pSolid: Math.asin(Math.min(0.998, 7.62 / pDist)),
@@ -1851,6 +1982,10 @@
       mDx: mvx / mDist, mDy: mvy / mDist, mDz: mvz / mDist,
       mSolid: Math.asin(Math.min(0.998, 0.88 / mDist)),
       mAtm: Math.asin(Math.min(0.999, 1.15 / mDist)),
+
+      eDx: evx / eDist, eDy: evy / eDist, eDz: evz / eDist,
+      eSolid: Math.asin(Math.min(0.998, EARTH_WORLD.r / eDist)),
+      eAtm: Math.asin(Math.min(0.999, (EARTH_WORLD.atmR + 0.14) / eDist)),
 
       bhDx: c.fwdX, bhDy: c.fwdY, bhDz: c.fwdZ,
       bhSolid: Math.asin(Math.min(0.998, 2.75 / c.camLen)),
@@ -1871,6 +2006,11 @@
     if (mAng <= occ.mSolid) return 0.0;
     if (mAng < occ.mAtm) vis *= smoothstep(occ.mSolid, occ.mAtm, mAng);
 
+    var eDot = clamp(dx * occ.eDx + dy * occ.eDy + dz * occ.eDz, -1.0, 1.0);
+    var eAng = Math.acos(eDot);
+    if (eAng <= occ.eSolid) return 0.0;
+    if (eAng < occ.eAtm) vis *= smoothstep(occ.eSolid, occ.eAtm, eAng);
+
     var bhDot = clamp(dx * occ.bhDx + dy * occ.bhDy + dz * occ.bhDz, -1.0, 1.0);
     var bhAng = Math.acos(bhDot);
     if (bhAng <= occ.bhSolid) return 0.0;
@@ -1888,7 +2028,7 @@
     return vis;
   }
 
-  /* Padded angular visibility for text labels so typography never overlaps Planet/Moon/Gargantua glow */
+  /* Padded angular visibility for text labels so typography never overlaps Planet/Moon/Earth/Gargantua glow */
   function getLabelVisibility(dx, dy, dz, occ) {
     var vis = 1.0;
 
@@ -1901,6 +2041,11 @@
     var mAng = Math.acos(mDot);
     if (mAng <= occ.mSolid + 0.04) return 0.0;
     if (mAng < occ.mAtm + 0.08) vis *= smoothstep(occ.mSolid + 0.04, occ.mAtm + 0.08, mAng);
+
+    var eDot = clamp(dx * occ.eDx + dy * occ.eDy + dz * occ.eDz, -1.0, 1.0);
+    var eAng = Math.acos(eDot);
+    if (eAng <= occ.eSolid + 0.06) return 0.0;
+    if (eAng < occ.eAtm + 0.11) vis *= smoothstep(occ.eSolid + 0.06, occ.eAtm + 0.11, eAng);
 
     var bhDot = clamp(dx * occ.bhDx + dy * occ.bhDy + dz * occ.bhDz, -1.0, 1.0);
     var bhAng = Math.acos(bhDot);
@@ -2272,7 +2417,85 @@
     };
   }
 
-  /* Project 12 Bát Tự Zodiac Constellations + 3D Foreground Cosmic Dust using the EXACT WebGL Camera */
+  function hideEarthHotspot() {
+    earthScreenState = { visible: false, x: 0, y: 0, radiusPx: 0, opacity: 0 };
+    if (!earthHotspotEl) return;
+    earthHotspotEl.classList.remove('is-visible');
+    earthHotspotEl.style.opacity = '0';
+    earthHotspotEl.setAttribute('aria-hidden', 'true');
+    earthHotspotEl.setAttribute('tabindex', '-1');
+  }
+
+  /* Sync accessible interactive link hotspot (#earth-planet-link) to 3D Earth-like glory-vocabulary */
+  function updateEarthHotspot(c, masterAlpha) {
+    if (!isStargazingMode || cosmicMode !== 'blackhole' || !isHome || masterAlpha <= 0.04) {
+      hideEarthHotspot();
+      return;
+    }
+
+    var dx = EARTH_WORLD.x - c.camX;
+    var dy = EARTH_WORLD.y - c.camY;
+    var dz = EARTH_WORLD.z - c.camZ;
+    var vz = dx * c.fwdX + dy * c.fwdY + dz * c.fwdZ;
+    if (vz <= EARTH_WORLD.r + 0.8) {
+      hideEarthHotspot();
+      return;
+    }
+
+    var distE = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1.0;
+    var rdX = dx / distE;
+    var rdY = dy / distE;
+    var rdZ = dz / distE;
+
+    /* Occlusion check against Foreground Planet, Moon, and Black Hole Event Horizon shadow */
+    if (isOccludedBySphere(c.camX, c.camY, c.camZ, rdX, rdY, rdZ, distE, 10.6, 0.28, 13.6, 7.55) ||
+        isOccludedBySphere(c.camX, c.camY, c.camZ, rdX, rdY, rdZ, distE, -12.2, 4.2, 6.2, 0.85) ||
+        (distE > c.camLen && isOccludedBySphere(c.camX, c.camY, c.camZ, rdX, rdY, rdZ, distE, 0.0, 0.0, 0.0, 2.72))) {
+      hideEarthHotspot();
+      return;
+    }
+
+    var vx = dx * c.rx + dy * c.ry + dz * c.rz;
+    var vy = dx * c.ux + dy * c.uy + dz * c.uz;
+    var sx = c.centerX + (vx / vz) * c.focal;
+    var sy = c.centerY - (vy / vz) * c.focal;
+    var radPx = (EARTH_WORLD.r / Math.sqrt(Math.max(distE * distE - EARTH_WORLD.r * EARTH_WORLD.r, 1.0))) * c.focal;
+
+    var pad = radPx + 24;
+    if (sx < -pad || sx > c.w + pad || sy < -pad || sy > c.h + pad) {
+      hideEarthHotspot();
+      return;
+    }
+
+    var edgeFade = smoothstep(-radPx * 0.4, radPx + 22, sx)
+                 * smoothstep(c.w + radPx * 0.4, c.w - radPx - 22, sx)
+                 * smoothstep(42, 92, sy)
+                 * smoothstep(c.h - 48, c.h - 108, sy);
+    var vis = clamp(masterAlpha * edgeFade, 0.0, 1.0);
+    if (vis <= 0.05) {
+      hideEarthHotspot();
+      return;
+    }
+
+    var diaPx = clamp(radPx * 2.0, 44.0, 240.0);
+    earthScreenState = {
+      visible: true,
+      x: Number(sx.toFixed(1)),
+      y: Number(sy.toFixed(1)),
+      radiusPx: Number(radPx.toFixed(1)),
+      opacity: Number(vis.toFixed(3))
+    };
+
+    if (!earthHotspotEl) return;
+    earthHotspotEl.style.transform = 'translate3d(' + sx.toFixed(1) + 'px, ' + sy.toFixed(1) + 'px, 0)';
+    earthHotspotEl.style.setProperty('--earth-dia', diaPx.toFixed(1) + 'px');
+    earthHotspotEl.style.opacity = vis.toFixed(3);
+    earthHotspotEl.classList.add('is-visible');
+    earthHotspotEl.removeAttribute('aria-hidden');
+    earthHotspotEl.removeAttribute('tabindex');
+  }
+
+  /* Project 12 Bát Tự Zodiac Constellations + 3D Foreground Cosmic Dust + Earth Hotspot */
   function render3DDustOverlay(elapsedSec, dtSec) {
     if (!starState || !starState.dust3D) return;
     var ctx = starState.ctx;
@@ -2304,6 +2527,9 @@
       renderZodiacConstellations(ctx, c, occ, elapsedSec, starState.constellationAlpha);
     }
 
+    /* 1b. Sync Interactive glory-vocabulary Earth Planet Link Hotspot */
+    updateEarthHotspot(c, starState.constellationAlpha);
+
     /* 2. Synchronized 3D Foreground Cosmic Dust */
     var dust = starState.dust3D;
     var sprites = starState.glowSprites;
@@ -2330,7 +2556,7 @@
         continue;
       }
 
-      /* 3D Ray-Sphere Occlusion: prevent background dust from bleeding through solid Planet or Moon */
+      /* 3D Ray-Sphere Occlusion: prevent background dust from bleeding through solid Planet, Moon or Earth */
       var distToPt = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1.0;
       var rdX = dx / distToPt;
       var rdY = dy / distToPt;
@@ -2338,9 +2564,14 @@
       var dpx = wx - 10.6;
       var dpy = wy - 0.28;
       var dpz = wz - 13.6;
+      var dex = wx - EARTH_WORLD.x;
+      var dey = wy - EARTH_WORLD.y;
+      var dez = wz - EARTH_WORLD.z;
       if (dpx * dpx + dpy * dpy + dpz * dpz < 60.84 ||
+          dex * dex + dey * dey + dez * dez < (EARTH_WORLD.atmR * EARTH_WORLD.atmR) ||
           isOccludedBySphere(c.camX, c.camY, c.camZ, rdX, rdY, rdZ, distToPt, 10.6, 0.28, 13.6, 7.65) ||
-          isOccludedBySphere(c.camX, c.camY, c.camZ, rdX, rdY, rdZ, distToPt, -12.2, 4.2, 6.2, 0.88)) {
+          isOccludedBySphere(c.camX, c.camY, c.camZ, rdX, rdY, rdZ, distToPt, -12.2, 4.2, 6.2, 0.88) ||
+          isOccludedBySphere(c.camX, c.camY, c.camZ, rdX, rdY, rdZ, distToPt, EARTH_WORLD.x, EARTH_WORLD.y, EARTH_WORLD.z, EARTH_WORLD.r + 0.06)) {
         pt.prevX = null;
         pt.prevY = null;
         continue;
@@ -2620,6 +2851,7 @@
       if (!isEclipse3D) {
         starCanvas.style.opacity = '1';
         if (starState) starState.overlayAlpha = 1.0;
+        hideEarthHotspot();
       } else {
         var desired = isStargazingMode ? 1.0 : (currentStarSpeed > 2.0 ? 0.85 : 0.34);
         starCanvas.style.opacity = String(desired);
@@ -2796,8 +3028,21 @@
     };
   };
 
+  window.getEarthPlanetScreenState = function () {
+    return {
+      name: 'glory-vocabulary',
+      url: 'https://gloryvocab.com',
+      visible: earthScreenState.visible,
+      x: earthScreenState.x,
+      y: earthScreenState.y,
+      radiusPx: earthScreenState.radiusPx,
+      opacity: earthScreenState.opacity
+    };
+  };
+
   window.setStargazingState = function (active) {
     isStargazingMode = !!active;
+    if (!isStargazingMode) hideEarthHotspot();
     needsStaticRender = true;
     ensureLoopRunning();
   };
@@ -2835,6 +3080,7 @@
     isHome = !!(document.body && document.body.classList.contains('is-home'));
     bhContainer = document.getElementById('bh-canvas');
     starCanvas = document.getElementById('starCanvas');
+    earthHotspotEl = document.getElementById('earth-planet-link');
 
     if (!explicitDistanceSet) {
       cameraDistance = D_STARGAZE;
