@@ -69,46 +69,61 @@
   color: var(--accent-gold-bright);
 }
 
-/* ── Giscus Comments Container (#comments) ───────────────────────────────── */
+/* ── Giscus Editorial Discussion Container (#comments) ─────────────────────── */
 #comments,
 .post-comments-container,
 .comments-section {
-  margin-top: 2.5rem;
-  padding: 1.75rem;
-  background: var(--panel);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  position: relative;
+  margin-top: 2.75rem;
+  padding: 2.15rem 2.15rem 1.9rem;
+  background: linear-gradient(
+    180deg,
+    rgba(13, 19, 36, 0.86) 0%,
+    rgba(7, 10, 20, 0.84) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--line);
   border-radius: var(--r);
-  box-shadow: var(--rim-top);
+  box-shadow: var(--rim-top), 0 22px 54px rgba(2, 4, 10, 0.48);
   scroll-margin-top: 5.5rem;
   box-sizing: border-box;
+  overflow: hidden;
+}
+
+#comments::before,
+.comments-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(226, 190, 132, 0.42) 32%,
+    rgba(155, 183, 224, 0.28) 68%,
+    transparent 100%
+  );
+  pointer-events: none;
 }
 
 #comments.glass-card:hover,
 .comments-section.glass-card:hover {
   transform: none;
   border-color: var(--line);
-  box-shadow: var(--rim-top);
-  background: var(--panel);
-}
-
-@media (max-width: 640px) {
-  #comments,
-  .post-comments-container,
-  .comments-section {
-    padding: 1.25rem 1rem;
-  }
+  box-shadow: var(--rim-top), 0 22px 54px rgba(2, 4, 10, 0.48);
 }
 
 .comments-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  padding-bottom: 1rem;
-  margin-bottom: 1.25rem;
+  gap: 1rem 1.5rem;
+  padding-bottom: 1.35rem;
+  margin-bottom: 1.35rem;
   border-bottom: 1px solid var(--line-subtle);
 }
 
@@ -116,48 +131,136 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.25rem;
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  font-weight: 400;
-  color: var(--text-bright);
+  gap: 0.42rem;
+  min-width: 0;
+  flex: 1 1 280px;
+}
+
+.comments-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+}
+
+.comments-eyebrow-icon {
+  color: var(--accent-gold);
+  opacity: 0.9;
+  flex-shrink: 0;
 }
 
 .comments-heading {
   font-family: var(--font-display);
-  font-size: 1.55rem;
+  font-size: clamp(1.65rem, 2.5vw, 2.05rem);
   font-weight: 400;
-  line-height: 1.2;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
   color: var(--text-bright);
   margin: 0;
 }
 
-.comments-header-title svg {
-  color: var(--accent-gold);
-}
-
-.comments-header-badge {
-  font-family: var(--font-label);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent-lunar-bright);
-  background: var(--accent-lunar-dim);
-  border: 1px solid var(--accent-lunar-border);
-  padding: 0.22rem 0.65rem;
-  border-radius: var(--r-pill);
-}
-
-.comments-instructions {
-  font-size: 0.9rem;
+.comments-subtitle {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  line-height: 1.58;
   color: var(--muted);
-  margin: 0 0 1.25rem 0;
+  margin: 0.1rem 0 0 0;
+  max-width: 54ch;
 }
 
+.comments-gh-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 0.48rem 0.95rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  background: rgba(196, 214, 242, 0.045);
+  box-shadow: var(--rim-top);
+  color: var(--muted);
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  transition:
+    border-color var(--dur-fast) ease,
+    background var(--dur-fast) ease,
+    color var(--dur-fast) ease,
+    transform var(--dur-fast) var(--ease);
+}
+
+.comments-gh-link:hover {
+  border-color: var(--accent-gold-border);
+  background: var(--accent-gold-dim);
+  color: var(--accent-gold-bright);
+  transform: translate3d(0, -1px, 0);
+}
+
+.comments-gh-ext {
+  font-size: 0.8rem;
+  opacity: 0.72;
+  transition: transform var(--dur-fast) var(--ease), opacity var(--dur-fast) ease;
+}
+
+.comments-gh-link:hover .comments-gh-ext {
+  transform: translate3d(2px, -2px, 0);
+  opacity: 1;
+}
+
+.comments-content {
+  width: 100%;
+}
+
+.comments-embed-shell {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-sizing: border-box;
+}
+
+.comments-embed-shell .giscus,
+.post-comments-container .giscus {
+  width: 100%;
+}
+
+.comments-embed-shell iframe.giscus-frame,
 .post-comments-container iframe.giscus-frame {
+  display: block;
   width: 100% !important;
   max-width: 100% !important;
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  #comments,
+  .post-comments-container,
+  .comments-section {
+    margin-top: 2rem;
+    padding: 1.45rem 1.15rem 1.35rem;
+  }
+
+  .comments-header {
+    gap: 0.85rem;
+    padding-bottom: 1.05rem;
+    margin-bottom: 1rem;
+  }
+
+  .comments-subtitle {
+    font-size: 0.84rem;
+  }
+
+  .comments-gh-link {
+    padding: 0.42rem 0.85rem;
+    font-size: 10.5px;
+  }
 }
 
 @keyframes commentsPulse {
