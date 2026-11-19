@@ -18,9 +18,50 @@
     <canvas id="starCanvas" class="star-canvas" aria-hidden="true"></canvas>
 
     {{- if .IsHome }}
+    {{- $hudLang := .Lang -}}
+    {{- $hudViURL := "/" -}}
+    {{- $hudEnURL := "/en/" -}}
+    {{- range .Translations -}}
+      {{- if eq .Lang "vi" -}}{{- $hudViURL = .RelPermalink -}}{{- end -}}
+      {{- if eq .Lang "en" -}}{{- $hudEnURL = .RelPermalink -}}{{- end -}}
+    {{- end -}}
+    <div id="stargazing-hud" class="stargazing-hud visible" aria-label="{{ if eq $hudLang "en" }}3D Orbital Viewport Controls{{ else }}Điều khiển Không gian Quỹ đạo 3D{{ end }}">
+      <div class="stargazing-hud-left">
+        <div class="stargazing-hud-brand">
+          <svg class="site-logo-mark" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="14.5" cy="12" r="6.8" stroke="currentColor" stroke-width="1.65" opacity="0.95"></circle>
+            <circle cx="8.6" cy="12" r="7.4" fill="#05070e"></circle>
+            <path d="M11.6 5.2A7.4 7.4 0 0 1 11.6 18.8" stroke="#eaf0fc" stroke-width="1.25" stroke-linecap="round" opacity="0.92"></path>
+          </svg>
+          <span class="font-nasa-logo">GLORY HINODY</span>
+        </div>
+        <div id="orbit-telemetry" class="orbit-telemetry" aria-hidden="true">AZ +000.0° · EL +00.0° · 28.5 Rs</div>
+      </div>
+
+      <div class="stargazing-hud-right">
+        <button type="button" id="orbit-reset-btn" class="orbit-hud-btn" data-orbit-reset aria-label="{{ if eq $hudLang "en" }}Reset 3D camera view{{ else }}Đặt lại góc nhìn 3D{{ end }}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+          <span>{{ if eq $hudLang "en" }}Reset View{{ else }}Góc mặc định{{ end }}</span>
+        </button>
+
+        <div class="lang-segmented-control" role="group" aria-label="{{ if eq $hudLang "en" }}Language Selector{{ else }}Chọn ngôn ngữ{{ end }}">
+          {{- if eq $hudLang "en" -}}
+            <a class="lang-pill" href="{{ $hudViURL }}" title="Chuyển sang Tiếng Việt" aria-label="Tiếng Việt">VI</a>
+            <span class="lang-pill active is-active" aria-current="page" title="Currently viewing English">EN</span>
+          {{- else -}}
+            <span class="lang-pill active is-active" aria-current="page" title="Đang xem Tiếng Việt">VI</span>
+            <a class="lang-pill" href="{{ $hudEnURL }}" title="Switch to English" aria-label="English">EN</a>
+          {{- end -}}
+        </div>
+      </div>
+    </div>
+
     <div id="stargazing-caption" class="stargazing-caption">
       <button type="button" class="stargazing-caption-glass" data-stargaze-enter aria-label="{{ if eq .Lang "en" }}Enter Lê Quang Vinh's engineering portfolio{{ else }}Bước vào không gian nội dung của Lê Quang Vinh{{ end }}">
-        <p class="stargazing-text" data-initial-text="{{ if eq .Lang "en" }}Lê Quang Vinh · Scroll down to enter the engineering cosmos{{ else }}Lê Quang Vinh · Cuộn xuống để bước vào vũ trụ kỹ thuật{{ end }}" data-dive-text="{{ if eq .Lang "en" }}Scroll once more to reveal portfolio{{ else }}Tiếp tục cuộn để mở không gian nội dung{{ end }}">{{ if eq .Lang "en" }}Lê Quang Vinh · Scroll down to enter the engineering cosmos{{ else }}Lê Quang Vinh · Cuộn xuống để bước vào vũ trụ kỹ thuật{{ end }}</p>
+        <p class="stargazing-text" data-initial-text="{{ if eq .Lang "en" }}Lê Quang Vinh · Drag to orbit in 3D · Scroll down to enter{{ else }}Lê Quang Vinh · Kéo xoay không gian 3D · Cuộn xuống để vào{{ end }}" data-dive-text="{{ if eq .Lang "en" }}Scroll once more to reveal portfolio{{ else }}Tiếp tục cuộn để mở không gian nội dung{{ end }}">{{ if eq .Lang "en" }}Lê Quang Vinh · Drag to orbit in 3D · Scroll down to enter{{ else }}Lê Quang Vinh · Kéo xoay không gian 3D · Cuộn xuống để vào{{ end }}</p>
         <div class="stargazing-chevron scroll-bounce" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m6 9 6 6 6-6"></path>

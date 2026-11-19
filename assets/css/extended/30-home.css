@@ -1,7 +1,159 @@
 /* ==========================================================================
-   Glory Hinody — Eclipse Editorial Stargazing & 5-Section Fullpage Stage
-   30-home.css · Eclipse Entry Capsule, Calibrated Scrim & GPU Snap Physics
+   Glory Hinody — Eclipse 3D Orbital Space & 5-Section Fullpage Stage
+   30-home.css · 3D Stargazing HUD, Orbital Cursors, Scrim & GPU Snap Physics
    ========================================================================== */
+
+/* ── Interactive 3D Viewport Tactile Cursors ─────────────────────────────── */
+body.is-home.is-stargazing {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body.is-home.is-stargazing.is-orbiting {
+  cursor: grabbing;
+}
+
+body.is-home.is-stargazing a,
+body.is-home.is-stargazing button {
+  cursor: pointer;
+}
+
+/* ── Minimalist Diegetic 3D Stargazing HUD (#stargazing-hud) ─────────────── */
+.stargazing-hud,
+#stargazing-hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 45;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 1.35rem 3rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  opacity: 0;
+  transform: translate3d(0, -10px, 0);
+  pointer-events: none;
+  transition:
+    opacity 0.55s var(--ease),
+    transform 0.55s var(--ease);
+  box-sizing: border-box;
+}
+
+.stargazing-hud.visible,
+#stargazing-hud.visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.stargazing-hud.visible .stargazing-hud-left,
+.stargazing-hud.visible .stargazing-hud-right {
+  pointer-events: auto;
+}
+
+.stargazing-hud-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.42rem;
+}
+
+.stargazing-hud-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  opacity: 0.92;
+}
+
+.orbit-telemetry {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(196, 214, 242, 0.62);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 10px rgba(3, 5, 10, 0.85);
+}
+
+.stargazing-hud-right {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.orbit-hud-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  height: 32px;
+  padding: 0 0.85rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--accent-gold-border);
+  background: rgba(8, 12, 23, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--rim-top);
+  color: var(--accent-gold);
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0;
+  transform: translate3d(6px, 0, 0);
+  pointer-events: none;
+  transition:
+    opacity 0.28s var(--ease),
+    transform 0.28s var(--ease),
+    border-color var(--dur-fast) ease,
+    background var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+
+.orbit-hud-btn.is-dirty {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  pointer-events: auto;
+}
+
+.orbit-hud-btn:hover {
+  border-color: var(--accent-gold);
+  background: rgba(16, 23, 41, 0.92);
+  color: var(--text-bright);
+}
+
+@media (max-width: 900px) {
+  .stargazing-hud,
+  #stargazing-hud {
+    padding: 1rem 1.35rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .stargazing-hud,
+  #stargazing-hud {
+    padding: 0.85rem 1rem;
+  }
+
+  .orbit-telemetry {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+
+  .orbit-hud-btn span {
+    display: none;
+  }
+
+  .orbit-hud-btn {
+    padding: 0 0.6rem;
+  }
+}
 
 /* ── Stargazing Entry Capsule (#stargazing-caption) ──────────────────────── */
 .stargazing-caption,
@@ -266,12 +418,22 @@
   opacity: 0;
   transform: translate3d(0, 22px, 0);
   text-shadow: 0 4px 28px rgba(3, 5, 10, 0.78);
-  transition: letter-spacing 0.42s var(--ease), opacity 0.4s ease;
+  transition: opacity 0.4s ease;
   will-change: transform, opacity;
 }
 
-.hero-line:hover {
-  letter-spacing: -0.01em;
+.hero-display-stack > .hero-line {
+  transition: letter-spacing 0.42s var(--ease), opacity 0.4s ease;
+}
+
+@media (hover: hover) {
+  .hero-display-stack > .hero-line:hover {
+    letter-spacing: -0.012em;
+  }
+
+  .hero-display-stack > .dreamer-text.hero-line:hover {
+    letter-spacing: 0.004em;
+  }
 }
 
 .dreamer-text {
@@ -280,15 +442,13 @@
   color: var(--accent-gold);
 }
 
-.dreamer-text.hero-line:hover {
-  letter-spacing: 0.008em;
-}
-
 .hero-line.visible {
   animation: heroReveal 0.56s var(--ease) forwards;
 }
 
 .hero-sub {
+  display: block;
+  width: 100%;
   font-family: var(--font-label);
   font-size: clamp(0.72rem, 0.96vw, 0.82rem);
   font-weight: 450;
