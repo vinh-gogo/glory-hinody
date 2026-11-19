@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Glory Hinody — Cosmic Comments, Share Bar, Share Dialog & Floating Toast
+   Glory Hinody — Eclipse Editorial Comments, Share Bar, Modal & Toast
    60-comments-share.css · Preserves All blog-stats.js & Giscus Hooks
    ========================================================================== */
 
@@ -13,10 +13,18 @@
   padding: 1.15rem 1.4rem;
   margin-top: 1.5rem;
   background: var(--panel);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--rim-top);
+}
+
+.editorial-share-bar.glass-card:hover {
+  transform: none;
+  border-color: var(--line);
+  box-shadow: var(--rim-top);
+  background: var(--panel);
 }
 
 .share-label {
@@ -42,36 +50,37 @@
   justify-content: center;
   min-height: 36px;
   padding: 0 0.9rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  background: rgba(196, 214, 242, 0.04);
   color: var(--muted);
   font-family: var(--font-body);
   font-size: 0.8rem;
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.2s var(--ease);
+  transition: border-color var(--dur-fast) ease, background var(--dur-fast) ease, color var(--dur-fast) ease;
 }
 
 .share-action-link:hover,
 .share-action-btn:hover {
-  border-color: var(--accent-purple-border);
-  background: rgba(139, 124, 246, 0.14);
-  color: #ffffff;
+  border-color: var(--accent-gold-border);
+  background: var(--accent-gold-dim);
+  color: var(--accent-gold-bright);
 }
 
-/* ── Giscus Comments Cosmic Glass Container (#comments) ──────────────────── */
+/* ── Giscus Comments Container (#comments) ───────────────────────────────── */
 #comments,
 .post-comments-container,
 .comments-section {
   margin-top: 2.5rem;
   padding: 1.75rem;
   background: var(--panel);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--rim-top);
   scroll-margin-top: 5.5rem;
   box-sizing: border-box;
 }
@@ -79,6 +88,9 @@
 #comments.glass-card:hover,
 .comments-section.glass-card:hover {
   transform: none;
+  border-color: var(--line);
+  box-shadow: var(--rim-top);
+  background: var(--panel);
 }
 
 @media (max-width: 640px) {
@@ -97,7 +109,7 @@
   gap: 0.75rem;
   padding-bottom: 1rem;
   margin-bottom: 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--line-subtle);
 }
 
 .comments-header-title {
@@ -130,11 +142,17 @@
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent-purple);
-  background: var(--accent-purple-dim);
-  border: 1px solid var(--accent-purple-border);
+  color: var(--accent-lunar-bright);
+  background: var(--accent-lunar-dim);
+  border: 1px solid var(--accent-lunar-border);
   padding: 0.22rem 0.65rem;
-  border-radius: 9999px;
+  border-radius: var(--r-pill);
+}
+
+.comments-instructions {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0 0 1.25rem 0;
 }
 
 .post-comments-container iframe.giscus-frame {
@@ -144,12 +162,12 @@
 
 @keyframes commentsPulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(139, 124, 246, 0.45);
-    border-color: var(--accent-purple);
-  }
-  50% {
-    box-shadow: 0 0 0 10px rgba(139, 124, 246, 0.12);
+    box-shadow: 0 0 0 0 rgba(226, 190, 132, 0.36);
     border-color: var(--accent-gold);
+  }
+  55% {
+    box-shadow: 0 0 0 8px rgba(226, 190, 132, 0.08);
+    border-color: var(--accent-gold-bright);
   }
   100% {
     box-shadow: 0 0 0 0 transparent;
@@ -158,38 +176,32 @@
 
 #comments.highlight-flash,
 .post-comments-container.highlight-flash {
-  animation: commentsPulse 1.4s ease-out;
+  animation: commentsPulse 1.3s var(--ease);
   border-color: var(--accent-gold) !important;
 }
 
 /* ── Liked Heart State (.stat-likes.is-liked) ────────────────────────────── */
 .stat-likes.is-liked,
 button.stat-likes.is-liked {
-  color: #fb7185 !important;
-  border-color: rgba(251, 113, 133, 0.35) !important;
-  background: rgba(251, 113, 133, 0.1) !important;
+  color: #f47280 !important;
+  border-color: rgba(244, 114, 128, 0.34) !important;
+  background: rgba(244, 114, 128, 0.1) !important;
 }
 
 .stat-likes.is-liked svg,
 button.stat-likes.is-liked svg {
-  fill: #fb7185;
-  stroke: #fb7185;
-  animation: heartPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  fill: #f47280;
+  stroke: #f47280;
+  animation: heartPop 0.32s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes heartPop {
-  0% {
-    transform: scale(1);
-  }
-  45% {
-    transform: scale(1.38);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(1); }
+  45% { transform: scale(1.32); }
+  100% { transform: scale(1); }
 }
 
-/* ── Cosmic Share Modal & Mobile Bottom Sheet (#share-modal) ─────────────── */
+/* ── Share Modal & Mobile Bottom Sheet (#share-modal) ────────────────────── */
 #share-modal,
 .share-modal {
   position: fixed;
@@ -220,7 +232,7 @@ button.stat-likes.is-liked svg {
 .share-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(4, 6, 14, 0.74);
+  background: rgba(3, 5, 10, 0.76);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -230,38 +242,36 @@ button.stat-likes.is-liked svg {
   z-index: 1;
   width: 100%;
   max-width: 480px;
-  background: rgba(12, 15, 32, 0.94);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(139, 124, 246, 0.28);
-  border-radius: 18px 18px 0 0;
+  background: rgba(10, 15, 28, 0.96);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--line-hover);
+  border-radius: 16px 16px 0 0;
   padding-bottom: var(--safe-b);
-  box-shadow:
-    0 24px 64px rgba(0, 0, 0, 0.65),
-    0 0 40px rgba(139, 124, 246, 0.12);
-  transform: translateY(100%);
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--rim-top), var(--shadow-modal);
+  transform: translate3d(0, 100%, 0);
+  transition: transform 0.28s var(--ease);
   box-sizing: border-box;
 }
 
 @media (min-width: 640px) {
   .share-modal-dialog {
-    border-radius: 16px;
+    border-radius: var(--r-lg);
     padding-bottom: 0;
-    transform: translateY(16px) scale(0.98);
+    transform: translate3d(0, 14px, 0) scale(0.985);
   }
 }
 
 #share-modal.is-open .share-modal-dialog,
 .share-modal.is-open .share-modal-dialog {
-  transform: translateY(0) scale(1);
+  transform: translate3d(0, 0, 0) scale(1);
 }
 
 .share-sheet-handle {
   width: 36px;
   height: 4px;
-  background: rgba(255, 255, 255, 0.18);
-  border-radius: 9999px;
+  background: rgba(196, 214, 242, 0.2);
+  border-radius: var(--r-pill);
   margin: 10px auto 4px auto;
 }
 
@@ -276,7 +286,7 @@ button.stat-likes.is-liked svg {
   align-items: center;
   justify-content: space-between;
   padding: 0.95rem 1.35rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--line-subtle);
 }
 
 .share-modal-title {
@@ -292,19 +302,19 @@ button.stat-likes.is-liked svg {
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--r-pill);
+  background: rgba(196, 214, 242, 0.05);
+  border: 1px solid var(--line);
   color: var(--muted);
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   line-height: 1;
   cursor: pointer;
-  transition: color 0.2s ease, background 0.2s ease;
+  transition: color var(--dur-fast) ease, background var(--dur-fast) ease;
 }
 
 .share-modal-close:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-bright);
+  background: rgba(196, 214, 242, 0.12);
 }
 
 .share-modal-body {
@@ -336,41 +346,41 @@ button.stat-likes.is-liked svg {
   min-width: 0;
   min-height: 44px;
   padding: 0 0.85rem;
-  border-radius: 10px;
-  background: rgba(6, 8, 16, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(5, 7, 14, 0.88);
+  border: 1px solid var(--line);
   color: var(--muted);
   font-family: var(--font-mono);
   font-size: 0.78rem;
   outline: none;
-  transition: border-color 0.2s ease, color 0.2s ease;
+  transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
 }
 
 .share-link-input:focus {
-  border-color: var(--accent-purple);
-  color: #ffffff;
+  border-color: var(--accent-gold-border);
+  color: var(--text-bright);
 }
 
 .share-link-copy-btn {
   min-height: 44px;
   padding: 0 1.15rem;
-  border-radius: 10px;
-  background: var(--accent-gold-dim);
-  border: 1px solid var(--accent-gold-border);
-  color: var(--accent-gold);
+  border-radius: 8px;
+  background: var(--accent-gold);
+  border: 1px solid var(--accent-gold);
+  color: #05070e;
   font-family: var(--font-label);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
-  transition: all 0.2s var(--ease);
+  transition: background var(--dur-fast) ease, border-color var(--dur-fast) ease;
 }
 
 .share-link-copy-btn:hover {
-  background: var(--accent-gold);
-  color: #060810;
+  background: var(--accent-gold-bright);
+  border-color: var(--accent-gold-bright);
 }
 
 .share-channels-grid {
@@ -386,22 +396,22 @@ button.stat-likes.is-liked svg {
   gap: 0.55rem;
   min-height: 44px;
   padding: 0.5rem 0.75rem;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(196, 214, 242, 0.04);
+  border: 1px solid var(--line);
   color: var(--text);
   font-family: var(--font-body);
   font-size: 0.84rem;
   font-weight: 500;
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.2s var(--ease);
+  transition: border-color var(--dur-fast) ease, background var(--dur-fast) ease, color var(--dur-fast) ease;
 }
 
 .share-channel-btn:hover {
-  border-color: var(--accent-purple-border);
-  background: rgba(139, 124, 246, 0.14);
-  color: #ffffff;
+  border-color: var(--accent-gold-border);
+  background: var(--accent-gold-dim);
+  color: var(--text-bright);
 }
 
 .share-native-wrap {
@@ -412,46 +422,44 @@ button.stat-likes.is-liked svg {
   width: 100%;
   min-height: 44px;
   padding: 0.65rem;
-  border-radius: 10px;
-  background: var(--accent-purple-dim);
-  border: 1px solid var(--accent-purple-border);
-  color: #e4dfff;
+  border-radius: 8px;
+  background: var(--accent-lunar-dim);
+  border: 1px solid var(--accent-lunar-border);
+  color: var(--accent-lunar-bright);
   font-family: var(--font-body);
   font-size: 0.86rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s var(--ease);
+  transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
 }
 
 .share-native-btn:hover {
-  background: var(--accent-purple);
-  color: #ffffff;
+  background: var(--accent-lunar);
+  color: #05070e;
 }
 
-/* ── Floating Cosmic Toast Notification (#glory-toast) ───────────────────── */
+/* ── Floating Toast Notification (#glory-toast) ──────────────────────────── */
 #glory-toast,
 .glory-toast {
   position: fixed;
   bottom: calc(var(--tabbar-h) + var(--safe-b) + 16px);
   right: 16px;
   z-index: 10000;
-  background: rgba(14, 18, 38, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(200, 169, 110, 0.42);
-  color: #ffffff;
+  background: rgba(10, 15, 28, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--accent-gold-border);
+  color: var(--text-bright);
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   font-weight: 500;
-  padding: 0.68rem 1.2rem;
-  border-radius: 9999px;
-  box-shadow:
-    0 12px 36px rgba(0, 0, 0, 0.5),
-    0 0 24px rgba(200, 169, 110, 0.16);
+  padding: 0.65rem 1.2rem;
+  border-radius: var(--r-pill);
+  box-shadow: var(--rim-top-warm), var(--shadow-elevated);
   opacity: 0;
-  transform: translateY(12px);
+  transform: translate3d(0, 10px, 0);
   pointer-events: none;
-  transition: opacity 0.24s var(--ease), transform 0.24s var(--ease);
+  transition: opacity 0.22s var(--ease), transform 0.22s var(--ease);
 }
 
 @media (min-width: 769px) {
@@ -465,5 +473,5 @@ button.stat-likes.is-liked svg {
 #glory-toast.is-show,
 .glory-toast.is-show {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate3d(0, 0, 0);
 }

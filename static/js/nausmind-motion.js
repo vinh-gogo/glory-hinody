@@ -1,15 +1,15 @@
 /**
- * Glory Hinody — Nausmind Motion & Interaction Controller (nausmind-motion.js)
- * Stargazing <-> Fullpage Snap, Gargantua Camera Dive, Hero Parallax,
- * Word-by-Word Quote Reveal, Scroll Observers, Mobile Drawer & Cosmic Page Curtain
+ * Glory Hinody — Eclipse Editorial Motion & Interaction Controller (nausmind-motion.js v2)
+ * Inertia-Aware Snap Physics, Frame-Rate-Independent Damping, Auto-Sleeping rAF,
+ * GPU Scroll Reveals, Inner Header Scroll State & Native View Transitions
  */
 (function () {
   'use strict';
 
-  var SNAP_COOLDOWN_MS = 850;
-  var DIVE_DURATION_MS = 1350;
-  var CLICK_DIVE_DURATION_MS = 1200;
-  var SECOND_SCROLL_DIVE_MIN_MS = 550;
+  var SNAP_COOLDOWN_MS = 620;
+  var DIVE_DURATION_MS = 1050;
+  var CLICK_DIVE_DURATION_MS = 900;
+  var SECOND_SCROLL_DIVE_MIN_MS = 440;
 
   var reducedMotionQuery = window.matchMedia
     ? window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -29,30 +29,18 @@
     return Math.max(minVal, Math.min(maxVal, val));
   }
 
-  function easeInOutCubic(t) {
+  function easeOutQuint(t) {
+    return 1.0 - Math.pow(1.0 - t, 5.0);
+  }
+
+  function easeInOutQuart(t) {
     return t < 0.5
-      ? 4.0 * t * t * t
-      : 1.0 - Math.pow(-2.0 * t + 2.0, 3.0) / 2.0;
+      ? 8.0 * t * t * t * t
+      : 1.0 - Math.pow(-2.0 * t + 2.0, 4.0) / 2.0;
   }
 
   /* ═══════════════════════════════════════════════════════════════════════════
-   * 1. COSMIC PAGE TRANSITION CURTAIN (#page-transition-overlay)
-   *    Clear immediately on script load & pageshow (bfcache safe)
-   * ═════════════════════════════════════════════════════════════════════════ */
-  function clearPageCurtain() {
-    var overlay = document.getElementById('page-transition-overlay');
-    if (overlay) {
-      overlay.classList.remove('is-leaving', 'is-entering');
-    }
-  }
-
-  clearPageCurtain();
-  window.addEventListener('pageshow', function () {
-    clearPageCurtain();
-  });
-
-  /* ═══════════════════════════════════════════════════════════════════════════
-   * 2. WORD-BY-WORD QUOTE PREPARATION & SCROLL REVEAL HELPERS
+   * 1. WORD-BY-WORD QUOTE PREPARATION & SCROLL REVEAL HELPERS
    * ═════════════════════════════════════════════════════════════════════════ */
   function prepareWordRevealElement(el) {
     if (!el || el.getAttribute('data-word-split') === '1') return;
@@ -73,7 +61,7 @@
     for (var i = 0; i < words.length; i++) {
       var span = document.createElement('span');
       span.className = i >= goldStart ? 'nm-word nm-word-gold' : 'nm-word';
-      span.style.transitionDelay = (isReducedMotion ? 0 : i * 35) + 'ms';
+      span.style.transitionDelay = (isReducedMotion ? 0 : Math.min(i * 26, 620)) + 'ms';
       span.setAttribute('aria-hidden', 'true');
       span.textContent = words[i];
       frag.appendChild(span);
@@ -119,7 +107,7 @@
       return;
     }
 
-    var viewportCutoff = (window.innerHeight || 800) * 0.95;
+    var viewportCutoff = (window.innerHeight || 800) * 1.05;
     var observer = new IntersectionObserver(function (entries) {
       for (var i = 0; i < entries.length; i++) {
         var entry = entries[i];
@@ -129,14 +117,14 @@
         }
       }
     }, {
-      threshold: 0.08,
-      rootMargin: '0px 0px -40px 0px'
+      threshold: 0.04,
+      rootMargin: '0px 0px 40px 0px'
     });
 
     for (var j = 0; j < targets.length; j++) {
       var item = targets[j];
       var rect = item.getBoundingClientRect();
-      if (rect.top < viewportCutoff && rect.bottom > 0) {
+      if (rect.top < viewportCutoff && rect.bottom > -40) {
         revealElement(item);
       } else {
         observer.observe(item);
@@ -145,7 +133,7 @@
   }
 
   /* ═══════════════════════════════════════════════════════════════════════════
-   * 3. MOBILE RIGHT GLASS DRAWER (#mobile-menu & #mobile-drawer-overlay)
+   * 2. MOBILE RIGHT OBSIDIAN DRAWER (#mobile-menu & #mobile-drawer-overlay)
    * ═════════════════════════════════════════════════════════════════════════ */
   var isDrawerOpen = false;
 
@@ -157,18 +145,10 @@
     isDrawerOpen = !!open && !!menu;
 
     if (menu) {
-      if (isDrawerOpen) {
-        menu.classList.add('is-open');
-      } else {
-        menu.classList.remove('is-open');
-      }
+      menu.classList.toggle('is-open', isDrawerOpen);
     }
     if (overlay) {
-      if (isDrawerOpen) {
-        overlay.classList.add('is-open');
-      } else {
-        overlay.classList.remove('is-open');
-      }
+      overlay.classList.toggle('is-open', isDrawerOpen);
     }
     for (var i = 0; i < toggles.length; i++) {
       toggles[i].setAttribute('aria-expanded', isDrawerOpen ? 'true' : 'false');
@@ -213,17 +193,16 @@
     });
 
     window.addEventListener('resize', function () {
-      if (isDrawerOpen && (window.innerWidth || 1024) > 768) {
+      if (isDrawerOpen && (window.innerWidth || 1024) > 900) {
         setDrawerState(false);
       }
     }, { passive: true });
   }
 
   /* ═══════════════════════════════════════════════════════════════════════════
-   * 4. HOME TWO-PHASE STARGAZING <-> FULLPAGE SNAP CONTROLLER & PARALLAX
+   * 3. MASTER MOTION SYSTEM (INERTIA-AWARE SNAP + AUTO-SLEEPING RAF)
    * ═════════════════════════════════════════════════════════════════════════ */
   function initMotionSystem() {
-    clearPageCurtain();
     initMobileDrawer();
 
     var isHome = !!(document.body && document.body.classList.contains('is-home'));
@@ -257,24 +236,43 @@
     var heroParallaxReady = false;
     var heroParallaxBlend = 0.0;
 
+    /* Inertia-aware trackpad wheel state */
     var wheelAccum = 0.0;
     var lastWheelTs = 0;
+    var prevAbsDelta = 0.0;
+    var lastSnapTs = 0;
     var touchStartY = 0;
     var touchStartX = 0;
 
     var cameraTween = null;
 
-    /* Pointer tracking state [-0.5, 0.5] */
+    /* Pointer & Cursor Sheen State */
     var targetMx = 0.0;
     var targetMy = 0.0;
     var currMx = 0.0;
     var currMy = 0.0;
+    var cursorTargetX = -999.0;
+    var cursorTargetY = -999.0;
+    var cursorCurrX = -999.0;
+    var cursorCurrY = -999.0;
+    var cursorActive = false;
+
+    /* Auto-sleeping rAF scheduler */
+    var motionRafId = 0;
+    var lastMotionTs = nowMs();
 
     prepareAllWordReveals(document);
+
+    function wakeMotionLoop() {
+      if (motionRafId) return;
+      lastMotionTs = nowMs();
+      motionRafId = window.requestAnimationFrame(motionFrame);
+    }
 
     function lockTransition(ms) {
       isTransitioning = true;
       wheelAccum = 0.0;
+      lastSnapTs = nowMs();
       if (unlockTimer) clearTimeout(unlockTimer);
       unlockTimer = setTimeout(function () {
         isTransitioning = false;
@@ -367,6 +365,7 @@
         duration: dur,
         onDone: onDone || null
       };
+      wakeMotionLoop();
     }
 
     function updateSnapDots(idx) {
@@ -374,11 +373,10 @@
         var dot = snapDots[i];
         var dotTarget = parseInt(dot.getAttribute('data-snap-target') || String(i), 10);
         var isCurrent = dotTarget === idx;
+        dot.classList.toggle('is-active', isCurrent);
         if (isCurrent) {
-          dot.classList.add('is-active');
           dot.setAttribute('aria-current', 'true');
         } else {
-          dot.classList.remove('is-active');
           dot.removeAttribute('aria-current');
         }
       }
@@ -401,14 +399,13 @@
     function triggerSectionReveals(section, idx, instant) {
       if (!section) return;
 
-      /* Hero line stagger on #hero */
       if (section.id === 'hero' || idx === 0) {
         clearHeroTimers();
         resetHeroLineParallax();
 
         var heroLines = section.querySelectorAll('.hero-line');
         var heroHint = section.querySelector('.hero-scroll-hint');
-        var delays = [40, 140, 250, 360, 470];
+        var delays = [20, 80, 145, 210, 275];
 
         if (instant || isReducedMotion) {
           for (var h = 0; h < heroLines.length; h++) {
@@ -416,36 +413,36 @@
           }
           if (heroHint) heroHint.classList.add('visible');
           heroParallaxReady = true;
+          wakeMotionLoop();
         } else {
           for (var j = 0; j < heroLines.length; j++) {
             (function (lineEl, delayMs) {
               heroTimers.push(setTimeout(function () {
                 lineEl.classList.add('visible');
               }, delayMs));
-            })(heroLines[j], j < delays.length ? delays[j] : (40 + j * 110));
+            })(heroLines[j], j < delays.length ? delays[j] : (30 + j * 90));
           }
           if (heroHint) {
             heroTimers.push(setTimeout(function () {
               heroHint.classList.add('visible');
-            }, 580));
+            }, 460));
           }
           heroTimers.push(setTimeout(function () {
             heroParallaxReady = true;
-          }, 1150));
+            wakeMotionLoop();
+          }, 860));
         }
       } else {
         resetHeroLineParallax();
       }
 
-      /* Reveal elements inside active section */
       var reveals = section.querySelectorAll('.reveal-on-scroll, [data-word-reveal]');
       for (var r = 0; r < reveals.length; r++) {
         revealElement(reveals[r]);
       }
 
-      /* Warp streak on #cta (index 4) */
       var isCta = section.id === 'cta' || idx === 4;
-      setStarSpeedSafe(isCta ? 5.5 : 1.0);
+      setStarSpeedSafe(isCta ? 5.2 : 1.0);
     }
 
     function enterContent(targetIdx, opts) {
@@ -458,7 +455,7 @@
       isClickDiving = false;
       activeIndex = idx;
 
-      lockTransition(instant ? 80 : 650);
+      lockTransition(instant ? 60 : 540);
 
       if (stargazingCaption) {
         stargazingCaption.classList.remove('visible', 'diving');
@@ -567,7 +564,7 @@
           });
         } else if (nowMs() - diveStartTs >= SECOND_SCROLL_DIVE_MIN_MS) {
           isDiving = false;
-          tweenCamera(bounds.dMin, 360);
+          tweenCamera(bounds.dMin, 320);
           enterContent(0, { instant: false });
         }
       } else {
@@ -608,7 +605,7 @@
       return sec.scrollTop > 4;
     }
 
-    /* ── Home Initialization vs Inner Page Initialization ── */
+    /* ── Home vs Inner Page Initialization ── */
     if (isHome && sections.length > 0) {
       var hashMatchIdx = findSectionIndexByHash(window.location.hash);
       if (hashMatchIdx >= 0) {
@@ -628,7 +625,7 @@
         setStarSpeedSafe(1.0);
       }
 
-      /* Wheel navigation */
+      /* Inertia-aware wheel navigation (filters decaying trackpad momentum tail) */
       window.addEventListener('wheel', function (ev) {
         if (isDrawerOpen || ev.ctrlKey) return;
 
@@ -638,23 +635,37 @@
 
         ev.preventDefault();
 
+        var now = nowMs();
+        var absDy = Math.abs(ev.deltaY);
+
         if (isTransitioning || isClickDiving) {
           wheelAccum = 0.0;
+          prevAbsDelta = absDy;
+          lastWheelTs = now;
           return;
         }
 
-        var now = nowMs();
-        if (now - lastWheelTs > 180) {
+        /* Ignore decaying momentum tails immediately after a completed snap */
+        var sinceSnap = now - lastSnapTs;
+        var isContinuousStream = (now - lastWheelTs) < 110;
+        if (sinceSnap < 1150 && isContinuousStream && absDy <= prevAbsDelta * 1.05 && absDy < 45) {
+          prevAbsDelta = absDy;
+          lastWheelTs = now;
+          return;
+        }
+
+        if (now - lastWheelTs > 150) {
           wheelAccum = 0.0;
         }
         lastWheelTs = now;
+        prevAbsDelta = absDy;
         wheelAccum += ev.deltaY;
 
         if (isStargazing) {
-          if (ev.deltaY > 18 || wheelAccum > 24) {
+          if (ev.deltaY > 18 || wheelAccum > 26) {
             wheelAccum = 0.0;
             handleStargazeDownIntent();
-          } else if (ev.deltaY < -18 || wheelAccum < -24) {
+          } else if (ev.deltaY < -18 || wheelAccum < -26) {
             wheelAccum = 0.0;
             handleStargazeUpIntent();
           }
@@ -662,7 +673,7 @@
           if (ev.deltaY > 20 || wheelAccum > 32) {
             wheelAccum = 0.0;
             goToSnap(activeIndex + 1);
-          } else if (ev.deltaY < -22 || wheelAccum < -34) {
+          } else if (ev.deltaY < -20 || wheelAccum < -32) {
             wheelAccum = 0.0;
             if (activeIndex === 0) {
               exitToStargaze();
@@ -686,20 +697,20 @@
 
         var dy = touchStartY - ev.changedTouches[0].clientY;
         var dx = touchStartX - ev.changedTouches[0].clientX;
-        if (Math.abs(dy) < 36 || Math.abs(dx) > Math.abs(dy) * 1.1) return;
+        if (Math.abs(dy) < 34 || Math.abs(dx) > Math.abs(dy) * 1.1) return;
 
         if (!isStargazing && canActiveSectionScrollInternally(dy)) return;
 
         if (isStargazing) {
-          if (dy > 36) {
+          if (dy > 34) {
             handleStargazeDownIntent();
-          } else if (dy < -36) {
+          } else if (dy < -34) {
             handleStargazeUpIntent();
           }
         } else {
-          if (dy > 36) {
+          if (dy > 34) {
             goToSnap(activeIndex + 1);
-          } else if (dy < -36) {
+          } else if (dy < -34) {
             if (activeIndex === 0) {
               exitToStargaze();
             } else {
@@ -808,7 +819,6 @@
         }
       });
 
-      /* Hashchange support on Home */
       window.addEventListener('hashchange', function () {
         var idx = findSectionIndexByHash(window.location.hash);
         if (idx >= 0) {
@@ -821,16 +831,31 @@
         }
       });
     } else {
-      /* Inner Pages */
+      /* Inner Pages: active nav + dynamic scroll header state + GPU reveals */
       if (siteNav) {
         siteNav.classList.remove('nav-hidden');
         siteNav.classList.add('nav-active');
+
+        var navScrollTicking = false;
+        var syncInnerNavScroll = function () {
+          navScrollTicking = false;
+          var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+          siteNav.classList.toggle('is-scrolled', y > 24);
+        };
+        window.addEventListener('scroll', function () {
+          if (!navScrollTicking) {
+            navScrollTicking = true;
+            window.requestAnimationFrame(syncInnerNavScroll);
+          }
+        }, { passive: true });
+        syncInnerNavScroll();
       }
+
       initInnerPageScrollReveals();
     }
 
     /* ═════════════════════════════════════════════════════════════════════════
-     * 5. CURSOR GLOW + HERO & STARFIELD PARALLAX + CAMERA TWEEN RAF LOOP
+     * 4. POINTER PARALLAX, WHISPER CURSOR SHEEN & AUTO-SLEEPING RAF LOOP
      * ═══════════════════════════════════════════════════════════════════════ */
     if (hasFinePointer) {
       if (cursorGlow) {
@@ -839,10 +864,16 @@
       }
 
       window.addEventListener('mousemove', function (ev) {
-        if (cursorGlow) {
-          var halfW = (cursorGlow.offsetWidth || 500) * 0.5;
-          var halfH = (cursorGlow.offsetHeight || 500) * 0.5;
-          cursorGlow.style.transform = 'translate3d(' + (ev.clientX - halfW).toFixed(1) + 'px, ' + (ev.clientY - halfH).toFixed(1) + 'px, 0)';
+        if (cursorGlow && !isReducedMotion) {
+          var halfW = (cursorGlow.offsetWidth || 440) * 0.5;
+          var halfH = (cursorGlow.offsetHeight || 440) * 0.5;
+          cursorTargetX = ev.clientX - halfW;
+          cursorTargetY = ev.clientY - halfH;
+          if (!cursorActive) {
+            cursorCurrX = cursorTargetX;
+            cursorCurrY = cursorTargetY;
+            cursorActive = true;
+          }
           cursorGlow.classList.add('is-visible');
         }
 
@@ -851,6 +882,7 @@
           var h = window.innerHeight || 1;
           targetMx = clamp((ev.clientX / w) - 0.5, -0.5, 0.5);
           targetMy = clamp((ev.clientY / h) - 0.5, -0.5, 0.5);
+          wakeMotionLoop();
         }
       }, { passive: true });
 
@@ -858,17 +890,27 @@
         if (cursorGlow) {
           cursorGlow.classList.remove('is-visible');
         }
+        cursorActive = false;
         targetMx = 0.0;
         targetMy = 0.0;
+        wakeMotionLoop();
       });
     }
 
     function motionFrame() {
+      motionRafId = 0;
+
+      var now = nowMs();
+      var dtSec = clamp((now - lastMotionTs) / 1000.0, 0.0, 0.065);
+      lastMotionTs = now;
+
+      var keepAlive = false;
+
       /* Step camera dive/return tween */
       if (cameraTween) {
-        var elapsed = nowMs() - cameraTween.startTs;
+        var elapsed = now - cameraTween.startTs;
         var t = clamp(elapsed / cameraTween.duration, 0.0, 1.0);
-        var eased = easeInOutCubic(t);
+        var eased = easeInOutQuart(t);
         var dVal = cameraTween.from + (cameraTween.to - cameraTween.from) * eased;
         setCameraDistanceSafe(dVal);
 
@@ -876,62 +918,84 @@
           var doneCb = cameraTween.onDone;
           cameraTween = null;
           if (typeof doneCb === 'function') doneCb();
+        } else {
+          keepAlive = true;
         }
       }
 
-      /* Smooth pointer lerp (0.08) for Hero lines & StarCanvas */
+      /* Frame-rate-independent pointer & cursor smoothing */
       if (hasFinePointer && !isReducedMotion && !document.hidden) {
-        currMx += (targetMx - currMx) * 0.08;
-        currMy += (targetMy - currMy) * 0.08;
+        var ptrStep = 1.0 - Math.exp(-5.4 * dtSec);
+        currMx += (targetMx - currMx) * ptrStep;
+        currMy += (targetMy - currMy) * ptrStep;
+
+        var ptrMoving = Math.abs(targetMx - currMx) > 0.0004 || Math.abs(targetMy - currMy) > 0.0004;
+        if (!ptrMoving) {
+          currMx = targetMx;
+          currMy = targetMy;
+        } else {
+          keepAlive = true;
+        }
+
+        if (cursorGlow && cursorActive) {
+          var glowStep = 1.0 - Math.exp(-11.0 * dtSec);
+          cursorCurrX += (cursorTargetX - cursorCurrX) * glowStep;
+          cursorCurrY += (cursorTargetY - cursorCurrY) * glowStep;
+          cursorGlow.style.transform = 'translate3d(' + cursorCurrX.toFixed(1) + 'px, ' + cursorCurrY.toFixed(1) + 'px, 0)';
+          if (Math.abs(cursorTargetX - cursorCurrX) > 0.4 || Math.abs(cursorTargetY - cursorCurrY) > 0.4) {
+            keepAlive = true;
+          }
+        }
 
         if (starCanvas) {
-          var sx = (currMx * -24.0).toFixed(2);
-          var sy = (currMy * -16.0).toFixed(2);
-          starCanvas.style.transform = 'translate3d(' + sx + 'px, ' + sy + 'px, 0) scale(1.05)';
+          var sx = (currMx * -18.0).toFixed(2);
+          var sy = (currMy * -12.0).toFixed(2);
+          starCanvas.style.transform = 'translate3d(' + sx + 'px, ' + sy + 'px, 0) scale(1.03)';
         }
 
         if (isHome && !isStargazing && activeIndex === 0 && heroParallaxReady) {
-          heroParallaxBlend += (1.0 - heroParallaxBlend) * 0.07;
+          var blendStep = 1.0 - Math.exp(-4.5 * dtSec);
+          heroParallaxBlend += (1.0 - heroParallaxBlend) * blendStep;
+          if (1.0 - heroParallaxBlend > 0.004) {
+            keepAlive = true;
+          } else {
+            heroParallaxBlend = 1.0;
+          }
           var mx = currMx * heroParallaxBlend;
           var my = currMy * heroParallaxBlend;
 
           if (lineResearcher) {
-            lineResearcher.style.transition = 'opacity 0.6s ease';
-            lineResearcher.style.transform = 'translate3d(' + (mx * 22.0).toFixed(2) + 'px, ' + (my * 14.0).toFixed(2) + 'px, 0)';
+            lineResearcher.style.transform = 'translate3d(' + (mx * 14.0).toFixed(2) + 'px, ' + (my * 9.0).toFixed(2) + 'px, 0)';
           }
           if (lineEngineer) {
-            lineEngineer.style.transition = 'opacity 0.6s ease';
-            lineEngineer.style.transform = 'translate3d(' + (mx * 38.0).toFixed(2) + 'px, ' + (my * 25.0).toFixed(2) + 'px, 0)';
+            lineEngineer.style.transform = 'translate3d(' + (mx * 24.0).toFixed(2) + 'px, ' + (my * 15.0).toFixed(2) + 'px, 0)';
           }
           if (lineDreamer) {
-            lineDreamer.style.transition = 'opacity 0.6s ease';
-            lineDreamer.style.transform = 'translate3d(' + (mx * 58.0).toFixed(2) + 'px, ' + (my * 38.0).toFixed(2) + 'px, 0)';
+            lineDreamer.style.transform = 'translate3d(' + (mx * 34.0).toFixed(2) + 'px, ' + (my * 22.0).toFixed(2) + 'px, 0)';
           }
         }
       }
 
-      window.requestAnimationFrame(motionFrame);
+      if (keepAlive) {
+        motionRafId = window.requestAnimationFrame(motionFrame);
+      }
     }
 
-    window.requestAnimationFrame(motionFrame);
-
     /* ═════════════════════════════════════════════════════════════════════════
-     * 6. COSMIC PAGE TRANSITION LINK INTERCEPTOR
+     * 5. INSTANTANEOUS HASH & DRAWER LINK HANDLING (NO 220MS CURTAIN DELAY)
      * ═══════════════════════════════════════════════════════════════════════ */
     document.addEventListener('click', function (ev) {
-      if (ev.defaultPrevented) return;
-      if (ev.button !== 0) return;
-      if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+      if (ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
 
       var link = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
-      if (!link) return;
+      if (!link || link.hasAttribute('download')) return;
 
-      if (link.hasAttribute('download')) return;
       var targetAttr = link.getAttribute('target');
       if (targetAttr && targetAttr !== '_self') return;
 
       var rawHref = link.getAttribute('href') || '';
       if (!rawHref) return;
+
       if (rawHref.charAt(0) === '#') {
         if (isHome) {
           var directSnapIdx = findSectionIndexByHash(rawHref);
@@ -948,6 +1012,7 @@
         }
         return;
       }
+
       if (/^(mailto:|tel:|javascript:|data:|blob:)/i.test(rawHref)) return;
 
       var destUrl = null;
@@ -959,7 +1024,6 @@
 
       if (destUrl.origin !== window.location.origin) return;
 
-      /* Same-page URL check */
       if (destUrl.pathname === window.location.pathname && destUrl.search === window.location.search) {
         if (destUrl.hash && isHome) {
           var snapIdx = findSectionIndexByHash(destUrl.hash);
@@ -977,26 +1041,8 @@
         return;
       }
 
-      var overlay = document.getElementById('page-transition-overlay');
-      if (!overlay || isReducedMotion) return;
-
-      ev.preventDefault();
+      /* Close mobile drawer cleanly and allow immediate native @view-transition navigation */
       setDrawerState(false);
-      overlay.classList.remove('is-leaving');
-      overlay.classList.add('is-entering');
-
-      var didNavigate = false;
-      function performNav() {
-        if (didNavigate) return;
-        didNavigate = true;
-        window.location.href = destUrl.href;
-      }
-
-      setTimeout(performNav, 220);
-      setTimeout(performNav, 350);
-      setTimeout(function () {
-        overlay.classList.remove('is-entering', 'is-leaving');
-      }, 1400);
     });
 
     window.NausmindMotion = {

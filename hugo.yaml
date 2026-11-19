@@ -28,8 +28,8 @@ params:
   ShareButtons: ["facebook", "linkedin", "telegram", "x"]
 
   assets:
-    theme_color: "#060810"
-    msapplication_TileColor: "#060810"
+    theme_color: "#05070e"
+    msapplication_TileColor: "#05070e"
 
   homeInfoParams:
     Title: "Glory Hinody"

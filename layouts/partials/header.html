@@ -14,6 +14,11 @@
 <header id="site-nav" class="site-nav {{ if $isHome }}nav-hidden{{ else }}nav-active{{ end }}" role="banner">
   <div class="site-nav-inner">
     <a href="{{ "" | absLangURL }}" class="site-logo" data-stargaze-return aria-label="Glory Hinody">
+      <svg class="site-logo-mark" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="14.5" cy="12" r="6.8" stroke="currentColor" stroke-width="1.65" opacity="0.95"></circle>
+        <circle cx="8.6" cy="12" r="7.4" fill="#05070e"></circle>
+        <path d="M11.6 5.2A7.4 7.4 0 0 1 11.6 18.8" stroke="#eaf0fc" stroke-width="1.25" stroke-linecap="round" opacity="0.92"></path>
+      </svg>
       <span class="font-nasa-logo">GLORY HINODY</span>
     </a>
 
@@ -41,9 +46,9 @@
 
     <div class="site-nav-controls">
       {{- if $isHome }}
-      <button type="button" id="cosmic-mode-toggle" class="cosmic-pill-btn" data-cosmic-toggle aria-pressed="true" title="{{ if eq $currentLang "en" }}Switch cosmic background (Gargantua / Starfield){{ else }}Chuyển nền vũ trụ (Hố đen Gargantua / Bầu trời sao){{ end }}">
+      <button type="button" id="cosmic-mode-toggle" class="cosmic-pill-btn" data-cosmic-toggle aria-pressed="true" title="{{ if eq $currentLang "en" }}Switch cosmic background (Eclipse / Starfield){{ else }}Chuyển nền vũ trụ (Nhật thực Gargantua / Bầu trời sao){{ end }}">
         <span class="cosmic-pill-dot"></span>
-        <span class="cosmic-pill-label">GARGANTUA</span>
+        <span class="cosmic-pill-label">ECLIPSE</span>
       </button>
       {{- end }}
 

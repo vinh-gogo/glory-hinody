@@ -1,70 +1,86 @@
 /* ==========================================================================
-   Glory Hinody — Nausmind Dark Cosmic Luxury Design System
-   00-tokens.css · Design Tokens, PaperMod Variable Bridge & Motion Keyframes
+   Glory Hinody — Eclipse Editorial Design System
+   00-tokens.css · Obsidian Midnight, Lunar Rim, Champagne Gold & Motion Tokens
    ========================================================================== */
 
 :root,
 :root[data-theme="dark"],
 :root[data-theme="light"] {
-  /* ── Cosmic Core Surfaces ──────────────────────────────────────────────── */
-  --bg: #060810;
-  --bg-void: #02030c;
-  --bg-elevated: rgba(16, 20, 42, 0.42);
-  --panel: rgba(16, 20, 42, 0.42);
-  --panel-hover: rgba(16, 20, 42, 0.88);
-  --panel-solid: #0b0e1d;
+  /* ── Eclipse Core Obsidian & Atmospheric Navy-Slate Surfaces ───────────── */
+  --bg-void: #03050a;
+  --bg: #05070e;
+  --bg-elevated: rgba(10, 15, 28, 0.78);
+  --surface-1: #0a0f1c;
+  --surface-2: #10182b;
+  --surface-3: #152038;
+  --panel: rgba(10, 15, 28, 0.76);
+  --panel-hover: rgba(16, 23, 41, 0.90);
+  --panel-solid: #0a0f1c;
 
-  /* ── Editorial Ink & Hierarchy ─────────────────────────────────────────── */
-  --text: #f3f1fa;
-  --text-primary: #f3f1fa;
-  --text-bright: #ffffff;
-  --muted: #c8c4da;
-  --text-muted: #c8c4da;
-  --muted-dim: rgba(200, 196, 218, 0.68);
+  /* ── Editorial Alabaster & Twilight Slate Ink Hierarchy ────────────────── */
+  --text-bright: #faf8f3;
+  --text: #edeae2;
+  --text-primary: #edeae2;
+  --content: #e3dfd6;
+  --muted: #9ca8bf;
+  --text-muted: #9ca8bf;
+  --muted-dim: #818fa8;
 
-  /* ── Signature Nausmind Dual Accents (Warm Gold + Cosmic Violet) ───────── */
-  --accent-gold: #c8a96e;
-  --accent-gold-dim: rgba(200, 169, 110, 0.14);
-  --accent-gold-border: rgba(200, 169, 110, 0.34);
+  /* ── Signature Dual Celestial Accents (Champagne Gold + Lunar Silver-Blue) */
+  --accent-gold: #e2be84;
+  --accent-gold-bright: #f4dfb9;
+  --accent-gold-dim: rgba(226, 190, 132, 0.11);
+  --accent-gold-border: rgba(226, 190, 132, 0.34);
 
-  --accent-purple: #8b7cf6;
-  --accent-purple-dim: rgba(139, 124, 246, 0.14);
-  --accent-purple-border: rgba(139, 124, 246, 0.34);
+  --accent-lunar: #9bb7e0;
+  --accent-lunar-bright: #c9dbf4;
+  --accent-lunar-dim: rgba(155, 183, 224, 0.10);
+  --accent-lunar-border: rgba(155, 183, 224, 0.28);
 
-  /* ── Semantic Status & Component Bridge Tokens ─────────────────────────── */
-  --green-status: #4ade80;
-  --green-status-dim: rgba(74, 222, 128, 0.08);
-  --green-status-border: rgba(74, 222, 128, 0.30);
+  /* Legacy aliases mapped seamlessly to Lunar Silver-Blue (zero neon violet) */
+  --accent-purple: var(--accent-lunar);
+  --accent-purple-dim: var(--accent-lunar-dim);
+  --accent-purple-border: var(--accent-lunar-border);
 
-  --accent: #c8a96e;
-  --accent-hover: #dfc28d;
-  --accent-contrast: #060810;
-  --accent-dim: rgba(139, 124, 246, 0.14);
-  --accent-soft: rgba(139, 124, 246, 0.14);
+  /* ── Semantic Status & Bridge Tokens ───────────────────────────────────── */
+  --green-status: #5fd39a;
+  --green-status-dim: rgba(95, 211, 154, 0.09);
+  --green-status-border: rgba(95, 211, 154, 0.28);
 
-  --line: rgba(255, 255, 255, 0.08);
-  --line-subtle: rgba(255, 255, 255, 0.05);
-  --line-strong: rgba(139, 124, 246, 0.32);
+  --accent: var(--accent-gold);
+  --accent-hover: var(--accent-gold-bright);
+  --accent-contrast: #05070e;
+  --accent-dim: var(--accent-lunar-dim);
+  --accent-soft: var(--accent-lunar-dim);
 
-  --code-block: #090c1a;
+  /* ── Atmospheric Rim Borders & Hairline Depth ──────────────────────────── */
+  --line-subtle: rgba(196, 214, 242, 0.06);
+  --line: rgba(196, 214, 242, 0.11);
+  --line-hover: rgba(212, 226, 248, 0.20);
+  --line-strong: rgba(226, 190, 132, 0.36);
+  --rim-top: inset 0 1px 0 rgba(226, 238, 255, 0.11);
+  --rim-top-warm: inset 0 1px 0 rgba(244, 223, 185, 0.18);
+  --shadow-elevated: 0 16px 40px rgba(2, 4, 10, 0.52);
+  --shadow-modal: 0 28px 72px rgba(2, 4, 10, 0.76);
+
+  --code-block: #080c17;
 
   /* ── PaperMod Core Variable Neutralization (Universal Dark Lock) ───────── */
-  --theme: #060810;
-  --entry: rgba(16, 20, 42, 0.42);
-  --primary: #f3f1fa;
-  --secondary: #c8c4da;
-  --tertiary: rgba(255, 255, 255, 0.08);
-  --content: #e6e3f3;
-  --code-block-bg: #0a0d1c;
-  --code-bg: rgba(139, 124, 246, 0.12);
-  --border: rgba(255, 255, 255, 0.08);
-  --radius: 12px;
+  --theme: #05070e;
+  --entry: rgba(10, 15, 28, 0.76);
+  --primary: #edeae2;
+  --secondary: #9ca8bf;
+  --tertiary: rgba(196, 214, 242, 0.08);
+  --code-block-bg: #080c17;
+  --code-bg: rgba(155, 183, 224, 0.11);
+  --border: rgba(196, 214, 242, 0.10);
+  --radius: 10px;
 
-  /* ── Typography Stacks ─────────────────────────────────────────────────── */
+  /* ── Disciplined 3-Family Editorial Typography Stack ───────────────────── */
   --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-label: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-logo: 'Orbitron', 'DM Sans', 'Inter', sans-serif;
+  --font-label: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-logo: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   /* ── Layout Metrics & Spatial Rhythm ───────────────────────────────────── */
@@ -72,76 +88,55 @@
   --max-width: 1200px;
   --nav-width: 1360px;
   --main-width: 1200px;
-  --reading: 760px;
+  --reading: 740px;
   --header-height: 68px;
   --header-h: 68px;
   --footer-height: 80px;
   --tabbar-h: 60px;
   --safe-b: env(safe-area-inset-bottom, 0px);
 
-  /* ── Interaction Targets, Radii & Motion Curves ────────────────────────── */
+  /* ── Interaction Targets, Radii & GPU Motion Curves ────────────────────── */
   --tap: 44px;
   --tap-sm: 36px;
-  --r: 12px;
-  --r-lg: 16px;
-  --r-sm: 8px;
+  --r: 10px;
+  --r-lg: 14px;
+  --r-sm: 6px;
   --r-pill: 9999px;
 
-  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-swift: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
-  --dur: 0.25s;
+  --dur-fast: 180ms;
+  --dur: 280ms;
+  --dur-slow: 620ms;
 
   color-scheme: dark;
 }
 
 /* ==========================================================================
-   Canonical Nausmind Keyframe Animations
+   Compositor-Only Motion Keyframes (Transform & Opacity Only — Zero Blur)
    ========================================================================== */
 
 @keyframes heroReveal {
   0% {
     opacity: 0;
-    transform: translateY(28px);
-    filter: blur(6px);
+    transform: translate3d(0, 22px, 0);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
-@keyframes dreamerpulse {
-  0% {
-    text-shadow: 0 0 20px rgba(200, 169, 110, 0), 0 0 40px rgba(139, 124, 246, 0);
-  }
-  50% {
-    text-shadow: 0 0 42px rgba(200, 169, 110, 0.5), 0 0 84px rgba(139, 124, 246, 0.22);
-  }
-  100% {
-    text-shadow: 0 0 24px rgba(200, 169, 110, 0.24), 0 0 54px rgba(139, 124, 246, 0.12);
-  }
-}
-
-@keyframes dreameridle {
-  0%,
-  100% {
-    text-shadow: 0 0 22px rgba(200, 169, 110, 0.22), 0 0 48px rgba(139, 124, 246, 0.1);
-  }
-  50% {
-    text-shadow: 0 0 52px rgba(200, 169, 110, 0.52), 0 0 100px rgba(139, 124, 246, 0.2);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 @keyframes scrollbounce {
   0%,
   100% {
-    transform: translateY(0);
-    opacity: 0.45;
+    transform: translate3d(0, 0, 0);
+    opacity: 0.48;
   }
   50% {
-    transform: translateY(9px);
-    opacity: 0.9;
+    transform: translate3d(0, 6px, 0);
+    opacity: 0.92;
   }
 }
 
@@ -150,47 +145,29 @@
   100% {
     opacity: 1;
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.55), 0 0 12px rgba(74, 222, 128, 0.75);
+    box-shadow: 0 0 0 0 rgba(95, 211, 154, 0.45);
   }
   50% {
-    opacity: 0.72;
-    transform: scale(0.94);
-    box-shadow: 0 0 0 7px rgba(74, 222, 128, 0), 0 0 16px rgba(74, 222, 128, 0.4);
+    opacity: 0.82;
+    transform: scale(0.95);
+    box-shadow: 0 0 0 6px rgba(95, 211, 154, 0);
   }
 }
 
 @keyframes mobileNavIn {
   0% {
     opacity: 0;
-    transform: translateX(12px);
+    transform: translate3d(10px, 0, 0);
   }
   100% {
     opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes curtainIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes curtainOut {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
+    transform: translate3d(0, 0, 0);
   }
 }
 
 /* ── Focus & Skip-Link Accessibility ─────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid var(--accent-purple);
+  outline: 1.5px solid var(--accent-gold);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -200,9 +177,9 @@
   top: -80px;
   left: 20px;
   background: var(--accent-gold);
-  color: #060810 !important;
+  color: #05070e !important;
   font-family: var(--font-label);
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -210,7 +187,7 @@
   border-radius: var(--r-pill);
   z-index: 10001;
   text-decoration: none;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--shadow-elevated);
   transition: top 0.22s var(--ease);
 }
 

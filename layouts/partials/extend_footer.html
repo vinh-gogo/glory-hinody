@@ -1,11 +1,11 @@
-<!-- ── Nausmind Cosmic WebGL / Starfield & Motion Engines ────────── -->
-<script src="/js/nausmind-cosmos.js" defer></script>
-<script src="/js/nausmind-motion.js" defer></script>
+<!-- ── Eclipse WebGL / Starfield & Motion Engines (cache-busted v2) ─ -->
+<script src="/js/nausmind-cosmos.js?v=2" defer></script>
+<script src="/js/nausmind-motion.js?v=2" defer></script>
 
 <!-- ── Blog Reactions, Share & Reading Utilities ─────────────────── -->
 <script src="/js/blog-stats.js" defer></script>
 {{- if and (eq .Kind "page") (not .IsHome) (ne .Layout "search") (ne .Layout "archives") }}
-<script src="/js/reading-progress.js" defer></script>
+<script src="/js/reading-progress.js?v=2" defer></script>
 <script src="/js/toc-spy.js" defer></script>
 {{- end }}
 {{- if eq .Layout "search" }}
@@ -44,19 +44,19 @@
         themeVariables: {
           fontFamily: "'JetBrains Mono', 'Inter', monospace",
           fontSize: '12px',
-          background: '#090c1a',
-          primaryColor: '#131836',
-          primaryTextColor: '#f3f1fa',
-          primaryBorderColor: '#8b7cf6',
-          lineColor: '#c8a96e',
-          secondaryColor: '#1a1535',
-          tertiaryColor: '#0d1021',
-          mainBkg: '#131836',
-          nodeBorder: '#8b7cf6',
-          clusterBkg: '#0d1021',
-          clusterBorder: '#c8a96e',
-          titleColor: '#f3f1fa',
-          edgeLabelBackground: '#0d1021'
+          background: '#080c17',
+          primaryColor: '#10182b',
+          primaryTextColor: '#edeae2',
+          primaryBorderColor: '#9bb7e0',
+          lineColor: '#e2be84',
+          secondaryColor: '#152038',
+          tertiaryColor: '#0a0f1c',
+          mainBkg: '#10182b',
+          nodeBorder: '#9bb7e0',
+          clusterBkg: '#0a0f1c',
+          clusterBorder: '#e2be84',
+          titleColor: '#faf8f3',
+          edgeLabelBackground: '#0a0f1c'
         }
       });
 
