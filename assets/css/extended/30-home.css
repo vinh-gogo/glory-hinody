@@ -155,6 +155,171 @@ body.is-home.is-stargazing button {
   }
 }
 
+/* ── Interactive 3D Earth-like Planet Hotspot (#earth-planet-link) ───────── */
+.earth-planet-hotspot,
+#earth-planet-link {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 35;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  text-decoration: none;
+  color: var(--text-bright);
+  will-change: transform, opacity;
+  transition: opacity 0.22s ease;
+}
+
+.earth-planet-hotspot.is-visible,
+#earth-planet-link.is-visible {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.earth-planet-hit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--earth-dia, 88px) + 12px);
+  height: calc(var(--earth-dia, 88px) + 12px);
+  border-radius: 50%;
+  border: 1px solid rgba(116, 188, 255, 0.22);
+  background: transparent;
+  transform: translate3d(-50%, -50%, 0);
+  transition:
+    transform 0.32s var(--ease),
+    border-color 0.24s ease,
+    box-shadow 0.32s var(--ease);
+}
+
+.earth-planet-stem {
+  position: absolute;
+  top: calc(var(--earth-dia, 88px) * 0.5 + 6px);
+  left: 0;
+  width: 1px;
+  height: 12px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(116, 188, 255, 0.52), rgba(226, 190, 132, 0.32));
+  pointer-events: none;
+  transition: background 0.24s ease, height 0.24s var(--ease);
+}
+
+.earth-planet-tag {
+  position: absolute;
+  top: calc(var(--earth-dia, 88px) * 0.5 + 18px);
+  left: 0;
+  transform: translateX(-50%);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.12rem;
+  padding: 0.32rem 0.78rem 0.34rem;
+  border-radius: 12px;
+  border: 1px solid rgba(132, 194, 255, 0.24);
+  background: rgba(6, 11, 22, 0.68);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--rim-top), 0 10px 26px rgba(2, 4, 10, 0.52);
+  white-space: nowrap;
+  transition:
+    transform 0.28s var(--ease),
+    border-color 0.22s ease,
+    background 0.22s ease,
+    box-shadow 0.28s var(--ease);
+}
+
+.earth-planet-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+}
+
+.earth-planet-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #58b4ff;
+  box-shadow: 0 0 8px rgba(88, 180, 255, 0.85);
+  flex-shrink: 0;
+}
+
+.earth-planet-name {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-bright);
+  transition: color 0.2s ease;
+}
+
+.earth-planet-arrow {
+  font-size: 10.5px;
+  line-height: 1;
+  color: var(--accent-gold);
+  transition: transform 0.22s var(--ease), color 0.2s ease;
+}
+
+.earth-planet-url {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: rgba(168, 202, 244, 0.78);
+  transition: color 0.2s ease;
+}
+
+.earth-planet-hotspot:hover .earth-planet-hit,
+.earth-planet-hotspot:focus-visible .earth-planet-hit {
+  transform: translate3d(-50%, -50%, 0) scale(1.07);
+  border-color: rgba(244, 223, 185, 0.74);
+  box-shadow: 0 0 24px rgba(88, 180, 255, 0.36), inset 0 0 16px rgba(126, 204, 255, 0.20);
+}
+
+.earth-planet-hotspot:hover .earth-planet-stem,
+.earth-planet-hotspot:focus-visible .earth-planet-stem {
+  background: linear-gradient(180deg, rgba(244, 223, 185, 0.85), rgba(226, 190, 132, 0.45));
+}
+
+.earth-planet-hotspot:hover .earth-planet-tag,
+.earth-planet-hotspot:focus-visible .earth-planet-tag {
+  transform: translate3d(-50%, -2px, 0);
+  border-color: var(--accent-gold-border);
+  background: rgba(11, 18, 34, 0.90);
+  box-shadow: var(--rim-top-warm), 0 14px 32px rgba(2, 4, 10, 0.65);
+}
+
+.earth-planet-hotspot:hover .earth-planet-name,
+.earth-planet-hotspot:focus-visible .earth-planet-name {
+  color: var(--accent-gold-bright);
+}
+
+.earth-planet-hotspot:hover .earth-planet-arrow,
+.earth-planet-hotspot:focus-visible .earth-planet-arrow {
+  transform: translate3d(2px, -2px, 0);
+  color: var(--accent-gold-bright);
+}
+
+.earth-planet-hotspot:hover .earth-planet-url,
+.earth-planet-hotspot:focus-visible .earth-planet-url {
+  color: var(--text);
+}
+
+@media (max-width: 520px) {
+  .earth-planet-tag {
+    padding: 0.26rem 0.62rem 0.28rem;
+  }
+
+  .earth-planet-name {
+    font-size: 10px;
+  }
+
+  .earth-planet-url {
+    font-size: 8.5px;
+  }
+}
+
 /* ── Stargazing Entry Capsule (#stargazing-caption) ──────────────────────── */
 .stargazing-caption,
 #stargazing-caption {
