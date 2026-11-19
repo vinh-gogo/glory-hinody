@@ -1038,14 +1038,573 @@
   }
 
   /* ═══════════════════════════════════════════════════════════════════════════
-   * 3. SYNCHRONIZED 3D PERSPECTIVE STARFIELD & COSMIC DUST FIELD (#starCanvas)
+   * 3. SYNCHRONIZED 3D PERSPECTIVE STARFIELD, 12 BÁT TỰ ZODIAC CONSTELLATIONS
+   *    & COSMIC DUST FIELD (#starCanvas)
    * ═════════════════════════════════════════════════════════════════════════ */
+  var DEG2RAD = Math.PI / 180.0;
+
   var STAR_PALETTE = [
-    { r: 250, g: 248, b: 243 }, /* #faf8f3 warm alabaster starlight */
-    { r: 214, g: 228, b: 252 }, /* #d6e4fc crisp lunar white-blue */
-    { r: 226, g: 190, b: 132 }, /* #e2be84 solar champagne gold */
-    { r: 155, g: 183, b: 224 }  /* #9bb7e0 atmospheric twilight blue */
+    { r: 250, g: 248, b: 243 }, /* 0: #faf8f3 warm alabaster starlight */
+    { r: 214, g: 228, b: 252 }, /* 1: #d6e4fc crisp lunar white-blue */
+    { r: 226, g: 190, b: 132 }, /* 2: #e2be84 solar champagne gold */
+    { r: 155, g: 183, b: 224 }, /* 3: #9bb7e0 atmospheric twilight blue */
+    { r: 240, g: 168, b: 117 }  /* 4: #f0a875 warm amber supergiant (Antares / Aldebaran) */
   ];
+
+  function smoothstep(edge0, edge1, x) {
+    var t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+    return t * t * (3.0 - 2.0 * t);
+  }
+
+  function wrapAnglePi(rad) {
+    var r = rad % (Math.PI * 2.0);
+    if (r > Math.PI) r -= Math.PI * 2.0;
+    if (r < -Math.PI) r += Math.PI * 2.0;
+    return r;
+  }
+
+  /* Canonical Bát Tự (12 Địa Chi / Thập Nhị Thứ / Nguyệt Tướng) ↔ 12 Zodiac Constellations
+   * Exact 360° compass azimuths (0°=Tý/North, 90°=Mão/East, 180°=Ngọ/South, 270°=Dậu/West)
+   * with astronomically accurate ecliptic longitude λ = (315° - az) mod 360° & declination curve.
+   * Initial camera (yaw=0) faces Chính Nam (180° Ngọ · Sư Tử) — "Tọa Tý hướng Ngọ".
+   * Star offsets [duDeg, dvDeg, mag(1..4), colorIdx(0..4)] are in real-sky view (+du=Right/West, +dv=Up/North). */
+  var ZODIAC_SPECS = [
+    {
+      id: 'aquarius',
+      azimuthDeg: 0,
+      dirVi: 'Bắc', dirEn: 'N',
+      chiVi: 'Tý', chiEn: 'Zi',
+      elementVi: 'Thủy', elementEn: 'Water',
+      palaceVi: 'Huyền Hiêu',
+      nameVi: 'Bảo Bình', nameEn: 'Aquarius',
+      labelOffset: [0.5, 7.6],
+      stars: [
+        [1.2, 4.2, 2, 2],   /* 0: Sadalmelik */
+        [6.2, 1.8, 2, 2],   /* 1: Sadalsuud */
+        [9.5, -0.8, 3, 1],  /* 2: Albali */
+        [-1.8, 3.6, 3, 0],  /* 3: Sadachbia */
+        [-2.8, 4.8, 4, 0],  /* 4: Pi Aqr */
+        [-3.2, 3.0, 3, 0],  /* 5: Zeta Aqr (Water Jar) */
+        [-4.8, 2.6, 3, 1],  /* 6: Eta Aqr */
+        [1.6, -0.4, 3, 2],  /* 7: Ancha */
+        [-5.0, -1.6, 3, 4], /* 8: Lambda Aqr */
+        [-7.0, -0.8, 4, 4], /* 9: Phi Aqr */
+        [-5.2, -5.8, 2, 1], /* 10: Skat */
+        [-3.2, -4.4, 4, 4], /* 11: Tau Aqr */
+        [2.4, -4.6, 3, 1]   /* 12: Iota Aqr */
+      ],
+      edges: [[2,1],[1,0],[0,3],[3,5],[5,4],[5,6],[0,7],[7,12],[6,8],[8,9],[8,10],[10,11]]
+    },
+    {
+      id: 'capricornus',
+      azimuthDeg: 30,
+      dirVi: 'Bắc Đông Bắc', dirEn: 'NNE',
+      chiVi: 'Sửu', chiEn: 'Chou',
+      elementVi: 'Thổ', elementEn: 'Earth',
+      palaceVi: 'Tinh Kỷ',
+      nameVi: 'Ma Kết', nameEn: 'Capricornus',
+      labelOffset: [0.0, 6.4],
+      stars: [
+        [8.4, 4.2, 2, 2],   /* 0: Algedi */
+        [7.6, 2.2, 2, 2],   /* 1: Dabih */
+        [2.0, 0.4, 3, 0],   /* 2: Theta Cap */
+        [-1.8, 1.2, 3, 2],  /* 3: Iota Cap */
+        [-6.2, 2.2, 3, 0],  /* 4: Nashira */
+        [-8.2, 2.8, 2, 0],  /* 5: Deneb Algedi */
+        [-2.6, -3.4, 3, 2], /* 6: Zeta Cap */
+        [2.4, -4.6, 3, 4],  /* 7: Omega Cap */
+        [4.2, -3.2, 3, 0]   /* 8: Psi Cap */
+      ],
+      edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,1]]
+    },
+    {
+      id: 'sagittarius',
+      azimuthDeg: 60,
+      dirVi: 'Đông Đông Bắc', dirEn: 'ENE',
+      chiVi: 'Dần', chiEn: 'Yin',
+      elementVi: 'Mộc', elementEn: 'Wood',
+      palaceVi: 'Tích Mộc',
+      nameVi: 'Nhân Mã', nameEn: 'Sagittarius',
+      labelOffset: [-0.4, 8.2],
+      stars: [
+        [1.2, 5.2, 2, 2],   /* 0: Kaus Borealis */
+        [3.4, 0.8, 2, 2],   /* 1: Kaus Media */
+        [7.6, -0.4, 2, 2],  /* 2: Alnasl (Teapot spout) */
+        [3.2, -4.6, 1, 1],  /* 3: Kaus Australis */
+        [-2.8, -3.8, 2, 0], /* 4: Ascella */
+        [-6.2, -1.6, 3, 2], /* 5: Tau Sgr */
+        [-4.8, 1.4, 1, 1],  /* 6: Nunki */
+        [-1.0, 0.6, 3, 1],  /* 7: Phi Sgr */
+        [-6.6, 4.4, 3, 0]   /* 8: Pi Sgr */
+      ],
+      edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0],[1,7],[7,4],[1,3],[6,8]]
+    },
+    {
+      id: 'scorpius',
+      azimuthDeg: 90,
+      dirVi: 'Đông', dirEn: 'E',
+      chiVi: 'Mão', chiEn: 'Mao',
+      elementVi: 'Mộc', elementEn: 'Wood',
+      palaceVi: 'Đại Hỏa',
+      nameVi: 'Thiên Yết', nameEn: 'Scorpius',
+      labelOffset: [-0.4, 7.2],
+      stars: [
+        [6.8, 4.8, 2, 1],   /* 0: Acrab */
+        [7.2, 2.4, 2, 1],   /* 1: Dschubba */
+        [6.6, 0.0, 3, 1],   /* 2: Fang */
+        [4.0, 1.8, 3, 1],   /* 3: Alniyat */
+        [2.6, 1.0, 1, 4],   /* 4: Antares (fiery heart) */
+        [1.3, -0.5, 3, 1],  /* 5: Tau Sco */
+        [-0.7, -2.6, 2, 2], /* 6: Larawag */
+        [-1.4, -4.4, 3, 1], /* 7: Mu Sco */
+        [-2.6, -5.6, 3, 4], /* 8: Zeta Sco */
+        [-5.2, -5.4, 2, 2], /* 9: Sargas */
+        [-6.8, -4.0, 3, 0], /* 10: Iota Sco */
+        [-6.6, -2.2, 2, 1], /* 11: Kappa Sco */
+        [-5.2, -1.0, 1, 1], /* 12: Shaula (stinger) */
+        [-4.3, -1.4, 3, 1]  /* 13: Lesath */
+      ],
+      edges: [[0,1],[1,2],[1,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13]]
+    },
+    {
+      id: 'libra',
+      azimuthDeg: 120,
+      dirVi: 'Đông Đông Nam', dirEn: 'ESE',
+      chiVi: 'Thìn', chiEn: 'Chen',
+      elementVi: 'Thổ', elementEn: 'Earth',
+      palaceVi: 'Thọ Tinh',
+      nameVi: 'Thiên Bình', nameEn: 'Libra',
+      labelOffset: [0.0, 8.4],
+      stars: [
+        [-0.4, 5.6, 2, 1],  /* 0: Zubeneschamali */
+        [5.2, 1.0, 2, 0],   /* 1: Zubenelgenubi */
+        [-4.8, 0.8, 3, 2],  /* 2: Zubenelhakrabi */
+        [2.4, -5.4, 3, 4],  /* 3: Brachium */
+        [-5.6, -3.4, 3, 2], /* 4: Upsilon Lib */
+        [-6.2, -5.6, 3, 1]  /* 5: Tau Lib */
+      ],
+      edges: [[0,1],[0,2],[1,2],[1,3],[2,4],[4,5]]
+    },
+    {
+      id: 'virgo',
+      azimuthDeg: 150,
+      dirVi: 'Nam Đông Nam', dirEn: 'SSE',
+      chiVi: 'Tỵ', chiEn: 'Si',
+      elementVi: 'Hỏa', elementEn: 'Fire',
+      palaceVi: 'Thuần Vĩ',
+      nameVi: 'Xử Nữ', nameEn: 'Virgo',
+      labelOffset: [2.4, 9.2],
+      stars: [
+        [-2.2, -5.8, 1, 1], /* 0: Spica */
+        [-4.2, -0.4, 3, 0], /* 1: Heze */
+        [2.4, 0.4, 2, 0],   /* 2: Porrima */
+        [0.2, 3.6, 3, 4],   /* 3: Auva */
+        [-0.8, 7.2, 2, 2],  /* 4: Vindemiatrix */
+        [5.4, 1.0, 3, 0],   /* 5: Zaniah */
+        [8.4, 2.4, 3, 2],   /* 6: Zavijava */
+        [8.8, 5.0, 4, 4],   /* 7: Nu Vir */
+        [-8.2, -2.6, 3, 0], /* 8: Syrma */
+        [-9.8, -1.8, 3, 0], /* 9: Mu Vir */
+        [-6.8, 2.6, 4, 0]   /* 10: Tau Vir */
+      ],
+      edges: [[7,6],[6,5],[5,2],[2,3],[3,4],[3,1],[1,2],[2,0],[1,0],[1,8],[8,9],[1,10]]
+    },
+    {
+      id: 'leo',
+      azimuthDeg: 180,
+      dirVi: 'Nam', dirEn: 'S',
+      chiVi: 'Ngọ', chiEn: 'Wu',
+      elementVi: 'Hỏa', elementEn: 'Fire',
+      palaceVi: 'Thuần Hỏa',
+      nameVi: 'Sư Tử', nameEn: 'Leo',
+      labelOffset: [-0.4, 8.6],
+      stars: [
+        [5.8, -3.2, 1, 1],  /* 0: Regulus */
+        [5.4, 0.2, 3, 0],   /* 1: Eta Leo */
+        [3.8, 2.6, 2, 2],   /* 2: Algieba */
+        [4.6, 5.2, 3, 0],   /* 3: Adhafera */
+        [7.4, 6.4, 3, 2],   /* 4: Rasalas */
+        [9.4, 4.4, 2, 2],   /* 5: Algenubi */
+        [-4.2, 3.2, 2, 0],  /* 6: Zosma */
+        [-4.6, -0.4, 3, 0], /* 7: Chertan */
+        [-9.6, 0.4, 2, 1]   /* 8: Denebola */
+      ],
+      edges: [[5,4],[4,3],[3,2],[2,1],[1,0],[2,6],[0,7],[6,7],[6,8],[7,8]]
+    },
+    {
+      id: 'cancer',
+      azimuthDeg: 210,
+      dirVi: 'Nam Tây Nam', dirEn: 'SSW',
+      chiVi: 'Mùi', chiEn: 'Wei',
+      elementVi: 'Thổ', elementEn: 'Earth',
+      palaceVi: 'Thuần Thủ',
+      nameVi: 'Cự Giải', nameEn: 'Cancer',
+      labelOffset: [0.2, -6.2],
+      stars: [
+        [-1.8, 6.6, 3, 2],  /* 0: Iota Cnc */
+        [-0.4, 1.8, 3, 0],  /* 1: Asellus Borealis */
+        [-0.8, -0.6, 3, 2], /* 2: Asellus Australis */
+        [-4.6, -4.6, 3, 0], /* 3: Acubens */
+        [5.2, -5.2, 2, 4]   /* 4: Al Tarf */
+      ],
+      edges: [[0,1],[1,2],[2,3],[2,4]]
+    },
+    {
+      id: 'gemini',
+      azimuthDeg: 240,
+      dirVi: 'Tây Tây Nam', dirEn: 'WSW',
+      chiVi: 'Thân', chiEn: 'Shen',
+      elementVi: 'Kim', elementEn: 'Metal',
+      palaceVi: 'Thực Trầm',
+      nameVi: 'Song Tử', nameEn: 'Gemini',
+      labelOffset: [0.2, -7.8],
+      stars: [
+        [-4.6, 6.8, 1, 1],  /* 0: Castor */
+        [-6.8, 3.8, 1, 2],  /* 1: Pollux */
+        [-1.2, 5.4, 3, 2],  /* 2: Tau Gem */
+        [3.4, 2.4, 2, 2],   /* 3: Mebsuta */
+        [6.6, 0.2, 2, 4],   /* 4: Tejat */
+        [8.4, 0.4, 3, 4],   /* 5: Propus */
+        [2.0, 7.6, 3, 0],   /* 6: Theta Gem */
+        [-2.2, 0.8, 3, 0],  /* 7: Wasat */
+        [0.2, -1.6, 3, 2],  /* 8: Mekbuda */
+        [4.0, -4.8, 2, 0],  /* 9: Alhena */
+        [-6.2, 0.8, 3, 2],  /* 10: Kappa Gem */
+        [2.4, -6.2, 3, 0]   /* 11: Xi Gem */
+      ],
+      edges: [[0,1],[0,2],[2,6],[2,3],[3,4],[4,5],[1,7],[1,10],[7,8],[8,9],[8,11],[2,7]]
+    },
+    {
+      id: 'taurus',
+      azimuthDeg: 270,
+      dirVi: 'Tây', dirEn: 'W',
+      chiVi: 'Dậu', chiEn: 'You',
+      elementVi: 'Kim', elementEn: 'Metal',
+      palaceVi: 'Đại Lương',
+      nameVi: 'Kim Ngưu', nameEn: 'Taurus',
+      labelOffset: [0.2, 8.6],
+      stars: [
+        [0.2, -0.4, 1, 4],  /* 0: Aldebaran */
+        [1.4, -1.2, 3, 0],  /* 1: Theta2 Tau */
+        [3.2, -1.4, 3, 2],  /* 2: Hyadum I */
+        [2.2, 0.6, 3, 2],   /* 3: Delta Tau */
+        [0.6, 2.0, 3, 2],   /* 4: Ain */
+        [-7.8, 6.6, 1, 1],  /* 5: Elnath */
+        [-8.4, 1.2, 2, 1],  /* 6: Tianguan */
+        [6.8, -3.2, 3, 1],  /* 7: Lambda Tau */
+        [9.6, -5.6, 3, 1],  /* 8: Xi Tau */
+        [7.8, 5.0, 2, 1],   /* 9: Alcyone (Pleiades) */
+        [7.0, 4.8, 4, 1],   /* 10: Atlas (Pleiades) */
+        [8.4, 5.4, 4, 1],   /* 11: Electra (Pleiades) */
+        [8.2, 4.3, 4, 1]    /* 12: Merope (Pleiades) */
+      ],
+      edges: [[5,4],[4,3],[3,2],[2,1],[1,0],[0,6],[2,7],[7,8]]
+    },
+    {
+      id: 'aries',
+      azimuthDeg: 300,
+      dirVi: 'Tây Tây Bắc', dirEn: 'WNW',
+      chiVi: 'Tuất', chiEn: 'Xu',
+      elementVi: 'Thổ', elementEn: 'Earth',
+      palaceVi: 'Giáng Lâu',
+      nameVi: 'Bạch Dương', nameEn: 'Aries',
+      labelOffset: [0.5, 7.2],
+      stars: [
+        [3.6, 2.4, 1, 2],   /* 0: Hamal */
+        [6.2, 0.2, 2, 0],   /* 1: Sheratan */
+        [6.8, -1.6, 3, 1],  /* 2: Mesarthim */
+        [-2.6, 4.2, 3, 1],  /* 3: 41 Ari */
+        [-5.8, -0.4, 3, 2], /* 4: Botein */
+        [-3.8, 1.0, 4, 0]   /* 5: Epsilon Ari */
+      ],
+      edges: [[2,1],[1,0],[0,3],[3,5],[5,4]]
+    },
+    {
+      id: 'pisces',
+      azimuthDeg: 330,
+      dirVi: 'Bắc Tây Bắc', dirEn: 'NNW',
+      chiVi: 'Hợi', chiEn: 'Hai',
+      elementVi: 'Thủy', elementEn: 'Water',
+      palaceVi: 'Tưu Ty',
+      nameVi: 'Song Ngư', nameEn: 'Pisces',
+      labelOffset: [1.2, 7.2],
+      stars: [
+        [-6.8, -3.4, 2, 1], /* 0: Alrescha */
+        [-3.6, -1.6, 3, 2], /* 1: Nu Psc */
+        [-1.2, -1.2, 4, 2], /* 2: Mu Psc */
+        [1.4, -0.4, 3, 2],  /* 3: Epsilon Psc */
+        [4.6, -0.8, 3, 0],  /* 4: Omega Psc */
+        [6.6, -1.2, 3, 0],  /* 5: Iota Psc (Circlet) */
+        [8.0, 0.2, 3, 2],   /* 6: Theta Psc */
+        [9.4, -1.4, 3, 2],  /* 7: Gamma Psc */
+        [8.4, -3.0, 4, 1],  /* 8: Kappa Psc */
+        [6.6, -2.8, 4, 0],  /* 9: Lambda Psc */
+        [-6.6, -1.4, 4, 2], /* 10: Xi Psc */
+        [-6.2, 0.8, 3, 2],  /* 11: Omicron Psc */
+        [-5.4, 3.4, 2, 2],  /* 12: Alpherg */
+        [-4.8, 5.2, 4, 0],  /* 13: Rho Psc */
+        [-3.2, 7.4, 3, 2],  /* 14: Tau Psc */
+        [-4.4, 6.6, 4, 0],  /* 15: Upsilon Psc */
+        [-3.6, 5.4, 4, 2]   /* 16: Phi Psc */
+      ],
+      edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,5],[0,10],[10,11],[11,12],[12,13],[13,15],[15,14],[14,16],[16,13]]
+    }
+  ];
+
+  var GAZE_ELEVATION_RAD = 15.2 * DEG2RAD;
+
+  function eclipticElevationRad(azimuthDeg) {
+    var lambdaRad = ((315.0 - azimuthDeg) % 360.0 + 360.0) % 360.0 * DEG2RAD;
+    /* True astronomical Solstice/Equinox Ecliptic wave elevated into the upper celestial crown
+     * (+12.6° Winter Solstice at Dần/Sửu -> +17.8° Summer Solstice at Mùi/Thân) so all 12 Bát Tự
+     * constellations shine cleanly ABOVE Gargantua's luminous photon ring during 360° orbit. */
+    return (15.2 + 2.6 * Math.sin(lambdaRad)) * DEG2RAD;
+  }
+
+  function compassToSkyDir(azimuthDeg, elRad) {
+    /* Compass 180° (Chính Nam / Ngọ) maps to relAz=0 -> world (0, sin(el), -cos(el)) */
+    var relAz = (azimuthDeg - 180.0) * DEG2RAD;
+    var ce = Math.cos(elRad);
+    return {
+      x: -ce * Math.sin(relAz),
+      y: Math.sin(elRad),
+      z: -ce * Math.cos(relAz)
+    };
+  }
+
+  function buildZodiacCelestialData() {
+    var constellations = [];
+    for (var i = 0; i < ZODIAC_SPECS.length; i++) {
+      var spec = ZODIAC_SPECS[i];
+      var azDeg = spec.azimuthDeg;
+      var eclipticDeg = ((315.0 - azDeg) % 360.0 + 360.0) % 360.0;
+      var relAz = (azDeg - 180.0) * DEG2RAD;
+      var elRad = eclipticElevationRad(azDeg);
+      var cDir = compassToSkyDir(azDeg, elRad);
+
+      /* Orthonormal sky tangent basis: T_right (+du, West/screen-right) & T_up (+dv, North/screen-up) */
+      var rX = -Math.cos(relAz);
+      var rY = 0.0;
+      var rZ = Math.sin(relAz);
+
+      var uX = Math.sin(elRad) * Math.sin(relAz);
+      var uY = Math.cos(elRad);
+      var uZ = Math.sin(elRad) * Math.cos(relAz);
+
+      var stars3D = [];
+      for (var s = 0; s < spec.stars.length; s++) {
+        var st = spec.stars[s];
+        var tu = Math.tan(st[0] * DEG2RAD);
+        var tv = Math.tan(st[1] * DEG2RAD);
+        var sx = cDir.x + tu * rX + tv * uX;
+        var sy = cDir.y + tu * rY + tv * uY;
+        var sz = cDir.z + tu * rZ + tv * uZ;
+        var len = Math.sqrt(sx * sx + sy * sy + sz * sz) || 1.0;
+        stars3D.push({
+          x: sx / len,
+          y: sy / len,
+          z: sz / len,
+          mag: st[2],
+          colIdx: st[3],
+          col: STAR_PALETTE[st[3]] || STAR_PALETTE[0],
+          phase: ((i * 1.9 + s * 2.37) % (Math.PI * 2.0))
+        });
+      }
+
+      var lu = Math.tan(spec.labelOffset[0] * DEG2RAD);
+      var lv = Math.tan(spec.labelOffset[1] * DEG2RAD);
+      var lx = cDir.x + lu * rX + lv * uX;
+      var ly = cDir.y + lu * rY + lv * uY;
+      var lz = cDir.z + lu * rZ + lv * uZ;
+      var lLen = Math.sqrt(lx * lx + ly * ly + lz * lz) || 1.0;
+
+      var targetYaw = wrapAnglePi(-relAz);
+      var targetPitch = clamp(elRad - GAZE_ELEVATION_RAD, -0.54, 0.54);
+
+      constellations.push({
+        id: spec.id,
+        index: i,
+        azimuthDeg: azDeg,
+        elevationDeg: Number((elRad / DEG2RAD).toFixed(1)),
+        eclipticDeg: eclipticDeg,
+        dirVi: spec.dirVi,
+        dirEn: spec.dirEn,
+        chiVi: spec.chiVi,
+        chiEn: spec.chiEn,
+        elementVi: spec.elementVi,
+        elementEn: spec.elementEn,
+        palaceVi: spec.palaceVi,
+        nameVi: spec.nameVi,
+        nameEn: spec.nameEn,
+        targetYaw: targetYaw,
+        targetPitch: targetPitch,
+        cx: cDir.x,
+        cy: cDir.y,
+        cz: cDir.z,
+        lx: lx / lLen,
+        ly: ly / lLen,
+        lz: lz / lLen,
+        stars: stars3D,
+        edges: spec.edges
+      });
+    }
+
+    /* Precompute 120-segment 3D Ecliptic arc + 12 Bát Tự palace boundary ticks */
+    var eclipticRing = [];
+    var RING_STEPS = 120;
+    for (var k = 0; k < RING_STEPS; k++) {
+      var ringAz = (k / RING_STEPS) * 360.0;
+      eclipticRing.push(compassToSkyDir(ringAz, eclipticElevationRad(ringAz)));
+    }
+
+    var palaceTicks = [];
+    for (var p = 0; p < 12; p++) {
+      /* Palace boundary halfway between centers (15°, 45°, 75°...) + cardinal diamond markers at 0°,90°,180°,270° */
+      var bAz = p * 30.0 + 15.0;
+      var bEl = eclipticElevationRad(bAz);
+      var isSolsticeEquinox = (p % 3 === 1); /* 45° Đông Chí, 135° Thu Phân, 225° Hạ Chí, 315° Xuân Phân */
+      var tickHalf = (isSolsticeEquinox ? 1.45 : 0.78) * DEG2RAD;
+      palaceTicks.push({
+        a: compassToSkyDir(bAz, bEl - tickHalf),
+        b: compassToSkyDir(bAz, bEl + tickHalf),
+        major: isSolsticeEquinox
+      });
+    }
+
+    return {
+      constellations: constellations,
+      eclipticRing: eclipticRing,
+      palaceTicks: palaceTicks
+    };
+  }
+
+  var ZODIAC_DATA = buildZodiacCelestialData();
+  var cachedFocusedInfo = {
+    constellation: ZODIAC_DATA.constellations[6], /* Ngọ · 180° Nam · Sư Tử */
+    focus: 1.0,
+    compassAzDeg: 180.0
+  };
+
+  /* Crisp vector Zodiac emblems (zero color-emoji square fallback across Windows/iOS/Android) */
+  function drawZodiacGlyph(ctx, id, cx, cy, r) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.beginPath();
+    switch (id) {
+      case 'aries':
+        ctx.moveTo(0, r * 0.85);
+        ctx.lineTo(0, -r * 0.25);
+        ctx.arc(-r * 0.45, -r * 0.25, r * 0.45, 0, Math.PI * 1.15, true);
+        ctx.moveTo(0, -r * 0.25);
+        ctx.arc(r * 0.45, -r * 0.25, r * 0.45, Math.PI, -Math.PI * 0.15, false);
+        break;
+      case 'taurus':
+        ctx.arc(0, r * 0.22, r * 0.52, 0, Math.PI * 2.0);
+        ctx.moveTo(-r * 0.62, -r * 0.82);
+        ctx.quadraticCurveTo(0, -r * 0.12, r * 0.62, -r * 0.82);
+        break;
+      case 'gemini':
+        ctx.moveTo(-r * 0.72, -r * 0.78);
+        ctx.quadraticCurveTo(0, -r * 0.52, r * 0.72, -r * 0.78);
+        ctx.moveTo(-r * 0.72, r * 0.78);
+        ctx.quadraticCurveTo(0, r * 0.52, r * 0.72, r * 0.78);
+        ctx.moveTo(-r * 0.30, -r * 0.64);
+        ctx.lineTo(-r * 0.30, r * 0.64);
+        ctx.moveTo(r * 0.30, -r * 0.64);
+        ctx.lineTo(r * 0.30, r * 0.64);
+        break;
+      case 'cancer':
+        ctx.arc(-r * 0.42, -r * 0.22, r * 0.26, 0, Math.PI * 2.0);
+        ctx.moveTo(-r * 0.56, -r * 0.44);
+        ctx.quadraticCurveTo(r * 0.10, -r * 0.88, r * 0.68, -r * 0.32);
+        ctx.moveTo(r * 0.68, r * 0.22);
+        ctx.arc(r * 0.42, r * 0.22, r * 0.26, 0, Math.PI * 2.0);
+        ctx.moveTo(r * 0.56, r * 0.44);
+        ctx.quadraticCurveTo(-r * 0.10, r * 0.88, -r * 0.68, r * 0.32);
+        break;
+      case 'leo':
+        ctx.arc(-r * 0.46, r * 0.22, r * 0.28, 0, Math.PI * 2.0);
+        ctx.moveTo(-r * 0.24, r * 0.04);
+        ctx.bezierCurveTo(-r * 0.45, -r * 0.92, r * 0.62, -r * 0.92, r * 0.28, r * 0.26);
+        ctx.quadraticCurveTo(r * 0.16, r * 0.74, r * 0.66, r * 0.62);
+        break;
+      case 'virgo':
+        ctx.moveTo(-r * 0.76, -r * 0.62);
+        ctx.lineTo(-r * 0.76, r * 0.56);
+        ctx.moveTo(-r * 0.76, -r * 0.28);
+        ctx.quadraticCurveTo(-r * 0.52, -r * 0.75, -r * 0.26, -r * 0.22);
+        ctx.lineTo(-r * 0.26, r * 0.56);
+        ctx.moveTo(-r * 0.26, -r * 0.28);
+        ctx.quadraticCurveTo(0, -r * 0.75, r * 0.24, -r * 0.22);
+        ctx.lineTo(r * 0.24, r * 0.48);
+        ctx.quadraticCurveTo(r * 0.28, r * 0.84, r * 0.74, r * 0.40);
+        ctx.moveTo(r * 0.24, -r * 0.22);
+        ctx.quadraticCurveTo(r * 0.76, -r * 0.46, r * 0.52, r * 0.22);
+        ctx.quadraticCurveTo(r * 0.36, r * 0.64, -r * 0.04, r * 0.86);
+        break;
+      case 'libra':
+        ctx.moveTo(-r * 0.78, r * 0.58);
+        ctx.lineTo(r * 0.78, r * 0.58);
+        ctx.moveTo(-r * 0.78, r * 0.16);
+        ctx.lineTo(-r * 0.36, r * 0.16);
+        ctx.arc(0, r * 0.16, r * 0.38, Math.PI, 0, false);
+        ctx.lineTo(r * 0.78, r * 0.16);
+        break;
+      case 'scorpius':
+        ctx.moveTo(-r * 0.76, -r * 0.60);
+        ctx.lineTo(-r * 0.76, r * 0.54);
+        ctx.moveTo(-r * 0.76, -r * 0.26);
+        ctx.quadraticCurveTo(-r * 0.52, -r * 0.74, -r * 0.26, -r * 0.22);
+        ctx.lineTo(-r * 0.26, r * 0.54);
+        ctx.moveTo(-r * 0.26, -r * 0.26);
+        ctx.quadraticCurveTo(0, -r * 0.74, r * 0.24, -r * 0.22);
+        ctx.lineTo(r * 0.24, r * 0.44);
+        ctx.quadraticCurveTo(r * 0.26, r * 0.78, r * 0.72, r * 0.52);
+        ctx.moveTo(r * 0.44, r * 0.42);
+        ctx.lineTo(r * 0.76, r * 0.52);
+        ctx.lineTo(r * 0.56, r * 0.80);
+        break;
+      case 'sagittarius':
+        ctx.moveTo(-r * 0.68, r * 0.68);
+        ctx.lineTo(r * 0.68, -r * 0.68);
+        ctx.moveTo(r * 0.16, -r * 0.68);
+        ctx.lineTo(r * 0.68, -r * 0.68);
+        ctx.lineTo(r * 0.68, -r * 0.16);
+        ctx.moveTo(-r * 0.44, r * 0.04);
+        ctx.lineTo(r * 0.04, r * 0.52);
+        break;
+      case 'capricornus':
+        ctx.moveTo(-r * 0.74, -r * 0.62);
+        ctx.lineTo(-r * 0.34, r * 0.42);
+        ctx.lineTo(r * 0.08, -r * 0.56);
+        ctx.quadraticCurveTo(r * 0.30, -r * 0.10, r * 0.30, r * 0.40);
+        ctx.arc(r * 0.52, r * 0.36, r * 0.24, Math.PI, Math.PI * 2.85, false);
+        ctx.quadraticCurveTo(r * 0.48, r * 0.86, r * 0.06, r * 0.86);
+        break;
+      case 'aquarius':
+        ctx.moveTo(-r * 0.78, -r * 0.18);
+        ctx.lineTo(-r * 0.40, -r * 0.52);
+        ctx.lineTo(0, -r * 0.14);
+        ctx.lineTo(r * 0.40, -r * 0.52);
+        ctx.lineTo(r * 0.78, -r * 0.18);
+        ctx.moveTo(-r * 0.78, r * 0.42);
+        ctx.lineTo(-r * 0.40, r * 0.08);
+        ctx.lineTo(0, r * 0.46);
+        ctx.lineTo(r * 0.40, r * 0.08);
+        ctx.lineTo(r * 0.78, r * 0.42);
+        break;
+      case 'pisces':
+        ctx.moveTo(-r * 0.56, -r * 0.76);
+        ctx.quadraticCurveTo(-r * 0.10, 0, -r * 0.56, r * 0.76);
+        ctx.moveTo(r * 0.56, -r * 0.76);
+        ctx.quadraticCurveTo(r * 0.10, 0, r * 0.56, r * 0.76);
+        ctx.moveTo(-r * 0.72, 0);
+        ctx.lineTo(r * 0.72, 0);
+        break;
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
 
   function createGlowSprites() {
     var sprites = [];
@@ -1059,8 +1618,8 @@
       var octx = off.getContext('2d');
       if (octx) {
         var g = octx.createRadialGradient(half, half, 0, half, half, half);
-        g.addColorStop(0.0, 'rgba(' + col.r + ', ' + col.g + ', ' + col.b + ', 0.44)');
-        g.addColorStop(0.42, 'rgba(' + col.r + ', ' + col.g + ', ' + col.b + ', 0.12)');
+        g.addColorStop(0.0, 'rgba(' + col.r + ', ' + col.g + ', ' + col.b + ', 0.48)');
+        g.addColorStop(0.42, 'rgba(' + col.r + ', ' + col.g + ', ' + col.b + ', 0.14)');
         g.addColorStop(1.0, 'rgba(' + col.r + ', ' + col.g + ', ' + col.b + ', 0)');
         octx.fillStyle = g;
         octx.fillRect(0, 0, size, size);
@@ -1147,7 +1706,8 @@
       glowSprites: createGlowSprites(),
       meteor: null,
       nextMeteorSec: 8.5 + Math.random() * 7.5,
-      overlayAlpha: 0.65
+      overlayAlpha: 1.0,
+      constellationAlpha: isStargazingMode ? 1.0 : 0.0
     };
 
     resizeStarCanvas();
@@ -1211,18 +1771,8 @@
     return tNear > 0.0 && tNear < distToPt;
   }
 
-  /* Project 3D Foreground Cosmic Dust using the EXACT same 3D Orbital Camera as WebGL */
-  function render3DDustOverlay(elapsedSec, dtSec) {
-    if (!starState || !starState.dust3D) return;
-    var ctx = starState.ctx;
-    var w = starState.cssW;
-    var h = starState.cssH;
-    var dpr = starState.dpr;
-
-    ctx.save();
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, w, h);
-
+  /* Compute GLSL-exact 3D Eclipse camera basis & screen projection parameters */
+  function computeEclipseCamera(elapsedSec, w, h) {
     var cam = getActiveCameraOrientation(elapsedSec);
     var cy = Math.cos(cam.yaw);
     var sy = Math.sin(cam.yaw);
@@ -1232,8 +1782,8 @@
     /* Match GLSL bit-for-bit: look_from = rotate_y(yaw) * rotate_x(-pitch) * (0, 0.72, camDist) */
     var y0 = 0.72;
     var z0 = cam.camDist;
-    var py1 = y0 * cp + z0 * sp;
-    var pz1 = -y0 * sp + z0 * cp;
+    var py1 = y0 * cp - z0 * sp;
+    var pz1 = y0 * sp + z0 * cp;
     var camX = -pz1 * sy;
     var camY = py1;
     var camZ = pz1 * cy;
@@ -1243,7 +1793,7 @@
     var fwdY = -camY / camLen;
     var fwdZ = -camZ / camLen;
 
-    var rollRad = cam.rollDeg * Math.PI / 180.0;
+    var rollRad = cam.rollDeg * DEG2RAD;
     var upRefX = Math.sin(rollRad);
     var upRefY = Math.cos(rollRad);
     var upRefZ = 0.0;
@@ -1262,13 +1812,503 @@
 
     var f = glState ? glState.framing : computeFraming(w, h);
     var dynFrameX = computeDynamicFrameX(f, w, h);
-    var focal = (h * 0.5 * f.opticalZoom) / Math.tan((f.pov * 0.5) * Math.PI / 180.0);
+    var focal = (h * 0.5 * f.opticalZoom) / Math.tan((f.pov * 0.5) * DEG2RAD);
     var centerX = w * (0.5 + dynFrameX);
     var centerY = h * (0.5 - f.frameY);
 
+    return {
+      yaw: cam.yaw,
+      pitch: cam.pitch,
+      camX: camX, camY: camY, camZ: camZ, camLen: camLen,
+      fwdX: fwdX, fwdY: fwdY, fwdZ: fwdZ,
+      rx: rx, ry: ry, rz: rz,
+      ux: ux, uy: uy, uz: uz,
+      focal: focal,
+      centerX: centerX,
+      centerY: centerY,
+      w: w,
+      h: h
+    };
+  }
+
+  /* Analytical angular-cone occluders for sky sphere at infinity (Planet + Moon + Gargantua shadow) */
+  function computeSkyOccluders(c) {
+    var pvx = 10.6 - c.camX;
+    var pvy = 0.28 - c.camY;
+    var pvz = 13.6 - c.camZ;
+    var pDist = Math.sqrt(pvx * pvx + pvy * pvy + pvz * pvz) || 1.0;
+
+    var mvx = -12.2 - c.camX;
+    var mvy = 4.2 - c.camY;
+    var mvz = 6.2 - c.camZ;
+    var mDist = Math.sqrt(mvx * mvx + mvy * mvy + mvz * mvz) || 1.0;
+
+    return {
+      pDx: pvx / pDist, pDy: pvy / pDist, pDz: pvz / pDist,
+      pSolid: Math.asin(Math.min(0.998, 7.62 / pDist)),
+      pAtm: Math.asin(Math.min(0.999, 8.35 / pDist)),
+
+      mDx: mvx / mDist, mDy: mvy / mDist, mDz: mvz / mDist,
+      mSolid: Math.asin(Math.min(0.998, 0.88 / mDist)),
+      mAtm: Math.asin(Math.min(0.999, 1.15 / mDist)),
+
+      bhDx: c.fwdX, bhDy: c.fwdY, bhDz: c.fwdZ,
+      bhSolid: Math.asin(Math.min(0.998, 2.75 / c.camLen)),
+      bhAtm: Math.asin(Math.min(0.999, 5.20 / c.camLen))
+    };
+  }
+
+  function getSkyDirectionVisibility(dx, dy, dz, occ) {
+    var vis = 1.0;
+
+    var pDot = clamp(dx * occ.pDx + dy * occ.pDy + dz * occ.pDz, -1.0, 1.0);
+    var pAng = Math.acos(pDot);
+    if (pAng <= occ.pSolid) return 0.0;
+    if (pAng < occ.pAtm) vis *= smoothstep(occ.pSolid, occ.pAtm, pAng);
+
+    var mDot = clamp(dx * occ.mDx + dy * occ.mDy + dz * occ.mDz, -1.0, 1.0);
+    var mAng = Math.acos(mDot);
+    if (mAng <= occ.mSolid) return 0.0;
+    if (mAng < occ.mAtm) vis *= smoothstep(occ.mSolid, occ.mAtm, mAng);
+
+    var bhDot = clamp(dx * occ.bhDx + dy * occ.bhDy + dz * occ.bhDz, -1.0, 1.0);
+    var bhAng = Math.acos(bhDot);
+    if (bhAng <= occ.bhSolid) return 0.0;
+    if (bhAng < occ.bhAtm) vis *= smoothstep(occ.bhSolid, occ.bhAtm, bhAng);
+
+    /* Subtle dim across Gargantua's luminous horizontal equatorial accretion disk */
+    if (bhAng < occ.bhAtm * 1.95) {
+      var eqOff = Math.abs(dy - occ.bhDy);
+      if (eqOff < 0.11) {
+        var diskDim = 1.0 - 0.62 * (1.0 - smoothstep(0.0, 0.11, eqOff)) * (1.0 - smoothstep(occ.bhSolid, occ.bhAtm * 1.95, bhAng));
+        vis *= diskDim;
+      }
+    }
+
+    return vis;
+  }
+
+  /* Padded angular visibility for text labels so typography never overlaps Planet/Moon/Gargantua glow */
+  function getLabelVisibility(dx, dy, dz, occ) {
+    var vis = 1.0;
+
+    var pDot = clamp(dx * occ.pDx + dy * occ.pDy + dz * occ.pDz, -1.0, 1.0);
+    var pAng = Math.acos(pDot);
+    if (pAng <= occ.pSolid + 0.08) return 0.0;
+    if (pAng < occ.pAtm + 0.15) vis *= smoothstep(occ.pSolid + 0.08, occ.pAtm + 0.15, pAng);
+
+    var mDot = clamp(dx * occ.mDx + dy * occ.mDy + dz * occ.mDz, -1.0, 1.0);
+    var mAng = Math.acos(mDot);
+    if (mAng <= occ.mSolid + 0.04) return 0.0;
+    if (mAng < occ.mAtm + 0.08) vis *= smoothstep(occ.mSolid + 0.04, occ.mAtm + 0.08, mAng);
+
+    var bhDot = clamp(dx * occ.bhDx + dy * occ.bhDy + dz * occ.bhDz, -1.0, 1.0);
+    var bhAng = Math.acos(bhDot);
+    if (bhAng <= occ.bhSolid + 0.095) return 0.0;
+    if (bhAng < occ.bhAtm + 0.15) vis *= smoothstep(occ.bhSolid + 0.095, occ.bhAtm + 0.15, bhAng);
+
+    return vis;
+  }
+
+  function projectSkyDir(dx, dy, dz, c) {
+    var vz = dx * c.fwdX + dy * c.fwdY + dz * c.fwdZ;
+    if (vz <= 0.06) return null;
+    var vx = dx * c.rx + dy * c.ry + dz * c.rz;
+    var vy = dx * c.ux + dy * c.uy + dz * c.uz;
+    return {
+      x: c.centerX + (vx / vz) * c.focal,
+      y: c.centerY - (vy / vz) * c.focal,
+      vz: vz
+    };
+  }
+
+  function measureTrackedText(ctx, text, tracking) {
+    if (!text) return 0;
+    var w = ctx.measureText(text).width;
+    return w + Math.max(0, text.length - 1) * tracking;
+  }
+
+  function fillTrackedTextLeft(ctx, text, startX, y, tracking) {
+    var x = startX;
+    for (var i = 0; i < text.length; i++) {
+      var ch = text.charAt(i);
+      ctx.fillText(ch, x, y);
+      x += ctx.measureText(ch).width + tracking;
+    }
+  }
+
+  function updateFocusedConstellation(camYaw, camPitch) {
+    var cy = Math.cos(camYaw);
+    var sy = Math.sin(camYaw);
+    var cp = Math.cos(camPitch);
+    var sp = Math.sin(camPitch);
+    var y0 = 0.72;
+    var z0 = 22.5 + cameraZ;
+    var py1 = y0 * cp - z0 * sp;
+    var pz1 = y0 * sp + z0 * cp;
+    var camX = -pz1 * sy;
+    var camY = py1;
+    var camZ = pz1 * cy;
+    var len = Math.sqrt(camX * camX + camY * camY + camZ * camZ) || 1.0;
+    var fx = -camX / len;
+    var fy = -camY / len;
+    var fz = -camZ / len;
+
+    /* Upper-sky celestial crown gaze vector (+GAZE_ELEVATION_RAD above Gargantua center) */
+    var rx = fz;
+    var ry = 0.0;
+    var rz = -fx;
+    var rLen = Math.sqrt(rx * rx + rz * rz) || 1.0;
+    rx /= rLen; rz /= rLen;
+    var ux = fy * rz - fz * ry;
+    var uy = fz * rx - fx * rz;
+    var uz = fx * ry - fy * rx;
+    var cg = Math.cos(GAZE_ELEVATION_RAD);
+    var sg = Math.sin(GAZE_ELEVATION_RAD);
+    var gx = fx * cg + ux * sg;
+    var gy = fy * cg + uy * sg;
+    var gz = fz * cg + uz * sg;
+
+    var list = ZODIAC_DATA.constellations;
+    var best = list[6];
+    var bestDot = -2.0;
+    for (var i = 0; i < list.length; i++) {
+      var item = list[i];
+      var d = gx * item.cx + gy * item.cy + gz * item.cz;
+      if (d > bestDot) {
+        bestDot = d;
+        best = item;
+      }
+    }
+
+    var compassAz = ((180.0 - (camYaw / DEG2RAD)) % 360.0 + 360.0) % 360.0;
+    cachedFocusedInfo = {
+      constellation: best,
+      focus: smoothstep(0.66, 0.96, bestDot),
+      compassAzDeg: compassAz
+    };
+    return cachedFocusedInfo;
+  }
+
+  /* Render 12 Bát Tự Zodiac Constellations & Tilted Astronomical Ecliptic in True 3D */
+  function renderZodiacConstellations(ctx, c, occ, elapsedSec, masterAlpha) {
+    if (masterAlpha <= 0.015) return;
+
+    var w = c.w;
+    var h = c.h;
+    var isCompact = w <= 640;
+    var isEn = /^en/i.test(document.documentElement ? (document.documentElement.lang || '') : '');
+    var sprites = starState ? starState.glowSprites : null;
+
+    /* 1. Whisper-fine 3D Tilted Ecliptic Great Circle + 12 Bát Tự Palace Ticks */
+    var ring = ZODIAC_DATA.eclipticRing;
+    var ringLen = ring.length;
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 0.8;
+    ctx.setLineDash([2.5, 6.5]);
+
+    var prevP = null;
+    var prevVis = 0.0;
+    for (var r = 0; r <= ringLen; r++) {
+      var pt = ring[r % ringLen];
+      var proj = projectSkyDir(pt.x, pt.y, pt.z, c);
+      var vis = proj ? getSkyDirectionVisibility(pt.x, pt.y, pt.z, occ) : 0.0;
+      if (proj && prevP) {
+        var segVis = Math.min(prevVis, vis);
+        var ddx = proj.x - prevP.x;
+        var ddy = proj.y - prevP.y;
+        if (segVis > 0.04 && (ddx * ddx + ddy * ddy) < (w * w * 0.16) &&
+            !((proj.x < -80 && prevP.x < -80) || (proj.x > w + 80 && prevP.x > w + 80) ||
+              (proj.y < -80 && prevP.y < -80) || (proj.y > h + 80 && prevP.y > h + 80))) {
+          ctx.strokeStyle = 'rgba(155, 183, 224, ' + (0.115 * segVis * masterAlpha).toFixed(3) + ')';
+          ctx.beginPath();
+          ctx.moveTo(prevP.x, prevP.y);
+          ctx.lineTo(proj.x, proj.y);
+          ctx.stroke();
+        }
+      }
+      prevP = proj;
+      prevVis = vis;
+    }
+
+    ctx.setLineDash([]);
+    var ticks = ZODIAC_DATA.palaceTicks;
+    for (var t = 0; t < ticks.length; t++) {
+      var tk = ticks[t];
+      var pa = projectSkyDir(tk.a.x, tk.a.y, tk.a.z, c);
+      var pb = projectSkyDir(tk.b.x, tk.b.y, tk.b.z, c);
+      if (!pa || !pb) continue;
+      if (pa.x < -40 || pa.x > w + 40 || pa.y < -40 || pa.y > h + 40) continue;
+      var tVis = getSkyDirectionVisibility((tk.a.x + tk.b.x) * 0.5, (tk.a.y + tk.b.y) * 0.5, (tk.a.z + tk.b.z) * 0.5, occ);
+      if (tVis <= 0.04) continue;
+      ctx.strokeStyle = tk.major
+        ? ('rgba(226, 190, 132, ' + (0.28 * tVis * masterAlpha).toFixed(3) + ')')
+        : ('rgba(155, 183, 224, ' + (0.18 * tVis * masterAlpha).toFixed(3) + ')');
+      ctx.lineWidth = tk.major ? 1.0 : 0.75;
+      ctx.beginPath();
+      ctx.moveTo(pa.x, pa.y);
+      ctx.lineTo(pb.x, pb.y);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    /* 2. Render All 12 Zodiac Constellations (Curved Occluded Edges, Spectral Stars, Diegetic Labels) */
+    var constellations = ZODIAC_DATA.constellations;
+    var cgGaze = Math.cos(GAZE_ELEVATION_RAD);
+    var sgGaze = Math.sin(GAZE_ELEVATION_RAD);
+    var gazeX = c.fwdX * cgGaze + c.ux * sgGaze;
+    var gazeY = c.fwdY * cgGaze + c.uy * sgGaze;
+    var gazeZ = c.fwdZ * cgGaze + c.uz * sgGaze;
+    var bestItem = constellations[6];
+    var bestDot = -2.0;
+
+    for (var i = 0; i < constellations.length; i++) {
+      var con = constellations[i];
+      var centerDot = gazeX * con.cx + gazeY * con.cy + gazeZ * con.cz;
+      if (centerDot > bestDot) {
+        bestDot = centerDot;
+        bestItem = con;
+      }
+
+      /* Broad-phase hemisphere cull */
+      if (centerDot < -0.18) continue;
+
+      var focus = smoothstep(0.66, 0.96, centerDot);
+      var stars = con.stars;
+      var projStars = new Array(stars.length);
+      var anyVisible = false;
+
+      for (var s = 0; s < stars.length; s++) {
+        var st = stars[s];
+        var ps = projectSkyDir(st.x, st.y, st.z, c);
+        if (!ps || ps.x < -120 || ps.x > w + 120 || ps.y < -120 || ps.y > h + 120) {
+          projStars[s] = null;
+          continue;
+        }
+        var sVis = getSkyDirectionVisibility(st.x, st.y, st.z, occ);
+        projStars[s] = { x: ps.x, y: ps.y, vis: sVis };
+        if (sVis > 0.02) anyVisible = true;
+      }
+
+      if (!anyVisible) continue;
+
+      /* Interpolated Eclipse palette: Lunar Silver-Blue (ambient) -> Champagne Gold (focused) */
+      var lineR = Math.round(155 + (226 - 155) * focus);
+      var lineG = Math.round(183 + (190 - 183) * focus);
+      var lineB = Math.round(224 + (132 - 224) * focus);
+      var baseLineAlpha = (0.19 + 0.29 * focus) * masterAlpha;
+
+      /* 2a. Curved 6-step spherical constellation lines with exact Planet/Moon/BH occlusion */
+      var edges = con.edges;
+      var SUBDIV = 6;
+      ctx.save();
+      ctx.lineCap = 'round';
+      for (var e = 0; e < edges.length; e++) {
+        var aIdx = edges[e][0];
+        var bIdx = edges[e][1];
+        var sa = stars[aIdx];
+        var sb = stars[bIdx];
+        var paS = projStars[aIdx];
+        var pbS = projStars[bIdx];
+        if (!paS && !pbS) continue;
+
+        var prevPt = null;
+        for (var k = 0; k <= SUBDIV; k++) {
+          var frac = k / SUBDIV;
+          var mx = sa.x + (sb.x - sa.x) * frac;
+          var my = sa.y + (sb.y - sa.y) * frac;
+          var mz = sa.z + (sb.z - sa.z) * frac;
+          var mLen = Math.sqrt(mx * mx + my * my + mz * mz) || 1.0;
+          mx /= mLen; my /= mLen; mz /= mLen;
+
+          var curPt = projectSkyDir(mx, my, mz, c);
+          if (curPt && prevPt) {
+            var midX = (prevPt.dx + mx) * 0.5;
+            var midY = (prevPt.dy + my) * 0.5;
+            var midZ = (prevPt.dz + mz) * 0.5;
+            var midL = Math.sqrt(midX * midX + midY * midY + midZ * midZ) || 1.0;
+            var segVis = getSkyDirectionVisibility(midX / midL, midY / midL, midZ / midL, occ);
+            if (segVis > 0.025) {
+              var sAlpha = baseLineAlpha * segVis;
+              /* Soft golden outer shimmer on focused constellation */
+              if (focus > 0.25) {
+                ctx.strokeStyle = 'rgba(' + lineR + ', ' + lineG + ', ' + lineB + ', ' + (sAlpha * 0.26).toFixed(3) + ')';
+                ctx.lineWidth = 3.0;
+                ctx.beginPath();
+                ctx.moveTo(prevPt.x, prevPt.y);
+                ctx.lineTo(curPt.x, curPt.y);
+                ctx.stroke();
+              }
+              ctx.strokeStyle = 'rgba(' + lineR + ', ' + lineG + ', ' + lineB + ', ' + sAlpha.toFixed(3) + ')';
+              ctx.lineWidth = 0.8 + 0.35 * focus;
+              ctx.beginPath();
+              ctx.moveTo(prevPt.x, prevPt.y);
+              ctx.lineTo(curPt.x, curPt.y);
+              ctx.stroke();
+            }
+          }
+          prevPt = curPt ? { x: curPt.x, y: curPt.y, dx: mx, dy: my, dz: mz } : null;
+        }
+      }
+      ctx.restore();
+
+      /* 2b. Spectral Constellation Stars + Radial Halos + Astrophotography Diffraction Cross-Flares */
+      for (var j = 0; j < stars.length; j++) {
+        var pj = projStars[j];
+        if (!pj || pj.vis <= 0.02) continue;
+        var star = stars[j];
+        var twinkle = isReducedMotion ? 0.90 : (0.78 + 0.22 * Math.sin(elapsedSec * (1.25 + (j % 4) * 0.32) + star.phase));
+        var magSize = star.mag === 1 ? 2.15 : (star.mag === 2 ? 1.55 : (star.mag === 3 ? 1.12 : 0.82));
+        var rad = magSize * (0.90 + 0.24 * focus) * (isCompact ? 0.88 : 1.0);
+        var sAlpha = clamp((0.58 + 0.36 * focus) * (star.mag === 1 ? 1.0 : (star.mag === 2 ? 0.90 : 0.78)) * twinkle * pj.vis * masterAlpha, 0.0, 0.98);
+        var colStr = star.col.r + ', ' + star.col.g + ', ' + star.col.b;
+
+        if (sprites && sprites[star.colIdx] && star.mag <= 3) {
+          var haloMul = star.mag === 1 ? (5.2 + 1.8 * focus) : (star.mag === 2 ? 4.2 : 3.0);
+          var hr = rad * haloMul;
+          ctx.globalAlpha = clamp(sAlpha * (star.mag === 1 ? 0.95 : 0.72), 0.0, 0.95);
+          ctx.drawImage(sprites[star.colIdx], pj.x - hr, pj.y - hr, hr * 2.0, hr * 2.0);
+          ctx.globalAlpha = 1.0;
+        }
+
+        /* Crisp 4-point diffraction cross-sparkle for primary beacon stars */
+        if (star.mag === 1 || (star.mag === 2 && focus > 0.35)) {
+          var flareLen = (star.mag === 1 ? (6.8 + 5.8 * focus) : (3.6 + 3.2 * focus)) * (isCompact ? 0.82 : 1.0);
+          var flareA = sAlpha * (star.mag === 1 ? 0.62 : 0.36);
+          ctx.strokeStyle = 'rgba(' + colStr + ', ' + flareA.toFixed(3) + ')';
+          ctx.lineWidth = 0.65;
+          ctx.beginPath();
+          ctx.moveTo(pj.x - flareLen, pj.y);
+          ctx.lineTo(pj.x + flareLen, pj.y);
+          ctx.moveTo(pj.x, pj.y - flareLen);
+          ctx.lineTo(pj.x, pj.y + flareLen);
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = 'rgba(' + colStr + ', ' + sAlpha.toFixed(3) + ')';
+        ctx.beginPath();
+        ctx.arc(pj.x, pj.y, rad, 0, Math.PI * 2.0);
+        ctx.fill();
+
+        /* Hot alabaster pinprick center for mag 1–2 stars */
+        if (star.mag <= 2) {
+          ctx.fillStyle = 'rgba(255, 253, 248, ' + (sAlpha * 0.92).toFixed(3) + ')';
+          ctx.beginPath();
+          ctx.arc(pj.x, pj.y, rad * 0.48, 0, Math.PI * 2.0);
+          ctx.fill();
+        }
+      }
+
+      /* 2c. Diegetic Bilingual Constellation Label + Crisp Vector Zodiac Emblem */
+      var lp = projectSkyDir(con.lx, con.ly, con.lz, c);
+      if (!lp) continue;
+
+      var edgeFade = smoothstep(32, 92, lp.x) * smoothstep(w - 32, w - 92, lp.x)
+                   * smoothstep(34, 64, lp.y) * smoothstep(h - 92, h - 144, lp.y);
+      /* Avoid overlapping top-left telemetry & top-right controls without clipping open top-center sky */
+      if (lp.x < 440 && lp.y < 104) {
+        edgeFade *= smoothstep(74, 104, lp.y);
+      } else if (lp.x > w - 260 && lp.y < 94) {
+        edgeFade *= smoothstep(66, 94, lp.y);
+      }
+      if (edgeFade <= 0.02) continue;
+
+      var labelVis = getLabelVisibility(con.lx, con.ly, con.lz, occ);
+      if (labelVis <= 0.06) continue;
+
+      var labelAlpha = (0.34 + 0.58 * focus) * edgeFade * labelVis * masterAlpha;
+      if (labelAlpha <= 0.03) continue;
+
+      var titleText = isEn ? con.nameEn.toUpperCase() : con.nameVi.toUpperCase();
+      var subText = isEn
+        ? (con.chiEn + ' (' + con.chiVi + ') · ' + con.azimuthDeg + '° ' + con.dirEn)
+        : ('Cung ' + con.chiVi + ' · ' + con.elementVi + ' · ' + con.azimuthDeg + '° ' + con.dirVi);
+
+      var titleSize = isCompact ? 9.5 : 10.5;
+      var subSize = isCompact ? 11.0 : 12.0;
+      var tracking = isCompact ? 1.5 : 2.1;
+      var glyphR = isCompact ? 4.8 : 5.4;
+      var glyphGap = isCompact ? 6.5 : 7.5;
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(3, 5, 10, 0.92)';
+      ctx.shadowBlur = 9;
+      ctx.textBaseline = 'middle';
+
+      ctx.font = '600 ' + titleSize + 'px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+      var titleW = measureTrackedText(ctx, titleText, tracking);
+      var rowW = glyphR * 2.0 + glyphGap + titleW;
+      var rowLeft = lp.x - rowW * 0.5;
+
+      var titleR = Math.round(201 + (244 - 201) * focus);
+      var titleG = Math.round(219 + (223 - 219) * focus);
+      var titleB = Math.round(244 + (185 - 244) * focus);
+      var titleStroke = 'rgba(' + titleR + ', ' + titleG + ', ' + titleB + ', ' + labelAlpha.toFixed(3) + ')';
+
+      ctx.strokeStyle = titleStroke;
+      ctx.lineWidth = 1.1;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      drawZodiacGlyph(ctx, con.id, rowLeft + glyphR, lp.y - 0.5, glyphR);
+
+      ctx.fillStyle = titleStroke;
+      ctx.textAlign = 'left';
+      fillTrackedTextLeft(ctx, titleText, rowLeft + glyphR * 2.0 + glyphGap, lp.y, tracking);
+
+      ctx.font = 'italic 400 ' + subSize + 'px "Cormorant Garamond", "Segoe UI", system-ui, sans-serif';
+      ctx.fillStyle = 'rgba(155, 183, 224, ' + (labelAlpha * (0.72 + 0.16 * focus)).toFixed(3) + ')';
+      ctx.textAlign = 'center';
+      ctx.fillText(subText, lp.x, lp.y + (isCompact ? 13.5 : 15.0));
+
+      ctx.restore();
+    }
+
+    var compassAz = ((180.0 - (c.yaw / DEG2RAD)) % 360.0 + 360.0) % 360.0;
+    cachedFocusedInfo = {
+      constellation: bestItem,
+      focus: smoothstep(0.66, 0.96, bestDot),
+      compassAzDeg: compassAz
+    };
+  }
+
+  /* Project 12 Bát Tự Zodiac Constellations + 3D Foreground Cosmic Dust using the EXACT WebGL Camera */
+  function render3DDustOverlay(elapsedSec, dtSec) {
+    if (!starState || !starState.dust3D) return;
+    var ctx = starState.ctx;
+    var w = starState.cssW;
+    var h = starState.cssH;
+    var dpr = starState.dpr;
+
+    ctx.save();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    var c = computeEclipseCamera(elapsedSec, w, h);
+    var occ = computeSkyOccluders(c);
+
+    /* 1. 12 Bát Tự Zodiac Constellations (visible in 3D rotation/stargazing mode, fades cleanly on dive) */
+    var diveFade = smoothstep(5.5, 19.5, cameraDistance);
+    var targetConstAlpha = isStargazingMode ? diveFade : 0.0;
+    if (isReducedMotion) {
+      starState.constellationAlpha = targetConstAlpha;
+    } else {
+      var constStep = 1.0 - Math.exp(-5.0 * dtSec);
+      starState.constellationAlpha += (targetConstAlpha - starState.constellationAlpha) * constStep;
+      if (Math.abs(targetConstAlpha - starState.constellationAlpha) < 0.005) {
+        starState.constellationAlpha = targetConstAlpha;
+      }
+    }
+
+    if (starState.constellationAlpha > 0.015) {
+      renderZodiacConstellations(ctx, c, occ, elapsedSec, starState.constellationAlpha);
+    }
+
+    /* 2. Synchronized 3D Foreground Cosmic Dust */
     var dust = starState.dust3D;
     var sprites = starState.glowSprites;
     var warpFactor = clamp((currentStarSpeed - 1.0) / 4.2, 0.0, 1.0);
+    var dustMaster = isStargazingMode ? 0.74 : 1.0;
 
     for (var i = 0; i < dust.length; i++) {
       var pt = dust[i];
@@ -1279,11 +2319,11 @@
       var wy = pt.y;
       var wz = pt.x * sa + pt.z * ca;
 
-      var dx = wx - camX;
-      var dy = wy - camY;
-      var dz = wz - camZ;
+      var dx = wx - c.camX;
+      var dy = wy - c.camY;
+      var dz = wz - c.camZ;
 
-      var vz = dx * fwdX + dy * fwdY + dz * fwdZ;
+      var vz = dx * c.fwdX + dy * c.fwdY + dz * c.fwdZ;
       if (vz < 1.8 || vz > 85.0) {
         pt.prevX = null;
         pt.prevY = null;
@@ -1299,18 +2339,18 @@
       var dpy = wy - 0.28;
       var dpz = wz - 13.6;
       if (dpx * dpx + dpy * dpy + dpz * dpz < 60.84 ||
-          isOccludedBySphere(camX, camY, camZ, rdX, rdY, rdZ, distToPt, 10.6, 0.28, 13.6, 7.65) ||
-          isOccludedBySphere(camX, camY, camZ, rdX, rdY, rdZ, distToPt, -12.2, 4.2, 6.2, 0.88)) {
+          isOccludedBySphere(c.camX, c.camY, c.camZ, rdX, rdY, rdZ, distToPt, 10.6, 0.28, 13.6, 7.65) ||
+          isOccludedBySphere(c.camX, c.camY, c.camZ, rdX, rdY, rdZ, distToPt, -12.2, 4.2, 6.2, 0.88)) {
         pt.prevX = null;
         pt.prevY = null;
         continue;
       }
 
-      var vx = dx * rx + dy * ry + dz * rz;
-      var vy = dx * ux + dy * uy + dz * uz;
+      var vx = dx * c.rx + dy * c.ry + dz * c.rz;
+      var vy = dx * c.ux + dy * c.uy + dz * c.uz;
 
-      var sx = centerX + (vx / vz) * focal;
-      var sy = centerY - (vy / vz) * focal;
+      var sx = c.centerX + (vx / vz) * c.focal;
+      var sy = c.centerY - (vy / vz) * c.focal;
 
       if (sx < -40 || sx > w + 40 || sy < -40 || sy > h + 40) {
         pt.prevX = null;
@@ -1321,7 +2361,7 @@
       var depthScale = clamp(18.0 / vz, 0.32, 2.35);
       var nearFade = clamp((vz - 1.8) / 4.5, 0.0, 1.0) * clamp((75.0 - vz) / 28.0, 0.0, 1.0);
       var twinkle = isReducedMotion ? 0.85 : (0.68 + 0.32 * Math.sin(elapsedSec * 1.1 + pt.phase));
-      var alpha = clamp(pt.baseAlpha * nearFade * twinkle * (0.85 + 0.35 * warpFactor), 0.02, 0.88);
+      var alpha = clamp(pt.baseAlpha * nearFade * twinkle * (0.85 + 0.35 * warpFactor) * dustMaster, 0.02, 0.88);
       var rad = pt.size * depthScale;
       var colStr = pt.col.r + ', ' + pt.col.g + ', ' + pt.col.b;
 
@@ -1575,11 +2615,13 @@
     if (starCanvas) {
       initStarCanvas(starCanvas);
       starCanvas.style.display = 'block';
-      if (cosmicMode === 'star' || !isHome) {
+      var isEclipse3D = cosmicMode === 'blackhole' && isHome;
+      starCanvas.classList.toggle('is-eclipse-3d', isEclipse3D);
+      if (!isEclipse3D) {
         starCanvas.style.opacity = '1';
         if (starState) starState.overlayAlpha = 1.0;
       } else {
-        var desired = isStargazingMode ? 0.72 : (currentStarSpeed > 2.0 ? 0.82 : 0.34);
+        var desired = isStargazingMode ? 1.0 : (currentStarSpeed > 2.0 ? 0.85 : 0.34);
         starCanvas.style.opacity = String(desired);
         if (starState) starState.overlayAlpha = desired;
       }
@@ -1624,7 +2666,7 @@
       }
 
       if (starState && starCanvas) {
-        var desiredOverlay = isStargazingMode ? 0.74 : (targetStarSpeed > 2.0 ? 0.85 : 0.32);
+        var desiredOverlay = isStargazingMode ? 1.0 : (targetStarSpeed > 2.0 ? 0.85 : 0.32);
         var overlayStep = 1.0 - Math.exp(-4.5 * dtSec);
         starState.overlayAlpha += (desiredOverlay - starState.overlayAlpha) * overlayStep;
         starCanvas.style.opacity = starState.overlayAlpha.toFixed(3);
@@ -1654,7 +2696,7 @@
   }
 
   /* ═══════════════════════════════════════════════════════════════════════════
-   * 6. PUBLIC WINDOW API (Backward-Compatible + New 3D Orbit Controls)
+   * 6. PUBLIC WINDOW API (Backward-Compatible + New 3D Orbit & Zodiac API)
    * ═════════════════════════════════════════════════════════════════════════ */
   window.setCameraDistance = function (d) {
     explicitDistanceSet = true;
@@ -1686,6 +2728,10 @@
     if (typeof rollDeg === 'number' && isFinite(rollDeg)) {
       orbitRollDeg = clamp(rollDeg, -6.0, 6.0);
     }
+    updateFocusedConstellation(orbitYaw, orbitPitch);
+    if (typeof window.__nmSyncOrbitHud === 'function') {
+      window.__nmSyncOrbitHud(orbitYaw, orbitPitch, orbitRollDeg);
+    }
     needsStaticRender = true;
     ensureLoopRunning();
   };
@@ -1695,6 +2741,58 @@
       yaw: orbitYaw,
       pitch: orbitPitch,
       rollDeg: orbitRollDeg
+    };
+  };
+
+  window.getZodiacConstellations = function () {
+    var list = ZODIAC_DATA.constellations;
+    var out = [];
+    for (var i = 0; i < list.length; i++) {
+      var c = list[i];
+      out.push({
+        id: c.id,
+        index: c.index,
+        azimuthDeg: c.azimuthDeg,
+        elevationDeg: c.elevationDeg,
+        eclipticDeg: c.eclipticDeg,
+        dirVi: c.dirVi,
+        dirEn: c.dirEn,
+        chiVi: c.chiVi,
+        chiEn: c.chiEn,
+        elementVi: c.elementVi,
+        elementEn: c.elementEn,
+        palaceVi: c.palaceVi,
+        nameVi: c.nameVi,
+        nameEn: c.nameEn,
+        targetYaw: c.targetYaw,
+        targetPitch: c.targetPitch
+      });
+    }
+    return out;
+  };
+
+  window.getFocusedConstellation = function () {
+    var info = cachedFocusedInfo || updateFocusedConstellation(orbitYaw, orbitPitch);
+    var c = info.constellation;
+    return {
+      id: c.id,
+      index: c.index,
+      azimuthDeg: c.azimuthDeg,
+      elevationDeg: c.elevationDeg,
+      eclipticDeg: c.eclipticDeg,
+      dirVi: c.dirVi,
+      dirEn: c.dirEn,
+      chiVi: c.chiVi,
+      chiEn: c.chiEn,
+      elementVi: c.elementVi,
+      elementEn: c.elementEn,
+      palaceVi: c.palaceVi,
+      nameVi: c.nameVi,
+      nameEn: c.nameEn,
+      targetYaw: c.targetYaw,
+      targetPitch: c.targetPitch,
+      focus: info.focus,
+      compassAzDeg: info.compassAzDeg
     };
   };
 
