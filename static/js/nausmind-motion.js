@@ -1,15 +1,17 @@
 /**
- * Glory Hinody — Eclipse Editorial Motion & Interaction Controller (nausmind-motion.js v2)
- * Inertia-Aware Snap Physics, Frame-Rate-Independent Damping, Auto-Sleeping rAF,
- * GPU Scroll Reveals, Inner Header Scroll State & Native View Transitions
+ * Glory Hinody — Eclipse 3D Motion & Orbital Interaction Controller (nausmind-motion.js v3)
+ * 360-Deg Inertial 3D Camera Orbit Drag (Desktop & Touch), Curved 3D Orbital Dive Flight,
+ * Live HUD Telemetry, Inertia-Aware Snap Physics, Auto-Sleeping rAF & Native View Transitions
  */
 (function () {
   'use strict';
 
   var SNAP_COOLDOWN_MS = 620;
   var DIVE_DURATION_MS = 1050;
-  var CLICK_DIVE_DURATION_MS = 900;
+  var CLICK_DIVE_DURATION_MS = 920;
   var SECOND_SCROLL_DIVE_MIN_MS = 440;
+  var DIVE_TARGET_YAW = 0.46;   /* +26° curved orbital slingshot sweeping cleanly past the 3D planet's crescent */
+  var DIVE_TARGET_PITCH = 0.11;
 
   var reducedMotionQuery = window.matchMedia
     ? window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -29,14 +31,25 @@
     return Math.max(minVal, Math.min(maxVal, val));
   }
 
-  function easeOutQuint(t) {
-    return 1.0 - Math.pow(1.0 - t, 5.0);
-  }
-
   function easeInOutQuart(t) {
     return t < 0.5
       ? 8.0 * t * t * t * t
       : 1.0 - Math.pow(-2.0 * t + 2.0, 4.0) / 2.0;
+  }
+
+  function wrapAnglePi(rad) {
+    var r = rad % (Math.PI * 2.0);
+    if (r > Math.PI) r -= Math.PI * 2.0;
+    if (r < -Math.PI) r += Math.PI * 2.0;
+    return r;
+  }
+
+  function formatDeg(rad) {
+    var deg = wrapAnglePi(rad) * (180.0 / Math.PI);
+    var sign = deg >= 0 ? '+' : '-';
+    var abs = Math.abs(deg).toFixed(1);
+    while (abs.length < 5) abs = '0' + abs;
+    return sign + abs + '°';
   }
 
   /* ═══════════════════════════════════════════════════════════════════════════
@@ -144,12 +157,8 @@
 
     isDrawerOpen = !!open && !!menu;
 
-    if (menu) {
-      menu.classList.toggle('is-open', isDrawerOpen);
-    }
-    if (overlay) {
-      overlay.classList.toggle('is-open', isDrawerOpen);
-    }
+    if (menu) menu.classList.toggle('is-open', isDrawerOpen);
+    if (overlay) overlay.classList.toggle('is-open', isDrawerOpen);
     for (var i = 0; i < toggles.length; i++) {
       toggles[i].setAttribute('aria-expanded', isDrawerOpen ? 'true' : 'false');
     }
@@ -180,27 +189,21 @@
 
       if (isDrawerOpen) {
         var menuLink = target.closest('#mobile-menu a[href]');
-        if (menuLink) {
-          setDrawerState(false);
-        }
+        if (menuLink) setDrawerState(false);
       }
     });
 
     document.addEventListener('keydown', function (ev) {
-      if (ev.key === 'Escape' && isDrawerOpen) {
-        setDrawerState(false);
-      }
+      if (ev.key === 'Escape' && isDrawerOpen) setDrawerState(false);
     });
 
     window.addEventListener('resize', function () {
-      if (isDrawerOpen && (window.innerWidth || 1024) > 900) {
-        setDrawerState(false);
-      }
+      if (isDrawerOpen && (window.innerWidth || 1024) > 900) setDrawerState(false);
     }, { passive: true });
   }
 
   /* ═══════════════════════════════════════════════════════════════════════════
-   * 3. MASTER MOTION SYSTEM (INERTIA-AWARE SNAP + AUTO-SLEEPING RAF)
+   * 3. MASTER 3D MOTION & ORBIT CONTROLLER
    * ═════════════════════════════════════════════════════════════════════════ */
   function initMotionSystem() {
     initMobileDrawer();
@@ -209,6 +212,9 @@
     var siteNav = document.getElementById('site-nav');
     var scrollContainer = document.getElementById('scroll-container');
     var stargazingCaption = document.getElementById('stargazing-caption');
+    var stargazingHud = document.getElementById('stargazing-hud');
+    var orbitTelemetry = document.getElementById('orbit-telemetry');
+    var orbitResetBtn = document.getElementById('orbit-reset-btn');
     var stargazingText = stargazingCaption ? stargazingCaption.querySelector('.stargazing-text') : null;
     var snapDotsWrap = document.getElementById('snap-dots');
     var snapDots = snapDotsWrap
@@ -224,7 +230,7 @@
     var lineEngineer = document.querySelector('.line-engineer');
     var lineDreamer = document.querySelector('.line-dreamer');
 
-    /* State for Home Fullpage & Camera Tween */
+    /* Home & 3D Orbit State */
     var isStargazing = true;
     var isDiving = false;
     var isClickDiving = false;
@@ -236,15 +242,31 @@
     var heroParallaxReady = false;
     var heroParallaxBlend = 0.0;
 
-    /* Inertia-aware trackpad wheel state */
+    /* 3D Drag-to-Orbit Physics */
+    var isOrbitDragging = false;
+    var orbitPointerId = null;
+    var dragLastX = 0;
+    var dragLastY = 0;
+    var dragStartX = 0;
+    var dragStartY = 0;
+    var dragMode = 'none'; /* 'none' | 'orbit' | 'swipe' */
+    var orbitYaw = 0.0;
+    var orbitPitch = 0.0;
+    var orbitRoll = 0.0;
+    var velYaw = 0.0;
+    var velPitch = 0.0;
+    var lastHudSyncTs = 0;
+
+    /* Combined 3D Camera Flight Tween (Distance + Yaw + Pitch simultaneously!) */
+    var cameraTween = null;
+
+    /* Trackpad Wheel State */
     var wheelAccum = 0.0;
     var lastWheelTs = 0;
     var prevAbsDelta = 0.0;
     var lastSnapTs = 0;
     var touchStartY = 0;
     var touchStartX = 0;
-
-    var cameraTween = null;
 
     /* Pointer & Cursor Sheen State */
     var targetMx = 0.0;
@@ -269,6 +291,35 @@
       motionRafId = window.requestAnimationFrame(motionFrame);
     }
 
+    function setStargazingClasses(active) {
+      if (document.body) {
+        document.body.classList.toggle('is-stargazing', !!active);
+        if (!active) document.body.classList.remove('is-orbiting');
+      }
+      if (stargazingHud) {
+        stargazingHud.classList.toggle('visible', !!active);
+      }
+      if (typeof window.setStargazingState === 'function') {
+        window.setStargazingState(!!active);
+      }
+    }
+
+    function syncOrbitTelemetry(force) {
+      var now = nowMs();
+      if (!force && now - lastHudSyncTs < 55) return;
+      lastHudSyncTs = now;
+
+      var d = getCameraDistanceSafe();
+      if (orbitTelemetry) {
+        orbitTelemetry.textContent =
+          'AZ ' + formatDeg(orbitYaw) + ' · EL ' + formatDeg(orbitPitch) + ' · ' + d.toFixed(1) + ' Rs';
+      }
+      if (orbitResetBtn) {
+        var isDirty = Math.abs(wrapAnglePi(orbitYaw)) > 0.06 || Math.abs(orbitPitch) > 0.05 || d < getCameraBoundsSafe().dStargaze - 1.0;
+        orbitResetBtn.classList.toggle('is-dirty', isStargazing && isDirty);
+      }
+    }
+
     function lockTransition(ms) {
       isTransitioning = true;
       wheelAccum = 0.0;
@@ -281,9 +332,7 @@
     }
 
     function clearHeroTimers() {
-      for (var i = 0; i < heroTimers.length; i++) {
-        clearTimeout(heroTimers[i]);
-      }
+      for (var i = 0; i < heroTimers.length; i++) clearTimeout(heroTimers[i]);
       heroTimers.length = 0;
     }
 
@@ -326,46 +375,81 @@
     }
 
     function getCameraDistanceSafe() {
-      return (typeof window.getCameraDistance === 'function') ? window.getCameraDistance() : 28.0;
+      return (typeof window.getCameraDistance === 'function') ? window.getCameraDistance() : 28.5;
     }
 
     function getCameraBoundsSafe() {
       return (typeof window.getCameraBounds === 'function')
         ? window.getCameraBounds()
-        : { dMin: 1.6, dMax: 28.0, dStargaze: 28.0 };
+        : { dMin: 1.6, dMax: 28.5, dStargaze: 28.5 };
     }
 
     function setCameraDistanceSafe(d) {
-      if (typeof window.setCameraDistance === 'function') {
-        window.setCameraDistance(d);
+      if (typeof window.setCameraDistance === 'function') window.setCameraDistance(d);
+    }
+
+    function setOrbitAnglesSafe(y, p, r) {
+      orbitYaw = y;
+      orbitPitch = clamp(p, -0.58, 0.58);
+      orbitRoll = clamp(typeof r === 'number' ? r : orbitRoll, -6.0, 6.0);
+      if (typeof window.setOrbitAngles === 'function') {
+        window.setOrbitAngles(orbitYaw, orbitPitch, orbitRoll);
       }
     }
 
     function setStarSpeedSafe(mult) {
-      if (typeof window.setStarSpeed === 'function') {
-        window.setStarSpeed(mult);
-      }
+      if (typeof window.setStarSpeed === 'function') window.setStarSpeed(mult);
     }
 
-    function tweenCamera(targetD, durationMs, onDone) {
+    /* Smooth 3D Flight Tween (distance + yaw + pitch simultaneously along curved path) */
+    function tweenCamera3D(targetD, targetYaw, targetPitch, durationMs, onDone) {
       var dur = isReducedMotion ? 0 : (typeof durationMs === 'number' ? durationMs : DIVE_DURATION_MS);
       var fromD = getCameraDistanceSafe();
+      var fromYaw = wrapAnglePi(orbitYaw);
+      var fromPitch = orbitPitch;
+      var toYaw = (typeof targetYaw === 'number') ? targetYaw : fromYaw;
+      var toPitch = (typeof targetPitch === 'number') ? clamp(targetPitch, -0.58, 0.58) : fromPitch;
 
-      if (dur <= 0 || Math.abs(targetD - fromD) < 0.02) {
+      /* Shortest angular arc across ±π */
+      var deltaYaw = wrapAnglePi(toYaw - fromYaw);
+      var finalYaw = fromYaw + deltaYaw;
+
+      velYaw = 0.0;
+      velPitch = 0.0;
+
+      if (dur <= 0 || (Math.abs(targetD - fromD) < 0.02 && Math.abs(deltaYaw) < 0.005 && Math.abs(toPitch - fromPitch) < 0.005)) {
         cameraTween = null;
         setCameraDistanceSafe(targetD);
+        setOrbitAnglesSafe(finalYaw, toPitch, 0.0);
+        syncOrbitTelemetry(true);
         if (typeof onDone === 'function') onDone();
         return;
       }
 
       cameraTween = {
-        from: fromD,
-        to: targetD,
+        fromD: fromD,
+        toD: targetD,
+        fromYaw: fromYaw,
+        toYaw: finalYaw,
+        fromPitch: fromPitch,
+        toPitch: toPitch,
         startTs: nowMs(),
         duration: dur,
         onDone: onDone || null
       };
       wakeMotionLoop();
+    }
+
+    function tweenCamera(targetD, durationMs, onDone) {
+      tweenCamera3D(targetD, orbitYaw, orbitPitch, durationMs, onDone);
+    }
+
+    function resetOrbitView() {
+      if (!isHome) return;
+      var bounds = getCameraBoundsSafe();
+      restoreStargazeCaptionText();
+      isDiving = false;
+      tweenCamera3D(bounds.dStargaze, 0.0, 0.0, 820);
     }
 
     function updateSnapDots(idx) {
@@ -374,11 +458,8 @@
         var dotTarget = parseInt(dot.getAttribute('data-snap-target') || String(i), 10);
         var isCurrent = dotTarget === idx;
         dot.classList.toggle('is-active', isCurrent);
-        if (isCurrent) {
-          dot.setAttribute('aria-current', 'true');
-        } else {
-          dot.removeAttribute('aria-current');
-        }
+        if (isCurrent) dot.setAttribute('aria-current', 'true');
+        else dot.removeAttribute('aria-current');
       }
     }
 
@@ -386,13 +467,9 @@
       for (var i = 0; i < sections.length; i++) {
         var sec = sections[i];
         sec.classList.remove('is-active', 'exit-up', 'exit-down');
-        if (i < idx) {
-          sec.classList.add('exit-up');
-        } else if (i > idx) {
-          sec.classList.add('exit-down');
-        } else {
-          sec.classList.add('is-active');
-        }
+        if (i < idx) sec.classList.add('exit-up');
+        else if (i > idx) sec.classList.add('exit-down');
+        else sec.classList.add('is-active');
       }
     }
 
@@ -408,9 +485,7 @@
         var delays = [20, 80, 145, 210, 275];
 
         if (instant || isReducedMotion) {
-          for (var h = 0; h < heroLines.length; h++) {
-            heroLines[h].classList.add('visible');
-          }
+          for (var h = 0; h < heroLines.length; h++) heroLines[h].classList.add('visible');
           if (heroHint) heroHint.classList.add('visible');
           heroParallaxReady = true;
           wakeMotionLoop();
@@ -420,26 +495,24 @@
               heroTimers.push(setTimeout(function () {
                 lineEl.classList.add('visible');
               }, delayMs));
-            })(heroLines[j], j < delays.length ? delays[j] : (30 + j * 90));
+            })(heroLines[j], j < delays.length ? delays[j] : (20 + j * 80));
           }
           if (heroHint) {
             heroTimers.push(setTimeout(function () {
               heroHint.classList.add('visible');
-            }, 460));
+            }, 400));
           }
           heroTimers.push(setTimeout(function () {
             heroParallaxReady = true;
             wakeMotionLoop();
-          }, 860));
+          }, 820));
         }
       } else {
         resetHeroLineParallax();
       }
 
       var reveals = section.querySelectorAll('.reveal-on-scroll, [data-word-reveal]');
-      for (var r = 0; r < reveals.length; r++) {
-        revealElement(reveals[r]);
-      }
+      for (var r = 0; r < reveals.length; r++) revealElement(reveals[r]);
 
       var isCta = section.id === 'cta' || idx === 4;
       setStarSpeedSafe(isCta ? 5.2 : 1.0);
@@ -453,25 +526,21 @@
       isStargazing = false;
       isDiving = false;
       isClickDiving = false;
+      isOrbitDragging = false;
       activeIndex = idx;
 
+      setStargazingClasses(false);
       lockTransition(instant ? 60 : 540);
 
-      if (stargazingCaption) {
-        stargazingCaption.classList.remove('visible', 'diving');
-      }
+      if (stargazingCaption) stargazingCaption.classList.remove('visible', 'diving');
       restoreStargazeCaptionText();
 
       if (siteNav) {
         siteNav.classList.remove('nav-hidden');
         siteNav.classList.add('nav-active');
       }
-      if (scrollContainer) {
-        scrollContainer.classList.add('content-visible');
-      }
-      if (snapDotsWrap) {
-        snapDotsWrap.classList.add('visible');
-      }
+      if (scrollContainer) scrollContainer.classList.add('content-visible');
+      if (snapDotsWrap) snapDotsWrap.classList.add('visible');
 
       applySectionClasses(idx);
       updateSnapDots(idx);
@@ -503,41 +572,36 @@
       isClickDiving = false;
       activeIndex = 0;
 
+      setStargazingClasses(true);
       lockTransition(SNAP_COOLDOWN_MS);
       clearHeroTimers();
       resetHeroLineParallax();
 
-      if (scrollContainer) {
-        scrollContainer.classList.remove('content-visible');
-      }
+      if (scrollContainer) scrollContainer.classList.remove('content-visible');
       if (siteNav) {
         siteNav.classList.remove('nav-active');
         siteNav.classList.add('nav-hidden');
       }
-      if (snapDotsWrap) {
-        snapDotsWrap.classList.remove('visible');
-      }
+      if (snapDotsWrap) snapDotsWrap.classList.remove('visible');
 
       for (var i = 0; i < sections.length; i++) {
         sections[i].classList.remove('is-active', 'exit-up', 'exit-down');
       }
       var heroLines = document.querySelectorAll('#hero .hero-line, #hero .hero-scroll-hint');
-      for (var h = 0; h < heroLines.length; h++) {
-        heroLines[h].classList.remove('visible');
-      }
+      for (var h = 0; h < heroLines.length; h++) heroLines[h].classList.remove('visible');
 
       restoreStargazeCaptionText();
-      if (stargazingCaption) {
-        stargazingCaption.classList.add('visible');
-      }
+      if (stargazingCaption) stargazingCaption.classList.add('visible');
 
       setStarSpeedSafe(1.0);
 
       var bounds = getCameraBoundsSafe();
       if (getCosmicModeSafe() === 'blackhole') {
-        tweenCamera(bounds.dStargaze, DIVE_DURATION_MS);
+        tweenCamera3D(bounds.dStargaze, 0.0, 0.0, DIVE_DURATION_MS);
       } else {
         setCameraDistanceSafe(bounds.dStargaze);
+        setOrbitAnglesSafe(0.0, 0.0, 0.0);
+        syncOrbitTelemetry(true);
       }
 
       if (window.location.hash) {
@@ -554,21 +618,23 @@
       var dist = getCameraDistanceSafe();
       var bounds = getCameraBoundsSafe();
 
-      if (mode === 'blackhole' && dist > 2.0) {
+      if (mode === 'blackhole' && dist > 2.2) {
         if (!isDiving) {
           isDiving = true;
           diveStartTs = nowMs();
           setDiveCaptionState();
-          tweenCamera(bounds.dMin, DIVE_DURATION_MS, function () {
+          /* Curved 3D orbital fly-around right past the 3D planet's crescent limb */
+          tweenCamera3D(bounds.dMin, DIVE_TARGET_YAW, DIVE_TARGET_PITCH, DIVE_DURATION_MS, function () {
             isDiving = false;
           });
         } else if (nowMs() - diveStartTs >= SECOND_SCROLL_DIVE_MIN_MS) {
           isDiving = false;
-          tweenCamera(bounds.dMin, 320);
+          tweenCamera3D(bounds.dMin, DIVE_TARGET_YAW, DIVE_TARGET_PITCH, 300);
           enterContent(0, { instant: false });
         }
       } else {
         setCameraDistanceSafe(bounds.dMin);
+        setOrbitAnglesSafe(DIVE_TARGET_YAW, DIVE_TARGET_PITCH, 0.0);
         enterContent(0, { instant: false });
       }
     }
@@ -580,7 +646,7 @@
         if (getCameraDistanceSafe() < bounds.dMax - 0.5) {
           isDiving = false;
           restoreStargazeCaptionText();
-          tweenCamera(bounds.dMax, DIVE_DURATION_MS);
+          tweenCamera3D(bounds.dMax, 0.0, 0.0, DIVE_DURATION_MS);
         }
       }
     }
@@ -599,9 +665,7 @@
       var sec = sections[activeIndex];
       if (!sec) return false;
       if (sec.scrollHeight <= sec.clientHeight + 8) return false;
-      if (directionY > 0) {
-        return sec.scrollTop + sec.clientHeight < sec.scrollHeight - 4;
-      }
+      if (directionY > 0) return sec.scrollTop + sec.clientHeight < sec.scrollHeight - 4;
       return sec.scrollTop > 4;
     }
 
@@ -610,10 +674,12 @@
       var hashMatchIdx = findSectionIndexByHash(window.location.hash);
       if (hashMatchIdx >= 0) {
         setCameraDistanceSafe(getCameraBoundsSafe().dMin);
+        setOrbitAnglesSafe(DIVE_TARGET_YAW, DIVE_TARGET_PITCH, 0.0);
         enterContent(hashMatchIdx, { instant: true });
       } else {
         isStargazing = true;
         activeIndex = 0;
+        setStargazingClasses(true);
         if (stargazingCaption) stargazingCaption.classList.add('visible');
         if (siteNav) {
           siteNav.classList.add('nav-hidden');
@@ -622,16 +688,105 @@
         if (scrollContainer) scrollContainer.classList.remove('content-visible');
         if (snapDotsWrap) snapDotsWrap.classList.remove('visible');
         setCameraDistanceSafe(getCameraBoundsSafe().dStargaze);
+        setOrbitAnglesSafe(0.0, 0.0, 0.0);
         setStarSpeedSafe(1.0);
+        syncOrbitTelemetry(true);
       }
 
-      /* Inertia-aware wheel navigation (filters decaying trackpad momentum tail) */
+      /* ── 360° Interactive Pointer Drag-to-Orbit in 3D Stargazing Mode ── */
+      function isInteractiveUI(target) {
+        return !!(target && target.closest && target.closest('a, button, input, #stargazing-caption, #stargazing-hud, #site-nav, #mobile-menu'));
+      }
+
+      window.addEventListener('pointerdown', function (ev) {
+        if (!isStargazing || isDrawerOpen || isClickDiving) return;
+        if (ev.pointerType === 'mouse' && ev.button !== 0) return;
+        if (isInteractiveUI(ev.target)) return;
+
+        isOrbitDragging = true;
+        orbitPointerId = ev.pointerId;
+        dragStartX = ev.clientX;
+        dragStartY = ev.clientY;
+        dragLastX = ev.clientX;
+        dragLastY = ev.clientY;
+        dragMode = ev.pointerType === 'touch' ? 'none' : 'orbit';
+        cameraTween = null;
+
+        if (dragMode === 'orbit' && document.body) {
+          document.body.classList.add('is-orbiting');
+        }
+      }, { passive: true });
+
+      window.addEventListener('pointermove', function (ev) {
+        if (!isOrbitDragging || ev.pointerId !== orbitPointerId) return;
+        if (!isStargazing) {
+          isOrbitDragging = false;
+          return;
+        }
+
+        var dx = ev.clientX - dragLastX;
+        var dy = ev.clientY - dragLastY;
+        dragLastX = ev.clientX;
+        dragLastY = ev.clientY;
+
+        /* On touch screens, resolve horizontal orbit drag vs vertical scroll-dive swipe */
+        if (dragMode === 'none') {
+          var totalDx = Math.abs(ev.clientX - dragStartX);
+          var totalDy = Math.abs(ev.clientY - dragStartY);
+          if (totalDx < 8 && totalDy < 8) return;
+          if (totalDx >= totalDy * 0.85) {
+            dragMode = 'orbit';
+            if (document.body) document.body.classList.add('is-orbiting');
+          } else {
+            dragMode = 'swipe';
+            return;
+          }
+        }
+
+        if (dragMode !== 'orbit') return;
+
+        var w = Math.max(window.innerWidth || 1280, 320);
+        var h = Math.max(window.innerHeight || 800, 320);
+        var yawStep = -(dx / w) * 3.1;
+        var pitchStep = (dy / h) * 2.0;
+
+        setOrbitAnglesSafe(
+          orbitYaw + yawStep,
+          orbitPitch + pitchStep,
+          clamp(-yawStep * 28.0, -3.5, 3.5)
+        );
+
+        velYaw = yawStep * 24.0;
+        velPitch = pitchStep * 20.0;
+        syncOrbitTelemetry(false);
+        wakeMotionLoop();
+      }, { passive: true });
+
+      function endOrbitDrag(ev) {
+        if (!isOrbitDragging) return;
+        if (ev && ev.pointerId != null && ev.pointerId !== orbitPointerId) return;
+        isOrbitDragging = false;
+        orbitPointerId = null;
+        dragMode = 'none';
+        if (document.body) document.body.classList.remove('is-orbiting');
+        wakeMotionLoop();
+      }
+
+      window.addEventListener('pointerup', endOrbitDrag, { passive: true });
+      window.addEventListener('pointercancel', endOrbitDrag, { passive: true });
+
+      /* Double-click open 3D space to smoothly spring back to the iconic Planetary Eclipse view */
+      window.addEventListener('dblclick', function (ev) {
+        if (!isStargazing || isDrawerOpen || isClickDiving) return;
+        if (isInteractiveUI(ev.target)) return;
+        resetOrbitView();
+      });
+
+      /* Inertia-aware wheel navigation */
       window.addEventListener('wheel', function (ev) {
         if (isDrawerOpen || ev.ctrlKey) return;
 
-        if (!isStargazing && canActiveSectionScrollInternally(ev.deltaY)) {
-          return;
-        }
+        if (!isStargazing && canActiveSectionScrollInternally(ev.deltaY)) return;
 
         ev.preventDefault();
 
@@ -645,7 +800,6 @@
           return;
         }
 
-        /* Ignore decaying momentum tails immediately after a completed snap */
         var sinceSnap = now - lastSnapTs;
         var isContinuousStream = (now - lastWheelTs) < 110;
         if (sinceSnap < 1150 && isContinuousStream && absDy <= prevAbsDelta * 1.05 && absDy < 45) {
@@ -654,9 +808,7 @@
           return;
         }
 
-        if (now - lastWheelTs > 150) {
-          wheelAccum = 0.0;
-        }
+        if (now - lastWheelTs > 150) wheelAccum = 0.0;
         lastWheelTs = now;
         prevAbsDelta = absDy;
         wheelAccum += ev.deltaY;
@@ -675,16 +827,13 @@
             goToSnap(activeIndex + 1);
           } else if (ev.deltaY < -20 || wheelAccum < -32) {
             wheelAccum = 0.0;
-            if (activeIndex === 0) {
-              exitToStargaze();
-            } else {
-              goToSnap(activeIndex - 1);
-            }
+            if (activeIndex === 0) exitToStargaze();
+            else goToSnap(activeIndex - 1);
           }
         }
       }, { passive: false });
 
-      /* Touch swipe navigation */
+      /* Touch swipe navigation (vertical swipes enter/snap; horizontal drags orbit in 3D) */
       window.addEventListener('touchstart', function (ev) {
         if (!ev.touches || !ev.touches.length) return;
         touchStartY = ev.touches[0].clientY;
@@ -697,30 +846,23 @@
 
         var dy = touchStartY - ev.changedTouches[0].clientY;
         var dx = touchStartX - ev.changedTouches[0].clientX;
-        if (Math.abs(dy) < 34 || Math.abs(dx) > Math.abs(dy) * 1.1) return;
+        if (Math.abs(dy) < 38 || Math.abs(dx) > Math.abs(dy) * 0.9) return;
 
         if (!isStargazing && canActiveSectionScrollInternally(dy)) return;
 
         if (isStargazing) {
-          if (dy > 34) {
-            handleStargazeDownIntent();
-          } else if (dy < -34) {
-            handleStargazeUpIntent();
-          }
+          if (dy > 38) handleStargazeDownIntent();
+          else if (dy < -38) handleStargazeUpIntent();
         } else {
-          if (dy > 34) {
-            goToSnap(activeIndex + 1);
-          } else if (dy < -34) {
-            if (activeIndex === 0) {
-              exitToStargaze();
-            } else {
-              goToSnap(activeIndex - 1);
-            }
+          if (dy > 38) goToSnap(activeIndex + 1);
+          else if (dy < -38) {
+            if (activeIndex === 0) exitToStargaze();
+            else goToSnap(activeIndex - 1);
           }
         }
       }, { passive: true });
 
-      /* Keyboard navigation */
+      /* Keyboard navigation (ArrowLeft/ArrowRight orbit in 3D when stargazing; R resets view) */
       window.addEventListener('keydown', function (ev) {
         if (isDrawerOpen || isTransitioning || isClickDiving) return;
         if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
@@ -735,6 +877,23 @@
         var isUpKey = key === 'ArrowUp' || key === 'PageUp';
 
         if (isStargazing) {
+          if (key === 'ArrowLeft') {
+            ev.preventDefault();
+            velYaw = 1.65;
+            wakeMotionLoop();
+            return;
+          }
+          if (key === 'ArrowRight') {
+            ev.preventDefault();
+            velYaw = -1.65;
+            wakeMotionLoop();
+            return;
+          }
+          if (key === 'r' || key === 'R') {
+            ev.preventDefault();
+            resetOrbitView();
+            return;
+          }
           if (isDownKey) {
             if (key === ' ' && (tag === 'button' || tag === 'a')) return;
             ev.preventDefault();
@@ -750,11 +909,8 @@
             goToSnap(activeIndex + 1);
           } else if (isUpKey) {
             ev.preventDefault();
-            if (activeIndex === 0) {
-              exitToStargaze();
-            } else {
-              goToSnap(activeIndex - 1);
-            }
+            if (activeIndex === 0) exitToStargaze();
+            else goToSnap(activeIndex - 1);
           } else if (key === 'Home') {
             ev.preventDefault();
             exitToStargaze();
@@ -765,10 +921,17 @@
         }
       });
 
-      /* Click handlers: [data-stargaze-enter], [data-stargaze-return], .snap-dot */
+      /* Click handlers: [data-stargaze-enter], [data-stargaze-return], [data-orbit-reset], .snap-dot */
       document.addEventListener('click', function (ev) {
         var target = ev.target;
         if (!target || !target.closest) return;
+
+        var resetBtn = target.closest('[data-orbit-reset]');
+        if (resetBtn) {
+          ev.preventDefault();
+          resetOrbitView();
+          return;
+        }
 
         var enterBtn = target.closest('[data-stargaze-enter]');
         if (enterBtn) {
@@ -776,19 +939,18 @@
           if (!isStargazing || isClickDiving) return;
 
           var bounds = getCameraBoundsSafe();
-          if (getCosmicModeSafe() === 'blackhole' && getCameraDistanceSafe() > 2.0 && !isReducedMotion) {
+          if (getCosmicModeSafe() === 'blackhole' && getCameraDistanceSafe() > 2.2 && !isReducedMotion) {
             isClickDiving = true;
             isDiving = true;
             setDiveCaptionState();
-            tweenCamera(bounds.dMin, CLICK_DIVE_DURATION_MS, function () {
+            tweenCamera3D(bounds.dMin, DIVE_TARGET_YAW, DIVE_TARGET_PITCH, CLICK_DIVE_DURATION_MS, function () {
               isClickDiving = false;
               isDiving = false;
-              if (isStargazing) {
-                enterContent(0, { instant: false });
-              }
+              if (isStargazing) enterContent(0, { instant: false });
             });
           } else {
             setCameraDistanceSafe(bounds.dMin);
+            setOrbitAnglesSafe(DIVE_TARGET_YAW, DIVE_TARGET_PITCH, 0.0);
             enterContent(0, { instant: false });
           }
           return;
@@ -798,9 +960,7 @@
         if (returnBtn && isHome) {
           ev.preventDefault();
           setDrawerState(false);
-          if (!isStargazing) {
-            exitToStargaze();
-          }
+          if (!isStargazing) exitToStargaze();
           return;
         }
 
@@ -811,6 +971,7 @@
           if (!isNaN(targetIdx)) {
             if (isStargazing) {
               setCameraDistanceSafe(getCameraBoundsSafe().dMin);
+              setOrbitAnglesSafe(DIVE_TARGET_YAW, DIVE_TARGET_PITCH, 0.0);
               enterContent(targetIdx, { instant: false });
             } else {
               goToSnap(targetIdx);
@@ -823,15 +984,13 @@
         var idx = findSectionIndexByHash(window.location.hash);
         if (idx >= 0) {
           setCameraDistanceSafe(getCameraBoundsSafe().dMin);
-          if (isStargazing) {
-            enterContent(idx, { instant: false });
-          } else {
-            goToSnap(idx);
-          }
+          setOrbitAnglesSafe(DIVE_TARGET_YAW, DIVE_TARGET_PITCH, 0.0);
+          if (isStargazing) enterContent(idx, { instant: false });
+          else goToSnap(idx);
         }
       });
     } else {
-      /* Inner Pages: active nav + dynamic scroll header state + GPU reveals */
+      /* Inner Pages */
       if (siteNav) {
         siteNav.classList.remove('nav-hidden');
         siteNav.classList.add('nav-active');
@@ -855,7 +1014,7 @@
     }
 
     /* ═════════════════════════════════════════════════════════════════════════
-     * 4. POINTER PARALLAX, WHISPER CURSOR SHEEN & AUTO-SLEEPING RAF LOOP
+     * 4. POINTER PARALLAX, INERTIAL 3D ORBIT & AUTO-SLEEPING RAF LOOP
      * ═══════════════════════════════════════════════════════════════════════ */
     if (hasFinePointer) {
       if (cursorGlow) {
@@ -887,9 +1046,7 @@
       }, { passive: true });
 
       document.addEventListener('mouseleave', function () {
-        if (cursorGlow) {
-          cursorGlow.classList.remove('is-visible');
-        }
+        if (cursorGlow) cursorGlow.classList.remove('is-visible');
         cursorActive = false;
         targetMx = 0.0;
         targetMy = 0.0;
@@ -906,24 +1063,56 @@
 
       var keepAlive = false;
 
-      /* Step camera dive/return tween */
+      /* 1. Step 3D Curved Flight Tween (Distance + Yaw + Pitch with Orbital Slingshot Safety) */
       if (cameraTween) {
         var elapsed = now - cameraTween.startTs;
         var t = clamp(elapsed / cameraTween.duration, 0.0, 1.0);
         var eased = easeInOutQuart(t);
-        var dVal = cameraTween.from + (cameraTween.to - cameraTween.from) * eased;
+        var isInwardDive = cameraTween.toD < cameraTween.fromD - 2.0;
+        var yawEased = isInwardDive ? (1.0 - Math.pow(1.0 - t, 2.5)) : eased;
+        var dVal = cameraTween.fromD + (cameraTween.toD - cameraTween.fromD) * eased;
+        var yawVal = cameraTween.fromYaw + (cameraTween.toYaw - cameraTween.fromYaw) * yawEased;
+        var pitchVal = cameraTween.fromPitch + (cameraTween.toPitch - cameraTween.fromPitch) * eased;
+        var bankRoll = Math.sin(t * Math.PI) * clamp((cameraTween.toYaw - cameraTween.fromYaw) * 3.8, -3.2, 3.2);
+
         setCameraDistanceSafe(dVal);
+        setOrbitAnglesSafe(yawVal, pitchVal, bankRoll);
+        syncOrbitTelemetry(false);
 
         if (t >= 1.0) {
           var doneCb = cameraTween.onDone;
           cameraTween = null;
+          setOrbitAnglesSafe(yawVal, pitchVal, 0.0);
+          syncOrbitTelemetry(true);
           if (typeof doneCb === 'function') doneCb();
         } else {
           keepAlive = true;
         }
+      } else if (isHome && isStargazing && !isOrbitDragging) {
+        /* 2. Inertial 3D Orbital Glide after drag release + roll level-out */
+        var hasVel = Math.abs(velYaw) > 0.002 || Math.abs(velPitch) > 0.002 || Math.abs(orbitRoll) > 0.03;
+        if (hasVel) {
+          var damp = Math.exp(-3.4 * dtSec);
+          velYaw *= damp;
+          velPitch *= damp;
+          var nextRoll = orbitRoll * Math.exp(-5.0 * dtSec);
+          setOrbitAnglesSafe(
+            orbitYaw + velYaw * dtSec,
+            orbitPitch + velPitch * dtSec,
+            nextRoll
+          );
+          syncOrbitTelemetry(false);
+          keepAlive = true;
+        } else {
+          velYaw = 0.0;
+          velPitch = 0.0;
+          if (orbitRoll !== 0.0) {
+            setOrbitAnglesSafe(orbitYaw, orbitPitch, 0.0);
+          }
+        }
       }
 
-      /* Frame-rate-independent pointer & cursor smoothing */
+      /* 3. Frame-rate-independent pointer & cursor sheen smoothing */
       if (hasFinePointer && !isReducedMotion && !document.hidden) {
         var ptrStep = 1.0 - Math.exp(-5.4 * dtSec);
         currMx += (targetMx - currMx) * ptrStep;
@@ -947,20 +1136,21 @@
           }
         }
 
-        if (starCanvas) {
+        /* Only apply flat canvas shift on inner pages or 2D Starfield mode (3D Eclipse projects natively!) */
+        if (starCanvas && (!isHome || getCosmicModeSafe() !== 'blackhole')) {
           var sx = (currMx * -18.0).toFixed(2);
           var sy = (currMy * -12.0).toFixed(2);
           starCanvas.style.transform = 'translate3d(' + sx + 'px, ' + sy + 'px, 0) scale(1.03)';
+        } else if (starCanvas) {
+          starCanvas.style.transform = '';
         }
 
         if (isHome && !isStargazing && activeIndex === 0 && heroParallaxReady) {
           var blendStep = 1.0 - Math.exp(-4.5 * dtSec);
           heroParallaxBlend += (1.0 - heroParallaxBlend) * blendStep;
-          if (1.0 - heroParallaxBlend > 0.004) {
-            keepAlive = true;
-          } else {
-            heroParallaxBlend = 1.0;
-          }
+          if (1.0 - heroParallaxBlend > 0.004) keepAlive = true;
+          else heroParallaxBlend = 1.0;
+
           var mx = currMx * heroParallaxBlend;
           var my = currMy * heroParallaxBlend;
 
@@ -982,7 +1172,7 @@
     }
 
     /* ═════════════════════════════════════════════════════════════════════════
-     * 5. INSTANTANEOUS HASH & DRAWER LINK HANDLING (NO 220MS CURTAIN DELAY)
+     * 5. INSTANTANEOUS HASH & DRAWER LINK HANDLING (NATIVE @view-transition)
      * ═══════════════════════════════════════════════════════════════════════ */
     document.addEventListener('click', function (ev) {
       if (ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
@@ -1003,11 +1193,9 @@
             ev.preventDefault();
             setDrawerState(false);
             setCameraDistanceSafe(getCameraBoundsSafe().dMin);
-            if (isStargazing) {
-              enterContent(directSnapIdx, { instant: false });
-            } else {
-              goToSnap(directSnapIdx);
-            }
+            setOrbitAnglesSafe(DIVE_TARGET_YAW, DIVE_TARGET_PITCH, 0.0);
+            if (isStargazing) enterContent(directSnapIdx, { instant: false });
+            else goToSnap(directSnapIdx);
           }
         }
         return;
@@ -1031,17 +1219,14 @@
             ev.preventDefault();
             setDrawerState(false);
             setCameraDistanceSafe(getCameraBoundsSafe().dMin);
-            if (isStargazing) {
-              enterContent(snapIdx, { instant: false });
-            } else {
-              goToSnap(snapIdx);
-            }
+            setOrbitAnglesSafe(DIVE_TARGET_YAW, DIVE_TARGET_PITCH, 0.0);
+            if (isStargazing) enterContent(snapIdx, { instant: false });
+            else goToSnap(snapIdx);
           }
         }
         return;
       }
 
-      /* Close mobile drawer cleanly and allow immediate native @view-transition navigation */
       setDrawerState(false);
     });
 
@@ -1050,6 +1235,8 @@
       exitToStargaze: exitToStargaze,
       goToSnap: goToSnap,
       tweenCamera: tweenCamera,
+      tweenCamera3D: tweenCamera3D,
+      resetOrbitView: resetOrbitView,
       refreshReveals: initInnerPageScrollReveals
     };
   }
