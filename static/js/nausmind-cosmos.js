@@ -30,6 +30,8 @@
   var lookTargetY = 0.0;
   var lookTargetZ = 0.0;
   var cinemaZoom = 1.0;
+  var cinemaExploreTarget = 0.0;
+  var cinemaExploreBlend = 0.0;
 
   var reducedMotionQuery = window.matchMedia
     ? window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -1139,18 +1141,18 @@
 
   function getCinemaRigBlend() {
     var tMag = Math.sqrt(lookTargetX * lookTargetX + lookTargetY * lookTargetY + lookTargetZ * lookTargetZ);
-    return clamp(tMag / 2.8 + Math.abs(cinemaZoom - 1.0) * 3.5, 0.0, 1.0);
+    var raw = clamp(tMag / 5.2 + Math.abs(cinemaZoom - 1.0) * 2.2, 0.0, 1.0);
+    return raw * raw * (3.0 - 2.0 * raw);
   }
 
   function computeDynamicFrameX(f, cssW, cssH) {
     var aspect = cssW / Math.max(cssH, 1);
-    var orbitAway = clamp(Math.abs(orbitYaw) / 0.85, 0.0, 1.0);
-    var rigBlend = getCinemaRigBlend();
+    var orbitAway = smoothstep(0.0, 0.85, Math.abs(wrapAnglePi(orbitYaw)));
+    var rigBlend = Math.max(getCinemaRigBlend(), cinemaExploreBlend);
     var stargazeFrameX = f.frameX * (1.0 - 0.72 * orbitAway) * (1.0 - rigBlend);
     var heroFrameX = aspect >= 1.25 ? 0.165 : (aspect >= 0.98 ? 0.105 : 0.02);
-    var diveFrac = (isStargazingMode && rigBlend > 0.02)
-      ? 0.0
-      : clamp((D_STARGAZE - cameraDistance) / (D_STARGAZE - D_MIN), 0.0, 1.0);
+    var rawDive = clamp((D_STARGAZE - cameraDistance) / (D_STARGAZE - D_MIN), 0.0, 1.0);
+    var diveFrac = isStargazingMode ? rawDive * (1.0 - rigBlend) : rawDive;
     var smoothDive = diveFrac * diveFrac * (3.0 - 2.0 * diveFrac);
     return stargazeFrameX + (heroFrameX - stargazeFrameX) * smoothDive;
   }
@@ -2547,7 +2549,7 @@
 
     /* 1. 12 Bát Tự Zodiac Constellations (visible in 3D rotation/stargazing mode, fades cleanly on dive) */
     var diveFade = smoothstep(5.5, 19.5, cameraDistance);
-    var rigBlendAlpha = getCinemaRigBlend();
+    var rigBlendAlpha = Math.max(getCinemaRigBlend(), cinemaExploreBlend);
     if (rigBlendAlpha > 0.05) {
       diveFade = Math.max(diveFade, 0.90 * rigBlendAlpha);
     }
@@ -2931,6 +2933,17 @@
     var speedSettled = Math.abs(targetStarSpeed - currentStarSpeed) < 0.01;
     if (speedSettled) currentStarSpeed = targetStarSpeed;
 
+    if (isReducedMotion) {
+      cinemaExploreBlend = cinemaExploreTarget;
+    } else if (Math.abs(cinemaExploreTarget - cinemaExploreBlend) > 0.001) {
+      var exploreRate = cinemaExploreTarget > cinemaExploreBlend ? 3.2 : 4.2;
+      cinemaExploreBlend += (cinemaExploreTarget - cinemaExploreBlend) * (1.0 - Math.exp(-exploreRate * dtSec));
+      if (Math.abs(cinemaExploreTarget - cinemaExploreBlend) <= 0.001) {
+        cinemaExploreBlend = cinemaExploreTarget;
+      }
+    }
+    var exploreSettled = Math.abs(cinemaExploreTarget - cinemaExploreBlend) <= 0.001;
+
     if (cosmicMode === 'blackhole' && isHome) {
       if (!isReducedMotion || needsStaticRender) {
         renderBlackHoleFrame(elapsedSec);
@@ -2953,7 +2966,7 @@
 
     needsStaticRender = false;
 
-    if (!isReducedMotion || !speedSettled) {
+    if (!isReducedMotion || !speedSettled || !exploreSettled) {
       rafId = window.requestAnimationFrame(tick);
     }
   }
@@ -3032,6 +3045,20 @@
       z: lookTargetZ,
       zoom: cinemaZoom
     };
+  };
+
+  window.setCinemaExploreBlend = function (target, immediate) {
+    var clamped = clamp(Number(target) || 0.0, 0.0, 1.0);
+    cinemaExploreTarget = clamped;
+    if (immediate || isReducedMotion) {
+      cinemaExploreBlend = clamped;
+    }
+    needsStaticRender = true;
+    ensureLoopRunning();
+  };
+
+  window.getCinemaExploreBlend = function () {
+    return cinemaExploreBlend;
   };
 
   window.getZodiacConstellations = function () {
