@@ -262,26 +262,26 @@
     /* Combined 3D Camera Flight Tween (Distance + Yaw + Pitch + Cinema LookTarget/Zoom) */
     var cameraTween = null;
 
-    /* Full Cinema Rig Auto-Explore Controller (8-Shot Closed-Loop Catmull-Rom Choreography) */
+    /* Full Cinema Rig Auto-Explore Controller (8-Shot Closed-Loop C2 Periodic Cubic B-Spline) */
     var EXPLORE_LOOP_SEC = 58.0;
     var TWO_PI = Math.PI * 2.0;
     var CINEMA_SHOTS = [
       /* 0: Establishing Eclipse (Ngọ 180° · Sư Tử) */
-      { yaw: 0.00,  pitch: 0.00,  dist: 28.5, tx: 0.0,   ty: 0.0,  tz: 0.0, zoom: 1.00 },
+      { yaw: -0.13, pitch:  0.00, dist: 28.2, tx:  0.0,  ty:  0.2, tz: 0.0, zoom: 0.96 },
       /* 1: Telephoto Hero Close-Up locked onto Earth glory-vocabulary */
-      { yaw: -0.10, pitch: -0.09, dist: 22.0, tx: -10.1, ty: -3.9, tz: 2.0, zoom: 1.48 },
+      { yaw: -0.28, pitch: -0.14, dist: 21.0, tx: -15.4, ty: -7.4, tz: 3.1, zoom: 1.74 },
       /* 2: Wide Celestial Crown Pan across Cancer (Mùi) -> Gemini (Thân) clearing giant planet */
-      { yaw: -0.84, pitch: 0.14,  dist: 28.5, tx: 0.0,   ty: 5.4,  tz: 0.0, zoom: 0.92 },
+      { yaw: -0.96, pitch:  0.24, dist: 28.4, tx:  0.0,  ty:  6.6, tz: 0.0, zoom: 0.90 },
       /* 3: High-Angle Accretion Vortex Flyby (Dậu · Kim Ngưu & Pleiades) */
-      { yaw: -1.57, pitch: -0.25, dist: 21.5, tx: 0.0,   ty: 4.2,  tz: 0.0, zoom: 1.04 },
+      { yaw: -1.68, pitch: -0.34, dist: 20.0, tx:  0.0,  ty:  4.2, tz: 0.0, zoom: 1.06 },
       /* 4: Far-Side Constellation Tilt across Aries (Tuất) -> Pisces (Hợi) */
-      { yaw: -2.40, pitch: 0.08,  dist: 26.2, tx: 0.0,   ty: 5.8,  tz: 0.0, zoom: 0.95 },
+      { yaw: -2.46, pitch:  0.14, dist: 27.0, tx:  0.0,  ty:  6.5, tz: 0.0, zoom: 0.93 },
       /* 5: Intimate North Galactic Crossing (Tý 0° · Bảo Bình) with Giant Planet Eclipsing Behind BH */
-      { yaw: -3.14, pitch: -0.06, dist: 18.2, tx: 0.0,   ty: 1.1,  tz: 0.0, zoom: 1.15 },
+      { yaw: -3.28, pitch: -0.09, dist: 16.6, tx:  0.0,  ty:  0.8, tz: 0.0, zoom: 1.20 },
       /* 6: Dramatic Hero Sweep past Backlit Night-Side Earth & Moon to Scorpius (Mão) */
-      { yaw: -4.62, pitch: -0.04, dist: 24.8, tx: 0.0,   ty: 1.4,  tz: 0.0, zoom: 1.02 },
-      /* 7: Grand Wide Pull-Out across Libra (Thìn) & Virgo (Tỵ) returning seamlessly to Ngọ */
-      { yaw: -5.56, pitch: -0.10, dist: 28.0, tx: 0.0,   ty: 2.2,  tz: 0.0, zoom: 0.92 }
+      { yaw: -4.56, pitch: -0.04, dist: 25.0, tx:  0.0,  ty:  1.4, tz: 0.0, zoom: 1.02 },
+      /* 7: Grand Wide Pull-Out across Libra (Thìn) & Virgo (Tỵ) flowing endlessly through Ngọ */
+      { yaw: -5.48, pitch: -0.11, dist: 28.2, tx:  0.0,  ty:  2.4, tz: 0.0, zoom: 0.91 }
     ];
     var isAutoExploring = false;
     var explorePhaseSec = 0.0;
@@ -371,7 +371,7 @@
       if (orbitResetBtn) {
         var rigNow = getCinemaRigSafe();
         var isRigDirty = Math.abs(rigNow.x) > 0.08 || Math.abs(rigNow.y) > 0.08 || Math.abs(rigNow.z) > 0.08 || Math.abs(rigNow.zoom - 1.0) > 0.02;
-        var isDirty = Math.abs(wrapAnglePi(orbitYaw)) > 0.06 || Math.abs(orbitPitch) > 0.05 || d < getCameraBoundsSafe().dStargaze - 1.0 || isRigDirty;
+        var isDirty = isAutoExploring || Math.abs(wrapAnglePi(orbitYaw)) > 0.06 || Math.abs(orbitPitch) > 0.05 || d < getCameraBoundsSafe().dStargaze - 1.0 || isRigDirty;
         orbitResetBtn.classList.toggle('is-dirty', isStargazing && isDirty);
       }
     }
@@ -481,15 +481,40 @@
       }
     }
 
-    function catmullRom(p0, p1, p2, p3, u) {
+    function setCinemaExploreBlendSafe(target, immediate) {
+      if (typeof window.setCinemaExploreBlend === 'function') {
+        window.setCinemaExploreBlend(target, !!immediate);
+      }
+    }
+
+    function getCinemaExploreBlendSafe() {
+      return (typeof window.getCinemaExploreBlend === 'function')
+        ? window.getCinemaExploreBlend()
+        : 0.0;
+    }
+
+    /* Uniform Periodic Cubic B-Spline (exact C2 continuity across all knots & cycle wrap, zero overshoot) */
+    function cubicBSpline(p0, p1, p2, p3, u) {
       var u2 = u * u;
       var u3 = u2 * u;
-      return 0.5 * (
-        (2.0 * p1) +
-        (-p0 + p2) * u +
-        (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * u2 +
-        (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * u3
-      );
+      var om = 1.0 - u;
+      return (
+        (om * om * om) * p0 +
+        (3.0 * u3 - 6.0 * u2 + 4.0) * p1 +
+        (-3.0 * u3 + 3.0 * u2 + 3.0 * u + 1.0) * p2 +
+        u3 * p3
+      ) / 6.0;
+    }
+
+    function cubicBSplineDeriv(p0, p1, p2, p3, u) {
+      var u2 = u * u;
+      var om = 1.0 - u;
+      return (
+        (-om * om) * p0 +
+        (3.0 * u2 - 4.0 * u) * p1 +
+        (-3.0 * u2 + 2.0 * u + 1.0) * p2 +
+        u2 * p3
+      ) * 0.5;
     }
 
     function getShotWrappedYaw(rawIdx) {
@@ -511,37 +536,38 @@
       var s2 = CINEMA_SHOTS[(seg + 1) % n];
       var s3 = CINEMA_SHOTS[(seg + 2) % n];
 
-      var yaw = catmullRom(
-        getShotWrappedYaw(seg - 1),
-        getShotWrappedYaw(seg),
-        getShotWrappedYaw(seg + 1),
-        getShotWrappedYaw(seg + 2),
-        u
-      );
-      var pitch = clamp(catmullRom(s0.pitch, s1.pitch, s2.pitch, s3.pitch, u), -0.52, 0.52);
-      var dist = clamp(catmullRom(s0.dist, s1.dist, s2.dist, s3.dist, u), 16.0, 28.5);
-      var tx = catmullRom(s0.tx, s1.tx, s2.tx, s3.tx, u);
-      var ty = catmullRom(s0.ty, s1.ty, s2.ty, s3.ty, u);
-      var tz = catmullRom(s0.tz, s1.tz, s2.tz, s3.tz, u);
-      var zoom = clamp(catmullRom(s0.zoom, s1.zoom, s2.zoom, s3.zoom, u), 0.86, 1.56);
+      var y0 = getShotWrappedYaw(seg - 1);
+      var y1 = getShotWrappedYaw(seg);
+      var y2 = getShotWrappedYaw(seg + 1);
+      var y3 = getShotWrappedYaw(seg + 2);
 
-      /* Runtime safety clearance around foreground Giant Planet at yaw ≈ -0.66 rad */
-      var planetDelta = Math.abs(wrapAnglePi(yaw + 0.66));
-      if (planetDelta < 0.58) {
-        var prox = 1.0 - (planetDelta / 0.58);
-        var minSafeDist = 24.2 + prox * prox * 4.1;
-        if (dist < minSafeDist) dist = minSafeDist;
+      var yaw = cubicBSpline(y0, y1, y2, y3, u);
+      var yawVel = cubicBSplineDeriv(y0, y1, y2, y3, u) * (n / EXPLORE_LOOP_SEC);
+      var pitch = clamp(cubicBSpline(s0.pitch, s1.pitch, s2.pitch, s3.pitch, u), -0.52, 0.52);
+      var dist = cubicBSpline(s0.dist, s1.dist, s2.dist, s3.dist, u);
+      var tx = cubicBSpline(s0.tx, s1.tx, s2.tx, s3.tx, u);
+      var ty = cubicBSpline(s0.ty, s1.ty, s2.ty, s3.ty, u);
+      var tz = cubicBSpline(s0.tz, s1.tz, s2.tz, s3.tz, u);
+      var zoom = clamp(cubicBSpline(s0.zoom, s1.zoom, s2.zoom, s3.zoom, u), 0.86, 1.56);
+
+      /* C2-smooth runtime clearance floor around foreground Giant Planet at yaw ≈ -0.662 rad */
+      var planetDelta = Math.abs(wrapAnglePi(yaw + 0.662));
+      if (planetDelta < 0.72) {
+        var uPl = 1.0 - (planetDelta / 0.72);
+        var wPl = uPl * uPl * uPl * (uPl * (uPl * 6.0 - 15.0) + 10.0);
+        var floorDist = 16.0 + 12.35 * wPl;
+        var kSmax = 1.6;
+        var hSmax = clamp(0.5 + 0.5 * (floorDist - dist) / kSmax, 0.0, 1.0);
+        dist = dist + (floorDist - dist) * hSmax + kSmax * hSmax * (1.0 - hSmax);
       }
+      dist = clamp(dist, 16.0, 28.5);
 
-      return { yaw: yaw, pitch: pitch, dist: dist, tx: tx, ty: ty, tz: tz, zoom: zoom };
+      return { yaw: yaw, yawVel: yawVel, pitch: pitch, dist: dist, tx: tx, ty: ty, tz: tz, zoom: zoom };
     }
 
     function sampleCinemaFrame(phaseSec) {
       var cur = sampleCinemaSpline(phaseSec);
-      var prev = sampleCinemaSpline(phaseSec - 0.14);
-      var next = sampleCinemaSpline(phaseSec + 0.14);
-      var yawVel = wrapAnglePi(next.yaw - prev.yaw) / 0.28;
-      cur.roll = clamp(-yawVel * 5.2, -3.2, 3.2);
+      cur.roll = clamp(-cur.yawVel * 5.2, -3.2, 3.2);
       return cur;
     }
 
@@ -600,8 +626,12 @@
         tx: rig.x,
         ty: rig.y,
         tz: rig.z,
-        zoom: rig.zoom
+        zoom: rig.zoom,
+        exploreBlend: getCinemaExploreBlendSafe()
       };
+      if (isReducedMotion) {
+        setCinemaExploreBlendSafe(1.0, true);
+      }
       reducedMotionExploreStepTs = nowMs();
       isAutoExploring = true;
       syncExploreButtonUI();
@@ -613,6 +643,7 @@
       if (!isAutoExploring && !relaxRig) return;
       isAutoExploring = false;
       exploreEntryOrigin = null;
+      setCinemaExploreBlendSafe(0.0, false);
       if (relaxRig) {
         isRelaxingCinemaRig = true;
         wakeMotionLoop();
@@ -633,6 +664,7 @@
       exploreEntrySec = 10.0;
       exploreEntryOrigin = null;
       var pose = sampleCinemaFrame(explorePhaseSec);
+      setCinemaExploreBlendSafe(1.0, true);
       setCameraDistanceSafe(pose.dist);
       setCinemaRigSafe(pose.tx, pose.ty, pose.tz, pose.zoom);
       setOrbitAnglesSafe(pose.yaw, pose.pitch, pose.roll);
@@ -773,6 +805,7 @@
 
       stopAutoExplore(false);
       isRelaxingCinemaRig = false;
+      setCinemaExploreBlendSafe(0.0, true);
       setCinemaRigSafe(0.0, 0.0, 0.0, 1.0);
 
       isStargazing = false;
@@ -1425,9 +1458,9 @@
             var outTz = splinePose.tz;
             var outZoom = splinePose.zoom;
 
-            if (exploreEntryOrigin && exploreEntrySec < 1.45) {
-              var eb = clamp(exploreEntrySec / 1.45, 0.0, 1.0);
-              var s = eb * eb * (3.0 - 2.0 * eb);
+            if (exploreEntryOrigin && exploreEntrySec < 2.45) {
+              var eb = clamp(exploreEntrySec / 2.45, 0.0, 1.0);
+              var s = eb * eb * eb * (eb * (eb * 6.0 - 15.0) + 10.0);
               var dyShortest = wrapAnglePi(splinePose.yaw - exploreEntryOrigin.yaw);
               outYaw = exploreEntryOrigin.yaw + dyShortest * s;
               outPitch = exploreEntryOrigin.pitch + (splinePose.pitch - exploreEntryOrigin.pitch) * s;
@@ -1437,8 +1470,11 @@
               outTy = exploreEntryOrigin.ty + (splinePose.ty - exploreEntryOrigin.ty) * s;
               outTz = exploreEntryOrigin.tz + (splinePose.tz - exploreEntryOrigin.tz) * s;
               outZoom = exploreEntryOrigin.zoom + (splinePose.zoom - exploreEntryOrigin.zoom) * s;
+              var outExploreBlend = (exploreEntryOrigin.exploreBlend || 0.0) + (1.0 - (exploreEntryOrigin.exploreBlend || 0.0)) * s;
+              setCinemaExploreBlendSafe(outExploreBlend, true);
             } else {
               exploreEntryOrigin = null;
+              setCinemaExploreBlendSafe(1.0, true);
             }
 
             setCameraDistanceSafe(outDist);
